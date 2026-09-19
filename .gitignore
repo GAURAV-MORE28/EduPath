@@ -12,6 +12,7 @@ backend/.pytest_cache/
 # Node (frontend/.gitignore also covers this, kept here for root-level tools)
 frontend/node_modules/
 frontend/.next/
+.env.example
 
 # OS
 .DS_Store
