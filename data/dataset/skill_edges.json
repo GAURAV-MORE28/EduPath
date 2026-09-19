@@ -1,0 +1,1778 @@
+[
+  {
+    "from_skill": "skill.algebra_basics",
+    "to_skill": "skill.functions_graphs_math",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.functions_graphs_math",
+    "to_skill": "skill.calculus_limits",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.calculus_limits",
+    "to_skill": "skill.derivatives",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.derivatives",
+    "to_skill": "skill.chain_rule",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.derivatives",
+    "to_skill": "skill.integrals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.chain_rule",
+    "to_skill": "skill.multivariable_calculus",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.algebra_basics",
+    "to_skill": "skill.linear_algebra_vectors",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.linear_algebra_vectors",
+    "to_skill": "skill.linear_algebra_matrices",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.linear_algebra_matrices",
+    "to_skill": "skill.eigenvalues_eigenvectors",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.multivariable_calculus",
+    "to_skill": "skill.optimization_basics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.linear_algebra_matrices",
+    "to_skill": "skill.optimization_basics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.algebra_basics",
+    "to_skill": "skill.probability_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.probability_fundamentals",
+    "to_skill": "skill.probability_distributions",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.probability_distributions",
+    "to_skill": "skill.inferential_statistics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.descriptive_statistics",
+    "to_skill": "skill.inferential_statistics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.inferential_statistics",
+    "to_skill": "skill.hypothesis_testing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.hypothesis_testing",
+    "to_skill": "skill.ab_testing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.probability_fundamentals",
+    "to_skill": "skill.bayesian_thinking",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.descriptive_statistics",
+    "to_skill": "skill.regression_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.probability_distributions",
+    "to_skill": "skill.regression_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.descriptive_statistics",
+    "to_skill": "skill.time_series_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.regression_analysis",
+    "to_skill": "skill.time_series_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.programming_fundamentals",
+    "to_skill": "skill.control_flow",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.control_flow",
+    "to_skill": "skill.functions_modularity",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.functions_modularity",
+    "to_skill": "skill.oop",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.functions_modularity",
+    "to_skill": "skill.error_handling",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.oop",
+    "to_skill": "skill.design_patterns",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.functions_modularity",
+    "to_skill": "skill.recursion",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.programming_fundamentals",
+    "to_skill": "skill.debugging",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.error_handling",
+    "to_skill": "skill.testing_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.programming_fundamentals",
+    "to_skill": "skill.json_data_formats",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.python_data_structures",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.python_oop",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.oop",
+    "to_skill": "skill.python_oop",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.python_venv_packaging",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.regex",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.async_programming",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.web_scraping",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.unit_testing_python",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.testing_fundamentals",
+    "to_skill": "skill.unit_testing_python",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python_data_structures",
+    "to_skill": "skill.numpy",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.numpy",
+    "to_skill": "skill.pandas",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python_data_structures",
+    "to_skill": "skill.dsa_arrays_strings",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_arrays_strings",
+    "to_skill": "skill.dsa_linked_lists",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_linked_lists",
+    "to_skill": "skill.dsa_stacks_queues",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_arrays_strings",
+    "to_skill": "skill.dsa_hashing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.recursion",
+    "to_skill": "skill.dsa_trees",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_trees",
+    "to_skill": "skill.dsa_graphs",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_arrays_strings",
+    "to_skill": "skill.dsa_sorting_searching",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_sorting_searching",
+    "to_skill": "skill.big_o",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dsa_trees",
+    "to_skill": "skill.big_o",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.ml_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.pandas",
+    "to_skill": "skill.ml_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.descriptive_statistics",
+    "to_skill": "skill.ml_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.linear_algebra_matrices",
+    "to_skill": "skill.ml_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.ml_fundamentals",
+    "to_skill": "skill.supervised_learning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.ml_fundamentals",
+    "to_skill": "skill.unsupervised_learning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.unsupervised_learning",
+    "to_skill": "skill.clustering",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.unsupervised_learning",
+    "to_skill": "skill.dimensionality_reduction",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.model_evaluation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.overfitting_regularization",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.overfitting_regularization",
+    "to_skill": "skill.cross_validation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.feature_engineering",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.decision_trees_ensembles",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.scikit_learn",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.scikit_learn",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.supervised_learning",
+    "to_skill": "skill.hyperparameter_tuning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.model_evaluation",
+    "to_skill": "skill.model_interpretability",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.optimization_basics",
+    "to_skill": "skill.neural_network_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.overfitting_regularization",
+    "to_skill": "skill.neural_network_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.neural_network_fundamentals",
+    "to_skill": "skill.activation_functions",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.neural_network_fundamentals",
+    "to_skill": "skill.loss_functions",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.chain_rule",
+    "to_skill": "skill.backpropagation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.neural_network_fundamentals",
+    "to_skill": "skill.backpropagation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.activation_functions",
+    "to_skill": "skill.backpropagation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.optimization_basics",
+    "to_skill": "skill.gradient_descent_variants",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.pytorch",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.tensorflow_keras",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.neural_network_fundamentals",
+    "to_skill": "skill.tensorflow_keras",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.pytorch",
+    "to_skill": "skill.training_neural_networks",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backpropagation",
+    "to_skill": "skill.training_neural_networks",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.loss_functions",
+    "to_skill": "skill.training_neural_networks",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.gradient_descent_variants",
+    "to_skill": "skill.training_neural_networks",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.training_neural_networks",
+    "to_skill": "skill.batch_normalization",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.training_neural_networks",
+    "to_skill": "skill.regularization_dl",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.training_neural_networks",
+    "to_skill": "skill.cnn",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.training_neural_networks",
+    "to_skill": "skill.rnn_sequence_models",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rnn_sequence_models",
+    "to_skill": "skill.transformers_attention",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.transformers_attention",
+    "to_skill": "skill.llm_basics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.llm_basics",
+    "to_skill": "skill.prompt_engineering",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.llm_basics",
+    "to_skill": "skill.huggingface",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.huggingface",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cnn",
+    "to_skill": "skill.transfer_learning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.image_processing_basics",
+    "to_skill": "skill.opencv",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.opencv",
+    "to_skill": "skill.cnn_image_classification",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cnn",
+    "to_skill": "skill.cnn_image_classification",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cnn_image_classification",
+    "to_skill": "skill.object_detection",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.object_detection",
+    "to_skill": "skill.image_segmentation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.nlp_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.nlp_fundamentals",
+    "to_skill": "skill.word_embeddings",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.word_embeddings",
+    "to_skill": "skill.transformers_attention",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.git",
+    "to_skill": "skill.experiment_tracking",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.training_neural_networks",
+    "to_skill": "skill.experiment_tracking",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.experiment_tracking",
+    "to_skill": "skill.model_versioning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.docker",
+    "to_skill": "skill.model_serving",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.model_versioning",
+    "to_skill": "skill.model_serving",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.model_serving",
+    "to_skill": "skill.ml_monitoring",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.model_serving",
+    "to_skill": "skill.mlops_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_cleaning",
+    "to_skill": "skill.data_pipelines",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_pipelines",
+    "to_skill": "skill.mlops_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.etl_fundamentals",
+    "to_skill": "skill.data_engineering_basics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.pandas",
+    "to_skill": "skill.exploratory_data_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.excel",
+    "to_skill": "skill.exploratory_data_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_cleaning",
+    "to_skill": "skill.exploratory_data_analysis",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.data_cleaning",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.exploratory_data_analysis",
+    "to_skill": "skill.data_visualization_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_visualization_fundamentals",
+    "to_skill": "skill.matplotlib_seaborn",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_visualization_fundamentals",
+    "to_skill": "skill.tableau",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_visualization_fundamentals",
+    "to_skill": "skill.powerbi",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.tableau",
+    "to_skill": "skill.dashboarding",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.powerbi",
+    "to_skill": "skill.dashboarding",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.dashboarding",
+    "to_skill": "skill.data_storytelling",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_storytelling",
+    "to_skill": "skill.communication_stakeholders",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.business_requirements_analysis",
+    "to_skill": "skill.kpi_metrics_design",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.kpi_metrics_design",
+    "to_skill": "skill.data_governance",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.data_governance",
+    "to_skill": "skill.data_ethics_privacy",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.excel",
+    "to_skill": "skill.spreadsheet_formulas",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.etl_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.sql_joins",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_joins",
+    "to_skill": "skill.sql_aggregation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.relational_modeling",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.relational_modeling",
+    "to_skill": "skill.indexing_query_optimization",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.relational_modeling",
+    "to_skill": "skill.transactions_acid",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.nosql_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.relational_modeling",
+    "to_skill": "skill.postgresql",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.postgresql",
+    "to_skill": "skill.orm_usage",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.orm_usage",
+    "to_skill": "skill.database_migrations",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.http_fundamentals",
+    "to_skill": "skill.rest_api_design",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.oop",
+    "to_skill": "skill.rest_api_design",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.backend_framework",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.python",
+    "to_skill": "skill.backend_framework",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.security_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.security_fundamentals",
+    "to_skill": "skill.authentication_authorization",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.security_fundamentals",
+    "to_skill": "skill.web_security_owasp",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.caching",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.message_queues",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.microservices",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.microservices",
+    "to_skill": "skill.system_design_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.system_design_fundamentals",
+    "to_skill": "skill.load_balancing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.api_testing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.testing_fundamentals",
+    "to_skill": "skill.api_testing",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.websockets",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.graphql",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.api_documentation",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.rate_limiting",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.idempotency",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.env_config_management",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.rest_vs_grpc",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.json_data_formats",
+    "to_skill": "skill.rest_api_design",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cli_basics",
+    "to_skill": "skill.linux_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.linux_fundamentals",
+    "to_skill": "skill.docker",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.docker",
+    "to_skill": "skill.kubernetes_basics",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.git",
+    "to_skill": "skill.ci_cd",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.testing_fundamentals",
+    "to_skill": "skill.ci_cd",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.docker",
+    "to_skill": "skill.ci_cd",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.ci_cd",
+    "to_skill": "skill.cloud_fundamentals",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cloud_fundamentals",
+    "to_skill": "skill.infrastructure_as_code",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cloud_fundamentals",
+    "to_skill": "skill.cost_estimation_cloud",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.backend_framework",
+    "to_skill": "skill.logging_monitoring",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.cli_basics",
+    "to_skill": "skill.git",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.git",
+    "to_skill": "skill.github_workflow",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.github_workflow",
+    "to_skill": "skill.code_review_practice",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.code_review_practice",
+    "to_skill": "skill.agile_practices",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.functions_modularity",
+    "to_skill": "skill.documentation_practice",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "soft",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.git",
+    "to_skill": "skill.version_control_branching",
+    "type": "PREREQUISITE_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "strength": "hard",
+    "min_level": 1
+  },
+  {
+    "from_skill": "skill.chain_rule",
+    "to_skill": "skill.math_for_ml",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.derivatives",
+    "to_skill": "skill.math_for_ml",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.linear_algebra_matrices",
+    "to_skill": "skill.math_for_ml",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.multivariable_calculus",
+    "to_skill": "skill.math_for_ml",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.optimization_basics",
+    "to_skill": "skill.math_for_ml",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.descriptive_statistics",
+    "to_skill": "skill.statistics_for_data_analysis",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.inferential_statistics",
+    "to_skill": "skill.statistics_for_data_analysis",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.hypothesis_testing",
+    "to_skill": "skill.statistics_for_data_analysis",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.regression_analysis",
+    "to_skill": "skill.statistics_for_data_analysis",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.neural_network_fundamentals",
+    "to_skill": "skill.deep_learning_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.backpropagation",
+    "to_skill": "skill.deep_learning_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.cnn",
+    "to_skill": "skill.deep_learning_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.rnn_sequence_models",
+    "to_skill": "skill.deep_learning_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.transformers_attention",
+    "to_skill": "skill.deep_learning_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.opencv",
+    "to_skill": "skill.computer_vision_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.object_detection",
+    "to_skill": "skill.computer_vision_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.image_segmentation",
+    "to_skill": "skill.computer_vision_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.nlp_fundamentals",
+    "to_skill": "skill.nlp_and_llms",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.word_embeddings",
+    "to_skill": "skill.nlp_and_llms",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.llm_basics",
+    "to_skill": "skill.nlp_and_llms",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.rest_api_design",
+    "to_skill": "skill.backend_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.authentication_authorization",
+    "to_skill": "skill.backend_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.microservices",
+    "to_skill": "skill.backend_fundamentals",
+    "type": "PART_OF",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation"
+  },
+  {
+    "from_skill": "skill.pandas",
+    "to_skill": "skill.excel",
+    "type": "RELATED_TO",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "weight": 0.4
+  },
+  {
+    "from_skill": "skill.tableau",
+    "to_skill": "skill.powerbi",
+    "type": "RELATED_TO",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "weight": 0.6
+  },
+  {
+    "from_skill": "skill.pytorch",
+    "to_skill": "skill.tensorflow_keras",
+    "type": "RELATED_TO",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "weight": 0.7
+  },
+  {
+    "from_skill": "skill.sql_fundamentals",
+    "to_skill": "skill.nosql_fundamentals",
+    "type": "RELATED_TO",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "weight": 0.3
+  },
+  {
+    "from_skill": "skill.cnn",
+    "to_skill": "skill.rnn_sequence_models",
+    "type": "RELATED_TO",
+    "source": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "weight": 0.3
+  }
+]

@@ -1,0 +1,4050 @@
+[
+  {
+    "resource_id": "res.khan_algebra",
+    "title": "Algebra Basics",
+    "url": "https://www.khanacademy.org/math/algebra-basics",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.algebra_basics",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 300,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Refresh core algebra skills needed for calculus and ML math.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_diff_calc",
+    "title": "Differential Calculus",
+    "url": "https://www.khanacademy.org/math/differential-calculus",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.calculus_limits",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.derivatives",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.chain_rule",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 360,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.algebra_basics"
+    ],
+    "learning_objective_text": "Build limits, derivative and chain-rule fundamentals from the ground up.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.3b1b_calculus",
+    "title": "Essence of Calculus",
+    "url": "https://www.3blue1brown.com/topics/calculus",
+    "provider": "3Blue1Brown",
+    "type": "video",
+    "skill_targets": [
+      {
+        "skill_id": "skill.derivatives",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.chain_rule",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 190,
+    "modality": "watch",
+    "prerequisite_skill_ids": [
+      "skill.algebra_basics"
+    ],
+    "learning_objective_text": "Build visual intuition for derivatives and the chain rule.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_integrals",
+    "title": "Integral Calculus",
+    "url": "https://www.khanacademy.org/math/integral-calculus",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.integrals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.derivatives"
+    ],
+    "learning_objective_text": "Learn antiderivatives and accumulation.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_multivar_calc",
+    "title": "Multivariable Calculus",
+    "url": "https://www.khanacademy.org/math/multivariable-calculus",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.multivariable_calculus",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 300,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.chain_rule"
+    ],
+    "learning_objective_text": "Partial derivatives and gradients for functions of several variables.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.3b1b_linalg",
+    "title": "Essence of Linear Algebra",
+    "url": "https://www.3blue1brown.com/topics/linear-algebra",
+    "provider": "3Blue1Brown",
+    "type": "video",
+    "skill_targets": [
+      {
+        "skill_id": "skill.linear_algebra_vectors",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.linear_algebra_matrices",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "watch",
+    "prerequisite_skill_ids": [
+      "skill.algebra_basics"
+    ],
+    "learning_objective_text": "Visual intuition for vectors, matrices and linear transformations.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_linalg",
+    "title": "Linear Algebra",
+    "url": "https://www.khanacademy.org/math/linear-algebra",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.linear_algebra_vectors",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.linear_algebra_matrices",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 360,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.algebra_basics"
+    ],
+    "learning_objective_text": "Vector and matrix operations from first principles.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_eigen",
+    "title": "Eigenvalues and Eigenvectors (Linear Algebra course)",
+    "url": "https://www.khanacademy.org/math/linear-algebra",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.eigenvalues_eigenvectors",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.linear_algebra_matrices"
+    ],
+    "learning_objective_text": "Compute and interpret eigenvalues/eigenvectors.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_gradient_descent",
+    "title": "Reducing Loss: Gradient Descent",
+    "url": "https://developers.google.com/machine-learning/crash-course/reducing-loss/gradient-descent",
+    "provider": "Google",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.optimization_basics",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.derivatives"
+    ],
+    "learning_objective_text": "How gradient descent minimizes a loss function step by step.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_stats",
+    "title": "Statistics and Probability",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.probability_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.descriptive_statistics",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 360,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Core probability and descriptive statistics.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_dists",
+    "title": "Random Variables & Probability Distributions (Statistics course)",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.probability_distributions",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.probability_fundamentals"
+    ],
+    "learning_objective_text": "Discrete and continuous distributions, expectation, variance.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_inference",
+    "title": "Significance Tests / Hypothesis Testing (Statistics course)",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.hypothesis_testing",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.inferential_statistics",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.probability_distributions",
+      "skill.descriptive_statistics"
+    ],
+    "learning_objective_text": "Formulate and test statistical hypotheses correctly.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_confidence",
+    "title": "Confidence Intervals (Statistics course)",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.inferential_statistics",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 150,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.probability_distributions"
+    ],
+    "learning_objective_text": "Constructing and correctly interpreting confidence intervals.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_regression",
+    "title": "Regression (Statistics course)",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.regression_analysis",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.descriptive_statistics"
+    ],
+    "learning_objective_text": "Modeling linear relationships between two variables.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.khan_bayes",
+    "title": "Bayes Theorem (Statistics course)",
+    "url": "https://www.khanacademy.org/math/statistics-probability",
+    "provider": "Khan Academy",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.bayesian_thinking",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.probability_fundamentals"
+    ],
+    "learning_objective_text": "Conditional probability and Bayes' theorem.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.optimizely_ab",
+    "title": "A/B Testing Guide",
+    "url": "https://www.optimizely.com/optimization-glossary/ab-testing/",
+    "provider": "Optimizely",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.ab_testing",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.hypothesis_testing"
+    ],
+    "learning_objective_text": "How to design and interpret an A/B test.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_tutorial",
+    "title": "The Python Tutorial",
+    "url": "https://docs.python.org/3/tutorial/",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.python",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.programming_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 360,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Official start-to-finish tour of the Python language.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_datastructures",
+    "title": "Data Structures (Python docs)",
+    "url": "https://docs.python.org/3/tutorial/datastructures.html",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.python_data_structures",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Lists, dicts, tuples, sets and comprehensions in Python.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_classes",
+    "title": "Classes (Python docs)",
+    "url": "https://docs.python.org/3/tutorial/classes.html",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.python_oop",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.oop",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Python's object model: classes, inheritance, dunder methods.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_errors",
+    "title": "Errors and Exceptions",
+    "url": "https://docs.python.org/3/tutorial/errors.html",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.error_handling",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.control_flow"
+    ],
+    "learning_objective_text": "Raising, catching and handling exceptions in Python.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.realpython_venv",
+    "title": "Python Virtual Environments: A Primer",
+    "url": "https://realpython.com/python-virtual-environments-a-primer/",
+    "provider": "Real Python",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.python_venv_packaging",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Isolating project dependencies with venv/pip.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytest_docs",
+    "title": "pytest: Get Started",
+    "url": "https://docs.pytest.org/en/stable/getting-started.html",
+    "provider": "pytest",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.unit_testing_python",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.testing_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Writing and running your first pytest tests.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_regex",
+    "title": "Regular Expression HOWTO",
+    "url": "https://docs.python.org/3/howto/regex.html",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.regex",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Pattern matching with Python's re module.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.realpython_scraping",
+    "title": "Beautiful Soup: Build a Web Scraper",
+    "url": "https://realpython.com/beautiful-soup-web-scraper-python/",
+    "provider": "Real Python",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.web_scraping",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Scraping and parsing web pages with requests + BeautifulSoup.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.rp_asyncio",
+    "title": "Async IO in Python: A Complete Walkthrough",
+    "url": "https://realpython.com/async-io-python/",
+    "provider": "Real Python",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.async_programming",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Concurrency with async/await and asyncio.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.freecodecamp_dsa",
+    "title": "Data Structures and Algorithms Course",
+    "url": "https://www.freecodecamp.org/news/learn-data-structures-and-algorithms/",
+    "provider": "freeCodeCamp",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dsa_arrays_strings",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.dsa_sorting_searching",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 480,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Hands-on tour of core data structures and algorithms.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.cs_bigo",
+    "title": "Big-O Cheat Sheet",
+    "url": "https://www.bigocheatsheet.com/",
+    "provider": "BigOCheatSheet",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.big_o",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Reference for time/space complexity of common algorithms and structures.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.gfg_recursion",
+    "title": "Recursion in Python",
+    "url": "https://www.geeksforgeeks.org/recursion-in-python/",
+    "provider": "GeeksforGeeks",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.recursion",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.functions_modularity"
+    ],
+    "learning_objective_text": "Base cases, call stacks and classic recursive patterns.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.gfg_trees",
+    "title": "Introduction to Tree Data Structure",
+    "url": "https://www.geeksforgeeks.org/introduction-to-tree-data-structure/",
+    "provider": "GeeksforGeeks",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dsa_trees",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.recursion"
+    ],
+    "learning_objective_text": "Binary trees, BSTs and traversal orders.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.gfg_graphs",
+    "title": "Graph Data Structure and Algorithms",
+    "url": "https://www.geeksforgeeks.org/graph-data-structure-and-algorithms/",
+    "provider": "GeeksforGeeks",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dsa_graphs",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.dsa_trees"
+    ],
+    "learning_objective_text": "Graph representations and BFS/DFS traversal.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.gfg_hashing",
+    "title": "Hashing",
+    "url": "https://www.geeksforgeeks.org/hashing-data-structure/",
+    "provider": "GeeksforGeeks",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dsa_hashing",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.dsa_arrays_strings"
+    ],
+    "learning_objective_text": "Hash tables, collisions and average-case lookup cost.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.refactoring_patterns",
+    "title": "Design Patterns Catalog",
+    "url": "https://refactoring.guru/design-patterns/catalog",
+    "provider": "Refactoring.Guru",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.design_patterns",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.oop"
+    ],
+    "learning_objective_text": "Overview of classic object-oriented design patterns.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.numpy_quickstart",
+    "title": "NumPy Quickstart",
+    "url": "https://numpy.org/doc/stable/user/quickstart.html",
+    "provider": "NumPy",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.numpy",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 60,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python_data_structures"
+    ],
+    "learning_objective_text": "Arrays, broadcasting and vectorized operations in NumPy.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pandas_10min",
+    "title": "10 Minutes to pandas",
+    "url": "https://pandas.pydata.org/docs/user_guide/10min.html",
+    "provider": "pandas",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.pandas",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.numpy"
+    ],
+    "learning_objective_text": "A fast tour of pandas DataFrame/Series basics.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.matplotlib_pyplot",
+    "title": "Pyplot Tutorial",
+    "url": "https://matplotlib.org/stable/tutorials/pyplot.html",
+    "provider": "Matplotlib",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.matplotlib_seaborn",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.numpy"
+    ],
+    "learning_objective_text": "Plotting basics with matplotlib's pyplot interface.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.seaborn_intro",
+    "title": "An Introduction to Seaborn",
+    "url": "https://seaborn.pydata.org/tutorial/introduction.html",
+    "provider": "Seaborn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.matplotlib_seaborn",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pandas"
+    ],
+    "learning_objective_text": "Statistical data visualization built on matplotlib.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.kaggle_pandas",
+    "title": "Kaggle Learn: Pandas",
+    "url": "https://www.kaggle.com/learn/pandas",
+    "provider": "Kaggle",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.pandas",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.data_cleaning",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.numpy"
+    ],
+    "learning_objective_text": "Hands-on pandas exercises: indexing, grouping, cleaning.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.kaggle_data_cleaning",
+    "title": "Kaggle Learn: Data Cleaning",
+    "url": "https://www.kaggle.com/learn/data-cleaning",
+    "provider": "Kaggle",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.data_cleaning",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pandas"
+    ],
+    "learning_objective_text": "Missing values, scaling, parsing dates and inconsistent entries.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.kaggle_dataviz",
+    "title": "Kaggle Learn: Data Visualization",
+    "url": "https://www.kaggle.com/learn/data-visualization",
+    "provider": "Kaggle",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.data_visualization_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pandas"
+    ],
+    "learning_objective_text": "Choosing and building the right chart for a dataset.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.kaggle_eda",
+    "title": "Kaggle Learn: Intro to Machine Learning",
+    "url": "https://www.kaggle.com/learn/intro-to-machine-learning",
+    "provider": "Kaggle",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.exploratory_data_analysis",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.ml_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pandas"
+    ],
+    "learning_objective_text": "EDA and building your first predictive model.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.msft_excel_basics",
+    "title": "Excel Video Training",
+    "url": "https://support.microsoft.com/en-us/office/excel-video-training-9bc05390-e94c-46af-a5b3-d7c22f6990bb",
+    "provider": "Microsoft",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.excel",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Official Excel training: formulas, tables, pivot tables.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.exceljet_vlookup",
+    "title": "How to use the VLOOKUP function",
+    "url": "https://exceljet.net/excel-functions/excel-vlookup-function",
+    "provider": "Exceljet",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.spreadsheet_formulas",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.excel"
+    ],
+    "learning_objective_text": "Lookup formulas for combining data across spreadsheet tables.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.tableau_get_started",
+    "title": "Tableau: Get Started",
+    "url": "https://help.tableau.com/current/guides/get-started-tutorial/en-us/get-started-tutorial-home.htm",
+    "provider": "Tableau",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.tableau",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.data_visualization_fundamentals"
+    ],
+    "learning_objective_text": "Build your first interactive Tableau dashboard.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "freemium",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.powerbi_get_started",
+    "title": "Get started with Power BI",
+    "url": "https://learn.microsoft.com/en-us/power-bi/fundamentals/power-bi-overview",
+    "provider": "Microsoft",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.powerbi",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 150,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.data_visualization_fundamentals"
+    ],
+    "learning_objective_text": "Power BI fundamentals: reports, datasets, dashboards.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.tableau_dashboards",
+    "title": "Best Practices for Building Dashboards",
+    "url": "https://help.tableau.com/current/blueprint/en-us/bp_dashboards.htm",
+    "provider": "Tableau",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dashboarding",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.tableau"
+    ],
+    "learning_objective_text": "Design principles for effective monitoring dashboards.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "freemium",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.hbr_data_storytelling",
+    "title": "How to Tell a Story with Data",
+    "url": "https://hbr.org/2013/04/how-to-tell-a-story-with-data",
+    "provider": "Harvard Business Review",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.data_storytelling",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.communication_stakeholders",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.dashboarding"
+    ],
+    "learning_objective_text": "Framing analytical findings as a narrative for stakeholders.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "freemium",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sqlbolt",
+    "title": "SQLBolt: Learn SQL",
+    "url": "https://sqlbolt.com/",
+    "provider": "SQLBolt",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.sql_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Interactive lessons on SELECT queries and filtering.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mode_sql_joins",
+    "title": "SQL JOINs",
+    "url": "https://www.thoughtspot.com/sql-tutorial/sql-joins",
+    "provider": "ThoughtSpot (formerly Mode Analytics)",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.sql_joins",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "INNER/LEFT/RIGHT/FULL joins explained with diagrams.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mode_sql_agg",
+    "title": "SQL Aggregate Functions",
+    "url": "https://www.thoughtspot.com/sql-tutorial/sql-aggregate-functions",
+    "provider": "ThoughtSpot (formerly Mode Analytics)",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.sql_aggregation",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.sql_joins"
+    ],
+    "learning_objective_text": "GROUP BY, HAVING and aggregate functions.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pg_tutorial",
+    "title": "PostgreSQL Tutorial",
+    "url": "https://www.postgresql.org/docs/current/tutorial.html",
+    "provider": "PostgreSQL",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.postgresql",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.relational_modeling",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "Official PostgreSQL introduction: schemas, queries, joins.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pg_indexes",
+    "title": "PostgreSQL: Indexes",
+    "url": "https://www.postgresql.org/docs/current/indexes.html",
+    "provider": "PostgreSQL",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.indexing_query_optimization",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.relational_modeling"
+    ],
+    "learning_objective_text": "How indexes speed up (or fail to speed up) queries.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pg_transactions",
+    "title": "PostgreSQL: Transactions",
+    "url": "https://www.postgresql.org/docs/current/tutorial-transactions.html",
+    "provider": "PostgreSQL",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.transactions_acid",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.relational_modeling"
+    ],
+    "learning_objective_text": "ACID guarantees and transaction control in Postgres.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mongodb_nosql",
+    "title": "NoSQL Explained",
+    "url": "https://www.mongodb.com/nosql-explained",
+    "provider": "MongoDB",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.nosql_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "Document, key-value, wide-column and graph database models.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sqlalchemy_orm",
+    "title": "SQLAlchemy ORM Tutorial",
+    "url": "https://docs.sqlalchemy.org/en/20/orm/quickstart.html",
+    "provider": "SQLAlchemy",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.orm_usage",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.postgresql",
+      "skill.python"
+    ],
+    "learning_objective_text": "Mapping Python classes to relational tables with SQLAlchemy.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.alembic_tutorial",
+    "title": "Alembic Tutorial",
+    "url": "https://alembic.sqlalchemy.org/en/latest/tutorial.html",
+    "provider": "SQLAlchemy",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.database_migrations",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.orm_usage"
+    ],
+    "learning_objective_text": "Writing and running schema migrations with Alembic.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.dbdesigner_normalization",
+    "title": "Database Normalization Explained",
+    "url": "https://www.databasestar.com/database-normalization/",
+    "provider": "Database Star",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.relational_modeling",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "1NF-3NF normal forms with worked examples.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.google_mlcc",
+    "title": "Machine Learning Crash Course",
+    "url": "https://developers.google.com/machine-learning/crash-course",
+    "provider": "Google",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.ml_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.supervised_learning",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 900,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python",
+      "skill.descriptive_statistics"
+    ],
+    "learning_objective_text": "Google's guided intro to ML concepts with TensorFlow exercises.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_getting_started",
+    "title": "scikit-learn: Getting Started",
+    "url": "https://scikit-learn.org/stable/getting_started.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.scikit_learn",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python",
+      "skill.numpy"
+    ],
+    "learning_objective_text": "Fit, predict and evaluate a model with scikit-learn's API.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_model_eval",
+    "title": "scikit-learn: Model Evaluation",
+    "url": "https://scikit-learn.org/stable/modules/model_evaluation.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.model_evaluation",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.supervised_learning"
+    ],
+    "learning_objective_text": "Precision, recall, F1, ROC-AUC and other scoring metrics.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_cv",
+    "title": "scikit-learn: Cross-Validation",
+    "url": "https://scikit-learn.org/stable/modules/cross_validation.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cross_validation",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.overfitting_regularization"
+    ],
+    "learning_objective_text": "k-fold and other cross-validation strategies.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_overfitting",
+    "title": "Underfitting vs. Overfitting",
+    "url": "https://scikit-learn.org/stable/auto_examples/model_selection/plot_underfitting_overfitting.html",
+    "provider": "scikit-learn",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.overfitting_regularization",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.supervised_learning"
+    ],
+    "learning_objective_text": "Visual example of the bias-variance tradeoff.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_trees",
+    "title": "scikit-learn: Decision Trees",
+    "url": "https://scikit-learn.org/stable/modules/tree.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.decision_trees_ensembles",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.supervised_learning"
+    ],
+    "learning_objective_text": "Decision tree models and their strengths/weaknesses.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_ensembles",
+    "title": "scikit-learn: Ensemble Methods",
+    "url": "https://scikit-learn.org/stable/modules/ensemble.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.decision_trees_ensembles",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.decision_trees_ensembles"
+    ],
+    "learning_objective_text": "Random forests and gradient boosting.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_grid_search",
+    "title": "scikit-learn: Tuning Hyperparameters",
+    "url": "https://scikit-learn.org/stable/modules/grid_search.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.hyperparameter_tuning",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.scikit_learn"
+    ],
+    "learning_objective_text": "Grid search and randomized search over hyperparameters.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_clustering",
+    "title": "Clustering in Machine Learning",
+    "url": "https://developers.google.com/machine-learning/clustering",
+    "provider": "Google",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.clustering",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.unsupervised_learning",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.ml_fundamentals"
+    ],
+    "learning_objective_text": "K-means and other clustering algorithms.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.sklearn_pca",
+    "title": "scikit-learn: PCA",
+    "url": "https://scikit-learn.org/stable/modules/decomposition.html",
+    "provider": "scikit-learn",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.dimensionality_reduction",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.linear_algebra_matrices"
+    ],
+    "learning_objective_text": "Principal component analysis for dimensionality reduction.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.shap_docs",
+    "title": "SHAP: Explainable AI",
+    "url": "https://shap.readthedocs.io/en/latest/",
+    "provider": "SHAP",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.model_interpretability",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.model_evaluation"
+    ],
+    "learning_objective_text": "Explaining model predictions with Shapley values.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_feature_eng",
+    "title": "Feature Engineering",
+    "url": "https://developers.google.com/machine-learning/crash-course/representation/feature-engineering",
+    "provider": "Google",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.feature_engineering",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.supervised_learning"
+    ],
+    "learning_objective_text": "Turning raw data into useful model features.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_nn_intro",
+    "title": "Introduction to Neural Networks",
+    "url": "https://developers.google.com/machine-learning/crash-course/neural-networks/nodes-hidden-layers",
+    "provider": "Google",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.neural_network_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.optimization_basics"
+    ],
+    "learning_objective_text": "Layers, weights and forward computation in a neural net.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_activation",
+    "title": "Activation Functions",
+    "url": "https://developers.google.com/machine-learning/crash-course/neural-networks/activation-functions",
+    "provider": "Google",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.activation_functions",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 15,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.neural_network_fundamentals"
+    ],
+    "learning_objective_text": "Why neural nets need nonlinear activation functions.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.3b1b_neural_nets",
+    "title": "Neural Networks (playlist)",
+    "url": "https://www.3blue1brown.com/topics/neural-networks",
+    "provider": "3Blue1Brown",
+    "type": "video",
+    "skill_targets": [
+      {
+        "skill_id": "skill.neural_network_fundamentals",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.backpropagation",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 150,
+    "modality": "watch",
+    "prerequisite_skill_ids": [
+      "skill.derivatives",
+      "skill.linear_algebra_matrices"
+    ],
+    "learning_objective_text": "Visual, worked-example-first walkthrough of how backpropagation computes gradients.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.cs231n_backprop",
+    "title": "CS231n: Backpropagation Notes",
+    "url": "https://cs231n.github.io/optimization-2/",
+    "provider": "Stanford CS231n",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.backpropagation",
+        "level_from": 1,
+        "level_to": 3
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.chain_rule",
+      "skill.neural_network_fundamentals"
+    ],
+    "learning_objective_text": "How the chain rule composes local gradients through a computation graph.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_autograd",
+    "title": "PyTorch: A Gentle Introduction to torch.autograd",
+    "url": "https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.backpropagation",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.pytorch",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python",
+      "skill.chain_rule"
+    ],
+    "learning_objective_text": "How PyTorch computes gradients automatically via autograd.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_60min",
+    "title": "Deep Learning with PyTorch: A 60 Minute Blitz",
+    "url": "https://pytorch.org/tutorials/beginner/deep_learning_60min_blitz.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.pytorch",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.training_neural_networks",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python",
+      "skill.neural_network_fundamentals"
+    ],
+    "learning_objective_text": "Tensors, autograd and a full training loop in PyTorch.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_optim",
+    "title": "PyTorch: Optimizing Model Parameters",
+    "url": "https://pytorch.org/tutorials/beginner/basics/optimization_tutorial.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.training_neural_networks",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.gradient_descent_variants",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pytorch",
+      "skill.loss_functions"
+    ],
+    "learning_objective_text": "The training loop: loss, backward pass, optimizer step.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_loss",
+    "title": "PyTorch: Loss Functions",
+    "url": "https://pytorch.org/docs/stable/nn.html#loss-functions",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.loss_functions",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.neural_network_fundamentals"
+    ],
+    "learning_objective_text": "Reference for PyTorch's built-in loss functions.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.d2l_optimization",
+    "title": "Dive into Deep Learning: Optimization Algorithms",
+    "url": "https://d2l.ai/chapter_optimization/index.html",
+    "provider": "d2l.ai",
+    "type": "book_chapter",
+    "skill_targets": [
+      {
+        "skill_id": "skill.gradient_descent_variants",
+        "level_from": 1,
+        "level_to": 3
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 90,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.optimization_basics"
+    ],
+    "learning_objective_text": "SGD, momentum, Adam and other optimizers used to train deep nets.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_batchnorm",
+    "title": "PyTorch: BatchNorm2d",
+    "url": "https://pytorch.org/docs/stable/generated/torch.nn.BatchNorm2d.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.batch_normalization",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.training_neural_networks"
+    ],
+    "learning_objective_text": "Reference for applying batch normalization in PyTorch.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.d2l_regularization",
+    "title": "Dive into Deep Learning: Regularization",
+    "url": "https://d2l.ai/chapter_multilayer-perceptrons/dropout.html",
+    "provider": "d2l.ai",
+    "type": "book_chapter",
+    "skill_targets": [
+      {
+        "skill_id": "skill.regularization_dl",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.training_neural_networks"
+    ],
+    "learning_objective_text": "Dropout and weight decay for regularizing deep nets.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.tf_keras_overview",
+    "title": "TensorFlow: Keras Overview",
+    "url": "https://www.tensorflow.org/guide/keras",
+    "provider": "TensorFlow",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.tensorflow_keras",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Building and training models with the Keras API.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.cs231n_cnn",
+    "title": "CS231n: Convolutional Neural Networks",
+    "url": "https://cs231n.github.io/convolutional-networks/",
+    "provider": "Stanford CS231n",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cnn",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.training_neural_networks"
+    ],
+    "learning_objective_text": "How convolution, pooling and CNN layers work.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_cifar",
+    "title": "PyTorch: Training a Classifier",
+    "url": "https://pytorch.org/tutorials/beginner/blitz/cifar10_tutorial.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cnn_image_classification",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.pytorch",
+      "skill.cnn"
+    ],
+    "learning_objective_text": "Train a CNN image classifier end-to-end in PyTorch.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.colah_lstm",
+    "title": "Understanding LSTM Networks",
+    "url": "https://colah.github.io/posts/2015-08-Understanding-LSTMs/",
+    "provider": "Christopher Olah",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.rnn_sequence_models",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.training_neural_networks"
+    ],
+    "learning_objective_text": "Visual explanation of LSTM/GRU sequence models.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.illustrated_transformer",
+    "title": "The Illustrated Transformer",
+    "url": "https://jalammar.github.io/illustrated-transformer/",
+    "provider": "Jay Alammar",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.transformers_attention",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rnn_sequence_models"
+    ],
+    "learning_objective_text": "Step-by-step visual walkthrough of the transformer architecture.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.pytorch_transfer",
+    "title": "PyTorch: Transfer Learning Tutorial",
+    "url": "https://pytorch.org/tutorials/beginner/transfer_learning_tutorial.html",
+    "provider": "PyTorch",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.transfer_learning",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cnn"
+    ],
+    "learning_objective_text": "Fine-tuning a pretrained CNN on a new dataset.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.opencv_getting_started",
+    "title": "OpenCV-Python Tutorials",
+    "url": "https://docs.opencv.org/4.x/d6/d00/tutorial_py_root.html",
+    "provider": "OpenCV",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.opencv",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.image_processing_basics",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Official OpenCV-Python tutorial series.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.ultralytics_yolo_docs",
+    "title": "Ultralytics YOLO Docs",
+    "url": "https://docs.ultralytics.com/",
+    "provider": "Ultralytics",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.object_detection",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cnn_image_classification"
+    ],
+    "learning_objective_text": "Training and running YOLO object-detection models.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.ultralytics_segmentation",
+    "title": "Instance Segmentation with Ultralytics YOLO",
+    "url": "https://docs.ultralytics.com/tasks/segment/",
+    "provider": "Ultralytics",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.image_segmentation",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.object_detection"
+    ],
+    "learning_objective_text": "Training and running instance segmentation models.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.hf_nlp_course",
+    "title": "Hugging Face NLP Course",
+    "url": "https://huggingface.co/learn/nlp-course",
+    "provider": "Hugging Face",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.nlp_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.huggingface",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 600,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Tokenization, transformers and the Hugging Face ecosystem.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.word2vec_paper_explained",
+    "title": "Word2Vec Explained",
+    "url": "https://jalammar.github.io/illustrated-word2vec/",
+    "provider": "Jay Alammar",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.word_embeddings",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.nlp_fundamentals"
+    ],
+    "learning_objective_text": "Visual explanation of word embeddings and word2vec.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.hf_llm_course",
+    "title": "Hugging Face LLM Course",
+    "url": "https://huggingface.co/learn/llm-course",
+    "provider": "Hugging Face",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.llm_basics",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 480,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.transformers_attention"
+    ],
+    "learning_objective_text": "How large language models are built, trained and used.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.openai_prompt_guide",
+    "title": "Prompt Engineering Guide",
+    "url": "https://platform.openai.com/docs/guides/prompt-engineering",
+    "provider": "OpenAI",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.prompt_engineering",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.llm_basics"
+    ],
+    "learning_objective_text": "Techniques for writing effective prompts.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlflow_quickstart",
+    "title": "MLflow Quickstart",
+    "url": "https://mlflow.org/docs/latest/getting-started/",
+    "provider": "MLflow",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.experiment_tracking",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Logging parameters, metrics and models with MLflow.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.wandb_quickstart",
+    "title": "Weights & Biases Quickstart",
+    "url": "https://docs.wandb.ai/quickstart/",
+    "provider": "Weights & Biases",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.experiment_tracking",
+        "level_from": 1,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.model_versioning",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Tracking experiments and model versions with W&B.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "freemium",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.fastapi_first_steps",
+    "title": "FastAPI: First Steps",
+    "url": "https://fastapi.tiangolo.com/tutorial/first-steps/",
+    "provider": "FastAPI",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.model_serving",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.backend_framework",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.python"
+    ],
+    "learning_objective_text": "Serve a model behind a REST endpoint with FastAPI.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.evidently_drift",
+    "title": "Evidently AI: Data Drift",
+    "url": "https://docs.evidentlyai.com/introduction",
+    "provider": "Evidently AI",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.ml_monitoring",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.model_serving"
+    ],
+    "learning_objective_text": "Detecting data/model drift once a model is in production.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mlcc_production_ml",
+    "title": "Production ML Systems",
+    "url": "https://developers.google.com/machine-learning/crash-course/production-ml-systems",
+    "provider": "Google",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.mlops_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.data_pipelines",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.ml_fundamentals"
+    ],
+    "learning_objective_text": "Operating ML systems reliably end-to-end.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mdn_http_overview",
+    "title": "An Overview of HTTP",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview",
+    "provider": "MDN Web Docs",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.http_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Request/response cycle, methods and status codes.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.restfulapi_design",
+    "title": "REST API Design Best Practices",
+    "url": "https://restfulapi.net/",
+    "provider": "RESTfulAPI.net",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.rest_api_design",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.http_fundamentals"
+    ],
+    "learning_objective_text": "Resource modeling and conventions for REST APIs.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.fastapi_tutorial",
+    "title": "FastAPI Tutorial",
+    "url": "https://fastapi.tiangolo.com/tutorial/",
+    "provider": "FastAPI",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.backend_framework",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Building a full REST API with FastAPI.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.expressjs_guide",
+    "title": "Express.js Guide",
+    "url": "https://expressjs.com/en/guide/routing.html",
+    "provider": "Express.js",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.backend_framework",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Routing and middleware in Express.js.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.jwt_intro",
+    "title": "JWT Introduction",
+    "url": "https://jwt.io/introduction",
+    "provider": "jwt.io",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.authentication_authorization",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 25,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "How JSON Web Tokens encode and (only) sign claims.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.owasp_top10",
+    "title": "OWASP Top 10",
+    "url": "https://owasp.org/www-project-top-ten/",
+    "provider": "OWASP",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.web_security_owasp",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.security_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.authentication_authorization"
+    ],
+    "learning_objective_text": "The ten most critical web application security risks.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.redis_caching",
+    "title": "Redis: Caching",
+    "url": "https://redis.io/docs/latest/develop/use/patterns/",
+    "provider": "Redis",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.caching",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.backend_framework"
+    ],
+    "learning_objective_text": "Common caching patterns with Redis.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.rabbitmq_tutorial",
+    "title": "RabbitMQ Tutorial: Hello World",
+    "url": "https://www.rabbitmq.com/tutorials/tutorial-one-python.html",
+    "provider": "RabbitMQ",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.message_queues",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.backend_framework"
+    ],
+    "learning_objective_text": "Sending and receiving messages with a message queue.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.martinfowler_microservices",
+    "title": "Microservices",
+    "url": "https://martinfowler.com/articles/microservices.html",
+    "provider": "Martin Fowler",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.microservices",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "What microservices are and the tradeoffs of adopting them.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.systemdesign_primer",
+    "title": "System Design Primer",
+    "url": "https://github.com/donnemartin/system-design-primer",
+    "provider": "GitHub (donnemartin)",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.system_design_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 300,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.microservices"
+    ],
+    "learning_objective_text": "A broad tour of scalable system design concepts.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.nginx_load_balancing",
+    "title": "Load Balancing with NGINX",
+    "url": "https://docs.nginx.com/nginx/admin-guide/load-balancer/http-load-balancer/",
+    "provider": "NGINX",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.load_balancing",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.system_design_fundamentals"
+    ],
+    "learning_objective_text": "Distributing HTTP traffic across backend servers.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.postman_learning",
+    "title": "Postman Learning Center: API Testing",
+    "url": "https://learning.postman.com/docs/getting-started/introduction/",
+    "provider": "Postman",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.api_testing",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Testing REST APIs with Postman collections.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mdn_websockets",
+    "title": "Writing WebSocket Client Applications",
+    "url": "https://developer.mozilla.org/en-US/docs/Web/API/WebSockets_API/Writing_WebSocket_client_applications",
+    "provider": "MDN Web Docs",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.websockets",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Bidirectional real-time communication with WebSockets.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.swagger_openapi",
+    "title": "OpenAPI Specification",
+    "url": "https://swagger.io/docs/specification/about/",
+    "provider": "Swagger",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.api_documentation",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Documenting a REST API with the OpenAPI spec.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.graphql_learn",
+    "title": "Introduction to GraphQL",
+    "url": "https://graphql.org/learn/",
+    "provider": "GraphQL.org",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.graphql",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Schemas, queries and resolvers in GraphQL.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.grpc_intro",
+    "title": "gRPC: Introduction",
+    "url": "https://grpc.io/docs/what-is-grpc/introduction/",
+    "provider": "gRPC",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.rest_vs_grpc",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "When and how to use gRPC instead of REST.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.stripe_idempotency",
+    "title": "Idempotent Requests",
+    "url": "https://stripe.com/docs/api/idempotent_requests",
+    "provider": "Stripe",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.idempotency",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.rest_api_design"
+    ],
+    "learning_objective_text": "Designing retry-safe API requests.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.cloudflare_rate_limiting",
+    "title": "What Is Rate Limiting?",
+    "url": "https://www.cloudflare.com/learning/bots/what-is-rate-limiting/",
+    "provider": "Cloudflare",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.rate_limiting",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 15,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.backend_framework"
+    ],
+    "learning_objective_text": "Why and how to rate-limit an API.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.12factor_config",
+    "title": "The Twelve-Factor App: Config",
+    "url": "https://12factor.net/config",
+    "provider": "12factor.net",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.env_config_management",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 15,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.backend_framework"
+    ],
+    "learning_objective_text": "Storing config in the environment, not in code.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.docker_get_started",
+    "title": "Docker: Get Started",
+    "url": "https://docs.docker.com/get-started/",
+    "provider": "Docker",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.docker",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 90,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.linux_fundamentals"
+    ],
+    "learning_objective_text": "Building and running your first containers.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.k8s_basics",
+    "title": "Kubernetes Basics",
+    "url": "https://kubernetes.io/docs/tutorials/kubernetes-basics/",
+    "provider": "Kubernetes",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.kubernetes_basics",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 240,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.docker"
+    ],
+    "learning_objective_text": "Deploying and scaling containerized apps with Kubernetes.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.github_actions_quickstart",
+    "title": "GitHub Actions Quickstart",
+    "url": "https://docs.github.com/en/actions/quickstart",
+    "provider": "GitHub",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.ci_cd",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 45,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.git",
+      "skill.testing_fundamentals"
+    ],
+    "learning_objective_text": "Automating build/test/deploy with GitHub Actions.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.aws_cloud_practitioner",
+    "title": "AWS Cloud Practitioner Essentials",
+    "url": "https://aws.amazon.com/training/digital/aws-cloud-practitioner-essentials/",
+    "provider": "AWS",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cloud_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 360,
+    "modality": "do",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Core AWS services and cloud concepts.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.aws_pricing_calc",
+    "title": "AWS Pricing Calculator",
+    "url": "https://calculator.aws/",
+    "provider": "AWS",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cost_estimation_cloud",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 20,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cloud_fundamentals"
+    ],
+    "learning_objective_text": "Estimating the cost of a planned cloud architecture.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.terraform_get_started",
+    "title": "Terraform: Get Started",
+    "url": "https://developer.hashicorp.com/terraform/tutorials/aws-get-started",
+    "provider": "HashiCorp",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.infrastructure_as_code",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 3,
+    "duration_min": 90,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cloud_fundamentals"
+    ],
+    "learning_objective_text": "Defining infrastructure declaratively with Terraform.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.grafana_intro",
+    "title": "Introduction to Grafana",
+    "url": "https://grafana.com/docs/grafana/latest/introduction/",
+    "provider": "Grafana Labs",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.logging_monitoring",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.backend_framework"
+    ],
+    "learning_objective_text": "Dashboards and alerting for observability.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.git_pro_book",
+    "title": "Pro Git Book (Getting Started)",
+    "url": "https://git-scm.com/book/en/v2",
+    "provider": "git-scm.com",
+    "type": "book_chapter",
+    "skill_targets": [
+      {
+        "skill_id": "skill.git",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 180,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cli_basics"
+    ],
+    "learning_objective_text": "The official, free book covering Git from first commit to branching.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.github_flow",
+    "title": "GitHub Flow",
+    "url": "https://docs.github.com/en/get-started/using-github/github-flow",
+    "provider": "GitHub",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.github_workflow",
+        "level_from": 0,
+        "level_to": 2
+      },
+      {
+        "skill_id": "skill.version_control_branching",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.git"
+    ],
+    "learning_objective_text": "A lightweight branch-based workflow for collaborating on GitHub.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.google_code_review",
+    "title": "Google Engineering Practices: Code Review",
+    "url": "https://google.github.io/eng-practices/review/",
+    "provider": "Google",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.code_review_practice",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.github_workflow"
+    ],
+    "learning_objective_text": "Standards and etiquette for giving/receiving code review.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.atlassian_agile",
+    "title": "Agile Project Management with Scrum",
+    "url": "https://www.atlassian.com/agile/scrum",
+    "provider": "Atlassian",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.agile_practices",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Sprints, standups and backlogs in Scrum.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.writethedocs_guide",
+    "title": "Write the Docs: Documentation Guide",
+    "url": "https://www.writethedocs.org/guide/",
+    "provider": "Write the Docs",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.documentation_practice",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 60,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Principles for writing clear technical docs.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mode_business_analysis",
+    "title": "SQL Tutorial for Data Analysis (Business Analytics with SQL)",
+    "url": "https://www.thoughtspot.com/sql-tutorial/introduction-to-sql",
+    "provider": "ThoughtSpot (formerly Mode Analytics)",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.business_requirements_analysis",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 120,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "Turning business questions into SQL analysis.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.kimball_kpi",
+    "title": "How to Choose the Right KPIs",
+    "url": "https://www.klipfolio.com/resources/articles/what-is-a-key-performance-indicator",
+    "provider": "Klipfolio",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.kpi_metrics_design",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.business_requirements_analysis"
+    ],
+    "learning_objective_text": "Defining metrics that track a real business outcome.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.dama_data_governance",
+    "title": "What Is Data Governance?",
+    "url": "https://www.dataversity.net/what-is-data-governance/",
+    "provider": "DATAVERSITY",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.data_governance",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Policies that keep organizational data trustworthy.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.ftc_privacy",
+    "title": "Data Privacy Basics",
+    "url": "https://www.ftc.gov/business-guidance/privacy-security",
+    "provider": "FTC",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.data_ethics_privacy",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 20,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.data_governance"
+    ],
+    "learning_objective_text": "Regulatory and ethical basics of handling personal data.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.etl_fundamentals_article",
+    "title": "ETL vs ELT: What's the Difference?",
+    "url": "https://www.stitchdata.com/resources/etl-vs-elt/",
+    "provider": "Stitch",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.etl_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 15,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.sql_fundamentals"
+    ],
+    "learning_objective_text": "Extract-transform-load pipelines and how they move data.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.mode_time_series",
+    "title": "SQL Window Functions (for time series analysis)",
+    "url": "https://www.thoughtspot.com/sql-tutorial/sql-window-functions",
+    "provider": "ThoughtSpot (formerly Mode Analytics)",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.time_series_analysis",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.descriptive_statistics"
+    ],
+    "learning_objective_text": "Window functions and trend analysis over time-ordered data.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "community",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.owasp_cheatsheets",
+    "title": "OWASP Cheat Sheet Series",
+    "url": "https://cheatsheetseries.owasp.org/",
+    "provider": "OWASP",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.security_fundamentals",
+        "level_from": 1,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 90,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Practical, per-topic secure-coding cheat sheets.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_control_flow",
+    "title": "More Control Flow Tools",
+    "url": "https://docs.python.org/3/tutorial/controlflow.html",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.control_flow",
+        "level_from": 0,
+        "level_to": 1
+      },
+      {
+        "skill_id": "skill.programming_fundamentals",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 40,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "if/for/while and other control-flow constructs in Python.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.py_functions",
+    "title": "Defining Functions",
+    "url": "https://docs.python.org/3/tutorial/controlflow.html#defining-functions",
+    "provider": "Python Software Foundation",
+    "type": "docs",
+    "skill_targets": [
+      {
+        "skill_id": "skill.functions_modularity",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 30,
+    "modality": "read",
+    "prerequisite_skill_ids": [
+      "skill.control_flow"
+    ],
+    "learning_objective_text": "Defining and calling functions, default/keyword arguments.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.rp_debugging",
+    "title": "Python Debugging With Pdb",
+    "url": "https://realpython.com/python-debugging-pdb/",
+    "provider": "Real Python",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.debugging",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 2,
+    "duration_min": 35,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.programming_fundamentals"
+    ],
+    "learning_objective_text": "Systematically isolating bugs using Python's interactive debugger.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.fcc_command_line",
+    "title": "Command Line for Beginners",
+    "url": "https://www.freecodecamp.org/news/command-line-for-beginners/",
+    "provider": "freeCodeCamp",
+    "type": "article",
+    "skill_targets": [
+      {
+        "skill_id": "skill.cli_basics",
+        "level_from": 0,
+        "level_to": 1
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 45,
+    "modality": "read",
+    "prerequisite_skill_ids": [],
+    "learning_objective_text": "Navigating files and running programs from a Unix shell.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  },
+  {
+    "resource_id": "res.ubuntu_cli_tutorial",
+    "title": "The Linux Command Line for Beginners",
+    "url": "https://ubuntu.com/tutorials/command-line-for-beginners",
+    "provider": "Canonical / Ubuntu",
+    "type": "course",
+    "skill_targets": [
+      {
+        "skill_id": "skill.linux_fundamentals",
+        "level_from": 0,
+        "level_to": 2
+      }
+    ],
+    "difficulty": 1,
+    "duration_min": 90,
+    "modality": "do",
+    "prerequisite_skill_ids": [
+      "skill.cli_basics"
+    ],
+    "learning_objective_text": "Processes, permissions and the Linux filesystem, hands-on.",
+    "audience": "beginner",
+    "language": "en",
+    "cost": "free",
+    "curation_tier": "curated",
+    "reviewed_by": "edupath-phase3-curation",
+    "last_verified_at": "2026-09-19",
+    "link_status": "ok"
+  }
+]

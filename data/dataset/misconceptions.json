@@ -1,0 +1,208 @@
+[
+  {
+    "misconception_id": "misc.chain_rule_sum",
+    "description": "Differentiates a composite function as a sum of the parts' derivatives instead of their product.",
+    "affected_skill": "skill.backpropagation",
+    "root_prerequisite": "skill.chain_rule",
+    "manifestation": "Given f(g(x)), computes f'(x) + g'(x) instead of f'(g(x)) * g'(x); in a network, this shows up as adding rather than multiplying layer-local gradients.",
+    "remediation_candidates": [
+      "res.khan_diff_calc",
+      "res.3b1b_calculus",
+      "res.cs231n_backprop"
+    ],
+    "severity": "high"
+  },
+  {
+    "misconception_id": "misc.backprop_local_gradient_only",
+    "description": "Believes each layer's weight update uses only that layer's local error, ignoring gradients flowing back from downstream layers.",
+    "affected_skill": "skill.backpropagation",
+    "root_prerequisite": "skill.neural_network_fundamentals",
+    "manifestation": "Updates a hidden layer as if it were the output layer, skipping the upstream chain of partial derivatives entirely.",
+    "remediation_candidates": [
+      "res.cs231n_backprop",
+      "res.3b1b_neural_nets"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.vanishing_gradient_confusion",
+    "description": "Believes a plateauing training loss always means the model has converged optimally, rather than considering vanishing/exploding gradients.",
+    "affected_skill": "skill.training_neural_networks",
+    "root_prerequisite": "skill.backpropagation",
+    "manifestation": "Stops debugging a stalled training run because 'the loss curve is flat', without checking gradient magnitudes or learning rate.",
+    "remediation_candidates": [
+      "res.d2l_optimization",
+      "res.pytorch_optim"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.overfitting_is_just_memorizing",
+    "description": "Believes overfitting can only happen with very small datasets and cannot happen once there is 'enough' data.",
+    "affected_skill": "skill.overfitting_regularization",
+    "root_prerequisite": "skill.supervised_learning",
+    "manifestation": "Dismisses a large train/validation gap as impossible given dataset size, rather than checking model capacity vs. data complexity.",
+    "remediation_candidates": [
+      "res.sklearn_overfitting",
+      "res.sklearn_cv"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.cv_prevents_overfitting",
+    "description": "Believes running cross-validation itself prevents overfitting, rather than merely detecting/estimating it.",
+    "affected_skill": "skill.cross_validation",
+    "root_prerequisite": "skill.overfitting_regularization",
+    "manifestation": "Adds k-fold CV to a pipeline and assumes the resulting model is now regularized, with no other changes made.",
+    "remediation_candidates": [
+      "res.sklearn_cv"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.relu_always_better",
+    "description": "Believes ReLU has no drawbacks and should replace sigmoid/softmax everywhere, including output layers for probabilities.",
+    "affected_skill": "skill.activation_functions",
+    "root_prerequisite": "skill.neural_network_fundamentals",
+    "manifestation": "Uses ReLU on a final classification layer where a bounded probability output (softmax/sigmoid) is required.",
+    "remediation_candidates": [
+      "res.mlcc_activation"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.sgd_same_as_gd",
+    "description": "Believes stochastic gradient descent and full-batch gradient descent always follow the same trajectory, ignoring sampling noise.",
+    "affected_skill": "skill.gradient_descent_variants",
+    "root_prerequisite": "skill.optimization_basics",
+    "manifestation": "Expects a single-example SGD step to reduce loss on the whole training set every step, the way a full-batch step would.",
+    "remediation_candidates": [
+      "res.d2l_optimization",
+      "res.mlcc_gradient_descent"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.sql_inner_join_default_keeps_all",
+    "description": "Believes INNER JOIN keeps all rows from both tables, similar to a UNION.",
+    "affected_skill": "skill.sql_joins",
+    "root_prerequisite": "skill.sql_fundamentals",
+    "manifestation": "Expects unmatched rows from either table to appear (with NULLs) in an INNER JOIN result, then is surprised rows are missing.",
+    "remediation_candidates": [
+      "res.mode_sql_joins"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.left_join_symmetric",
+    "description": "Believes LEFT JOIN and RIGHT JOIN with the tables in the same order return the same rows, missing that row-preservation direction matters.",
+    "affected_skill": "skill.sql_joins",
+    "root_prerequisite": "skill.sql_fundamentals",
+    "manifestation": "Swaps LEFT JOIN for RIGHT JOIN (same table order) expecting identical output.",
+    "remediation_candidates": [
+      "res.mode_sql_joins"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.pvalue_probability_null_true",
+    "description": "Believes a p-value is the probability that the null hypothesis is true.",
+    "affected_skill": "skill.hypothesis_testing",
+    "root_prerequisite": "skill.probability_distributions",
+    "manifestation": "States 'p = 0.03 means there's a 3% chance the null hypothesis is true', a direct misreading of what a p-value conditions on.",
+    "remediation_candidates": [
+      "res.khan_inference"
+    ],
+    "severity": "high"
+  },
+  {
+    "misconception_id": "misc.confidence_interval_contains_true_value_95pct",
+    "description": "Believes a 95% confidence interval means there's a 95% chance the true parameter lies in this specific computed interval.",
+    "affected_skill": "skill.hypothesis_testing",
+    "root_prerequisite": "skill.inferential_statistics",
+    "manifestation": "Interprets one already-computed 95% CI as having a 95% chance of containing the true population parameter, rather than describing the procedure's long-run coverage.",
+    "remediation_candidates": [
+      "res.khan_confidence"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.recursion_no_base_case_needed",
+    "description": "Believes a recursive function will naturally terminate as long as the input 'gets smaller', without an explicit base case.",
+    "affected_skill": "skill.recursion",
+    "root_prerequisite": "skill.functions_modularity",
+    "manifestation": "Writes a recursive function with only a recursive call and no explicit stopping condition, causing infinite recursion / stack overflow.",
+    "remediation_candidates": [
+      "res.gfg_recursion"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.big_o_worst_case_only_matters",
+    "description": "Conflates Big-O with worst-case runtime specifically, not realizing O/Θ/Ω describe upper/tight/lower bounds independent of best/average/worst case.",
+    "affected_skill": "skill.big_o",
+    "root_prerequisite": "skill.dsa_sorting_searching",
+    "manifestation": "States an algorithm 'is O(n log n)' meaning strictly worst-case, then is confused when a source describes its average-case bound the same way.",
+    "remediation_candidates": [
+      "res.cs_bigo"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.rest_get_can_mutate",
+    "description": "Believes it's acceptable to perform state-mutating writes inside a GET endpoint since 'it still works'.",
+    "affected_skill": "skill.rest_api_design",
+    "root_prerequisite": "skill.http_fundamentals",
+    "manifestation": "Implements a GET /delete-item endpoint, breaking caching, prefetching and idempotency assumptions that depend on GET being safe.",
+    "remediation_candidates": [
+      "res.restfulapi_design",
+      "res.mdn_http_overview"
+    ],
+    "severity": "medium"
+  },
+  {
+    "misconception_id": "misc.jwt_is_encrypted",
+    "description": "Believes a JWT's payload is encrypted and therefore safe to store secrets in, when it is only signed and base64-encoded (readable by anyone).",
+    "affected_skill": "skill.authentication_authorization",
+    "root_prerequisite": "skill.security_fundamentals",
+    "manifestation": "Puts a plaintext secret or password inside a JWT claim, assuming it can't be read by the client that holds the token.",
+    "remediation_candidates": [
+      "res.jwt_intro",
+      "res.owasp_top10"
+    ],
+    "severity": "high"
+  },
+  {
+    "misconception_id": "misc.unit_tests_prove_no_bugs",
+    "description": "Believes a fully passing unit test suite proves the absence of bugs, rather than only the absence of the specific behaviors tested.",
+    "affected_skill": "skill.testing_fundamentals",
+    "root_prerequisite": "skill.error_handling",
+    "manifestation": "Ships a change on 'all tests green' without considering untested edge cases or integration behavior.",
+    "remediation_candidates": [
+      "res.pytest_docs"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.docker_image_is_running_container",
+    "description": "Conflates a Docker image with a running container, believing stopping a container deletes its image.",
+    "affected_skill": "skill.docker",
+    "root_prerequisite": "skill.linux_fundamentals",
+    "manifestation": "Runs `docker stop` and then expects `docker run` on the same image to fail because 'the container/image is gone'.",
+    "remediation_candidates": [
+      "res.docker_get_started"
+    ],
+    "severity": "low"
+  },
+  {
+    "misconception_id": "misc.normalization_removes_all_duplication",
+    "description": "Believes fully normalizing a relational schema (3NF and beyond) always improves query performance.",
+    "affected_skill": "skill.relational_modeling",
+    "root_prerequisite": "skill.sql_fundamentals",
+    "manifestation": "Over-normalizes a reporting table into many joins, then is surprised query latency gets worse, not better.",
+    "remediation_candidates": [
+      "res.dbdesigner_normalization"
+    ],
+    "severity": "medium"
+  }
+]

@@ -92,6 +92,13 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   NetworkX at process startup. **The LLM cannot add graph edges at runtime.**
 - If a requested role is not in the curated graph: return "role not supported".
   **Never invent a graph at runtime.**
+- **Curated source data (Phase 3):** `data/` at the repo root holds the offline-curated
+  skill graph, resource catalog, misconception catalog and assessment item bank as
+  generated JSON (`data/dataset/`), with the curated content and a validator in
+  `data/scripts/`. See `data/README.md`. Current `graph_version`: `v0.1.0-domain-pack`
+  (158 skills / 3 roles / 203 skill-edges / 140 resources / 18 misconceptions / 95
+  items — not yet human-reviewed per §11.5, and not yet loaded into Postgres; that
+  loader is Phase 4+ work).
 
 ## 6. Agent I/O contract
 
@@ -121,9 +128,13 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   LLM never emits a raw URL or invents an ID; it selects from a pre-built candidate
   ID set.
 - **Decided (Phase 1):** UUID v4, stored as `String(36)`, for learner/run-scoped rows
-  (`user_id` implemented this way in `backend/app/db/models.py`). Stable slugs for
-  curated graph/catalog rows (skills, roles) remain the plan for Phase 3 but are not
-  yet implemented.
+  (`user_id` implemented this way in `backend/app/db/models.py`).
+- **Decided (Phase 3):** Stable, human-readable slugs for curated graph/catalog rows —
+  `skill.<name>` (e.g. `skill.chain_rule`), `role.<name>` (e.g. `role.ml_engineer`),
+  `res.<name>`, `misc.<name>`, `item.<skill>.<n>` — implemented in `data/dataset/`.
+  Demo/learner-scoped rows in the demo dataset follow the Phase 1 UUID-style
+  convention loosely (readable fixed IDs like `demo-learner-asha`, since they are
+  seed data, not real session-derived rows).
 
 ## 8. API conventions
 

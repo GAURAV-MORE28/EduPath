@@ -8,6 +8,52 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 3 (data, partial) | 2026-09-19] Domain knowledge pack
+
+- Created `data/` at the repo root — deliberately decoupled from
+  `backend/app/`, per design §11.5 ("graph is curated offline") — as the
+  canonical domain knowledge pack for the 3 supported roles (ML Engineer,
+  Data Analyst, Backend Developer).
+- `data/scripts/build_dataset.py`: stdlib-only Python script that is the
+  source of truth for curated content (skills, roles, prerequisite graph,
+  resources, misconceptions, assessment items, demo dataset), and generates
+  `data/dataset/*.json`.
+- `data/scripts/validate_dataset.py`: validates duplicate IDs, missing
+  references, hard-prerequisite DAG-ness, orphan skills, role/resource
+  coverage, misconception root-ancestor consistency, assessment item
+  integrity, and resource URL well-formedness/domain reputation. Current
+  pack validates with **0 errors, 0 warnings**.
+- Content: 158 skills (6 non-assessable grouping skills), 3 roles (46/30/50
+  required skills), 203 skill-to-skill edges (`PREREQUISITE_OF`/`PART_OF`/
+  `RELATED_TO`), 140 curated resources (real URLs only — spot-checked live;
+  fixed two discovered-stale domains, `linuxjourney.com` and `mode.com`,
+  to their real current destinations), 18 misconceptions, 95 assessment
+  items across 23 skills.
+- Demo dataset (`data/dataset/demo/`) implements the design §38.1 "Asha"
+  persona and the `Chain Rule → Backpropagation → Training Neural Networks`
+  seeded path end-to-end: resume text, seeded learner skill state matching
+  the §13.4 worked example (MET/UNVERIFIED/MISSING statuses with reasons),
+  the `misc.chain_rule_sum` misconception, and a scripted-wrong-answer
+  attempt configuration matching §38.2 step 8.
+- `data/README.md` documents the pack's layout, regeneration/validation
+  commands, link-validation approach, and — importantly — its **known scope
+  decisions**: the item bank is an initial (not exhaustive) bank, no entry
+  has had a human review pass yet, and nothing in this pack is loaded into
+  Postgres or read by application code yet (that's remaining Phase 3/4
+  work). See `docs/IMPLEMENTATION_STATE.md` "Domain Knowledge Pack" for the
+  full breakdown.
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §5 and §7: recorded the stable
+  slug ID convention now in use for curated rows (`skill.*`, `role.*`,
+  `res.*`, `misc.*`, `item.*`) and pointed to `data/` as where the curated
+  source data lives.
+- **No application workflow code was written this phase** — no graph loader,
+  no Postgres migration for the graph/catalog tables, no consumption by any
+  backend/frontend code. That is intentional per this phase's scope (data
+  assets only); it's the first item in Phase 3's remaining/Phase 4's
+  dependent work.
+
+---
+
 ## [Phase 1 | 2026-09-19] Foundation layer
 
 - Backend: FastAPI app with lifespan-gated startup (fails fast if LangGraph

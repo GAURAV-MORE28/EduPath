@@ -1,0 +1,89 @@
+{
+  "scenario_id": "demo.asha.ml_engineer.week1",
+  "graph_version": "v0.1.0-domain-pack",
+  "learner_id": "demo-learner-asha",
+  "role_id": "role.ml_engineer",
+  "description": "Design doc §38.2 scripted demo flow: resume upload -> gap analysis -> weekly plan -> probe/practice -> misconception detection -> reflection -> re-plan -> tutor Q&A.",
+  "seeded_graph_path": [
+    "skill.chain_rule",
+    "skill.backpropagation",
+    "skill.training_neural_networks"
+  ],
+  "seeded_misconception": {
+    "misconception_id": "misc.chain_rule_sum",
+    "affected_skill": "skill.backpropagation",
+    "root_prerequisite": "skill.chain_rule"
+  },
+  "seeded_item_set": {
+    "purpose": "backpropagation assessment with prerequisite block",
+    "backpropagation_items": [
+      "item.backpropagation.1",
+      "item.backpropagation.2",
+      "item.backpropagation.3",
+      "item.backpropagation.4"
+    ],
+    "chain_rule_prereq_block_items": [
+      "item.chain_rule.3",
+      "item.chain_rule.4"
+    ],
+    "misconception_tagged_items": [
+      "item.backpropagation.1",
+      "item.backpropagation.3",
+      "item.backpropagation.4",
+      "item.chain_rule.2",
+      "item.chain_rule.4",
+      "item.chain_rule.5"
+    ]
+  },
+  "scripted_attempt": {
+    "description": "Scripted-wrong-answer button per §38.2 step 8: selects the misc.chain_rule_sum-tagged distractor on the misconception-tagged items, and fails the chain_rule prerequisite-block items.",
+    "answers": [
+      {
+        "item_id": "item.backpropagation.1",
+        "chosen_is_key": false,
+        "chosen_misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "item_id": "item.backpropagation.2",
+        "chosen_is_key": true,
+        "chosen_misconception_id": null
+      },
+      {
+        "item_id": "item.backpropagation.3",
+        "chosen_is_key": false,
+        "chosen_misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "item_id": "item.backpropagation.4",
+        "chosen_is_key": false,
+        "chosen_misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "item_id": "item.chain_rule.3",
+        "chosen_is_key": false,
+        "chosen_misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "item_id": "item.chain_rule.4",
+        "chosen_is_key": false,
+        "chosen_misconception_id": "misc.chain_rule_sum"
+      }
+    ],
+    "expected_classification": {
+      "class": "misconception_confirmed",
+      "misconception_id": "misc.chain_rule_sum",
+      "secondary_class": "missing_prerequisite",
+      "root_skill": "skill.chain_rule"
+    }
+  },
+  "expected_reflection_operators": [
+    "INSERT_REMEDIATION",
+    "DEFER",
+    "ADD_PROBE"
+  ],
+  "tutor_demo_questions": [
+    "Why did my plan change?",
+    "Why do I need the chain rule for PyTorch training?"
+  ],
+  "replay_mode_note": "record/replay LLM Gateway cache should be warmed for this scenario before a live demo (design §38.3); DEMO_MODE=true seeds these files in one command."
+}

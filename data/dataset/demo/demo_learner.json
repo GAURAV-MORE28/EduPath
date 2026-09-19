@@ -1,0 +1,24 @@
+{
+  "learner_id": "demo-learner-asha",
+  "user_id": "demo-user-asha",
+  "name": "Asha",
+  "persona_note": "Third-year AIML student. Design doc §38.1 demo persona.",
+  "target_role_id": "role.ml_engineer",
+  "career_goal": "Become a Machine Learning Engineer working on computer vision systems.",
+  "experience_summary": "Third-year AI/ML undergraduate; coursework in programming and calculus; one independent object-detection project.",
+  "weekly_hours": 5,
+  "preferences": {
+    "modality_order": [
+      "do",
+      "watch",
+      "read"
+    ],
+    "language": "en",
+    "session_length_minutes_max": 60
+  },
+  "constraints": {
+    "fixed_days_off": [
+      "Sunday"
+    ]
+  }
+}

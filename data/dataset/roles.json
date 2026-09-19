@@ -1,0 +1,658 @@
+[
+  {
+    "role_id": "role.ml_engineer",
+    "title": "Machine Learning Engineer",
+    "description": "Builds, trains, evaluates and deploys machine learning models, from classical ML through deep learning, with production-grade MLOps practices.",
+    "required_skills": [
+      {
+        "skill_id": "skill.python",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.numpy",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.pandas",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.algebra_basics",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.derivatives",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.chain_rule",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.multivariable_calculus",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.linear_algebra_vectors",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.linear_algebra_matrices",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.probability_fundamentals",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.descriptive_statistics",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.probability_distributions",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.ml_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.supervised_learning",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.unsupervised_learning",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.model_evaluation",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.overfitting_regularization",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.feature_engineering",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.cross_validation",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.decision_trees_ensembles",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.scikit_learn",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.neural_network_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.backpropagation",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.activation_functions",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.loss_functions",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.training_neural_networks",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.pytorch",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.cnn",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.rnn_sequence_models",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.transformers_attention",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.transfer_learning",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.regularization_dl",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.opencv",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.object_detection",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.nlp_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.llm_basics",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.experiment_tracking",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.model_versioning",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.model_serving",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.ml_monitoring",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.mlops_fundamentals",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.docker",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.cloud_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.git",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.sql_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.data_cleaning",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.hyperparameter_tuning",
+        "required_level": 1,
+        "weight": 1
+      }
+    ]
+  },
+  {
+    "role_id": "role.data_analyst",
+    "title": "Data Analyst",
+    "description": "Turns raw business data into decisions: cleaning, analyzing, visualizing and communicating findings to stakeholders.",
+    "required_skills": [
+      {
+        "skill_id": "skill.excel",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.sql_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.sql_joins",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.sql_aggregation",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.descriptive_statistics",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.probability_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.probability_distributions",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.inferential_statistics",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.hypothesis_testing",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.regression_analysis",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.ab_testing",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.data_cleaning",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.exploratory_data_analysis",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.python",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.pandas",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.numpy",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.data_visualization_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.matplotlib_seaborn",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.tableau",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.powerbi",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.dashboarding",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.data_storytelling",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.etl_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.business_requirements_analysis",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.kpi_metrics_design",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.data_governance",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.communication_stakeholders",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.spreadsheet_formulas",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.time_series_analysis",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.git",
+        "required_level": 1,
+        "weight": 1
+      }
+    ]
+  },
+  {
+    "role_id": "role.backend_developer",
+    "title": "Backend Developer",
+    "description": "Designs, builds and operates server-side systems and APIs: data modeling, service design, security and deployment.",
+    "required_skills": [
+      {
+        "skill_id": "skill.python",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.programming_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.control_flow",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.functions_modularity",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.oop",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.error_handling",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.testing_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.unit_testing_python",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.debugging",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.dsa_arrays_strings",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.dsa_hashing",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.big_o",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.recursion",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.dsa_trees",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.dsa_graphs",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.sql_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.sql_joins",
+        "required_level": 2,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.relational_modeling",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.indexing_query_optimization",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.transactions_acid",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.nosql_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.postgresql",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.orm_usage",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.database_migrations",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.rest_api_design",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.http_fundamentals",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.backend_framework",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.authentication_authorization",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.caching",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.message_queues",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.microservices",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.system_design_fundamentals",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.load_balancing",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.api_testing",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.websockets",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.docker",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.ci_cd",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.cloud_fundamentals",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.logging_monitoring",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.security_fundamentals",
+        "required_level": 1,
+        "weight": 2
+      },
+      {
+        "skill_id": "skill.web_security_owasp",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.git",
+        "required_level": 2,
+        "weight": 3
+      },
+      {
+        "skill_id": "skill.github_workflow",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.cli_basics",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.linux_fundamentals",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.async_programming",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.design_patterns",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.code_review_practice",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.env_config_management",
+        "required_level": 1,
+        "weight": 1
+      },
+      {
+        "skill_id": "skill.api_documentation",
+        "required_level": 1,
+        "weight": 1
+      }
+    ]
+  }
+]

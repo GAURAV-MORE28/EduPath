@@ -1,0 +1,227 @@
+{
+  "learner_id": "demo-learner-asha",
+  "graph_version": "v0.1.0-domain-pack",
+  "skill_states": [
+    {
+      "skill_id": "skill.python",
+      "status_for_role": "MET",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 6.0,
+        "beta": 2.0,
+        "estimate": 0.75,
+        "band": "Proficient",
+        "confidence": "medium",
+        "n_obs": 0
+      },
+      "tier_max": "E2",
+      "claims": [
+        "Python listed on resume"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.python.github",
+          "tier": "E2",
+          "source_type": "github_repo",
+          "note": "Repo languages breakdown: Python 92%."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.cnn",
+      "status_for_role": "MET",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 5.0,
+        "beta": 2.0,
+        "estimate": 0.71,
+        "band": "Developing",
+        "confidence": "medium",
+        "n_obs": 0
+      },
+      "tier_max": "E2",
+      "claims": [
+        "OpenCV + YOLOv8 project"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.cnn.project",
+          "tier": "E2",
+          "source_type": "document",
+          "note": "Resume project description: YOLOv8 detector, trained with PyTorch, README + code verified via GitHub."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.object_detection",
+      "status_for_role": "MET",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 4.0,
+        "beta": 1.5,
+        "estimate": 0.73,
+        "band": "Developing",
+        "confidence": "medium",
+        "n_obs": 0
+      },
+      "tier_max": "E2",
+      "claims": [
+        "YOLOv8 project"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.objdet.project",
+          "tier": "E2",
+          "source_type": "github_repo",
+          "note": "YOLOv8 object-detection repo, verified."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.opencv",
+      "status_for_role": "MET",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 3.0,
+        "beta": 1.0,
+        "estimate": 0.75,
+        "band": "Developing",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E2",
+      "claims": [
+        "OpenCV listed on resume"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.opencv.project",
+          "tier": "E2",
+          "source_type": "github_repo",
+          "note": "OpenCV used for frame capture/preprocessing."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.chain_rule",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 0.5,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E0",
+      "claims": [
+        "\"Calculus\" listed in coursework"
+      ],
+      "evidence": [],
+      "note": "Inferred only from the 'Calculus' coursework line item — E0, no direct evidence."
+    },
+    {
+      "skill_id": "skill.backpropagation",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.5,
+        "estimate": 0.4,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "\"Trained models\" implied by the YOLOv8 project description"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.backprop.resume",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Resume prose mentions training the model, but does not demonstrate understanding of how training works."
+        }
+      ],
+      "note": "E1 only (resume prose, no assessment) — cannot satisfy MET at L2 (needs E2/E3)."
+    },
+    {
+      "skill_id": "skill.neural_network_fundamentals",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Implied by PyTorch usage in the YOLOv8 project"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.nnfund.resume",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Used PyTorch to train a model; conceptual understanding of network fundamentals not directly evidenced."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.training_neural_networks",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 2,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "YOLOv8 project trained with PyTorch"
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.train.resume",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Trained a model end-to-end, but backpropagation (a hard prerequisite) is itself UNVERIFIED, not MET."
+        }
+      ],
+      "note": "Would become BLOCKED if backpropagation is later found WEAK/MISSING after the probe."
+    },
+    {
+      "skill_id": "skill.mlops_fundamentals",
+      "status_for_role": "MISSING",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 0.5,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": null,
+      "claims": [],
+      "evidence": [],
+      "note": "No claim, no evidence — the first true learning objective per §13.4."
+    }
+  ],
+  "misconceptions": [],
+  "open_audit_flags": [
+    {
+      "flag": "claim_evidence_mismatch",
+      "skill_id": "skill.backpropagation",
+      "detail": "Trained a model (implies backprop was used) but no direct evidence of understanding it."
+    }
+  ]
+}

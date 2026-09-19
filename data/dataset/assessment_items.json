@@ -1,0 +1,3137 @@
+[
+  {
+    "item_id": "item.derivatives.1",
+    "skill_id": "skill.derivatives",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does the derivative of a function at a point represent?",
+    "options": [
+      {
+        "text": "The instantaneous rate of change of the function at that point",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The average value of the function over its domain",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The area under the curve up to that point",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The maximum value the function can reach",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The derivative is the instantaneous slope / rate of change at a point.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.derivatives.2",
+    "skill_id": "skill.derivatives",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is d/dx of x^3?",
+    "options": [
+      {
+        "text": "3x^2",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "x^2",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "3x",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "x^3/3",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Power rule: d/dx x^n = n*x^(n-1), so d/dx x^3 = 3x^2.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.derivatives.3",
+    "skill_id": "skill.derivatives",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is d/dx of (5x)?",
+    "options": [
+      {
+        "text": "5",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "5x",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "x",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "0",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The derivative of a linear function ax is its constant slope a.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.derivatives.4",
+    "skill_id": "skill.derivatives",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "If f(x) = x^2 + 3x, what is f'(x)?",
+    "options": [
+      {
+        "text": "2x + 3",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "2x + 3x",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "x + 3",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "2x",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Differentiate term by term: d/dx x^2 = 2x, d/dx 3x = 3.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.1",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "The chain rule is used to differentiate what kind of function?",
+    "options": [
+      {
+        "text": "A composite function, i.e. a function of a function",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "A sum of two functions",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A product of two constants",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "An integral",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The chain rule differentiates compositions f(g(x)).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.2",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "For f(x) = (3x + 1)^2, what is f'(x) using the chain rule?",
+    "options": [
+      {
+        "text": "2*(3x+1)*3 = 6*(3x+1)",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "2*(3x+1) + 3",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "2*(3x+1)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "6x + 1",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Chain rule: d/dx [g(x)]^2 = 2*g(x)*g'(x); here g(x)=3x+1 so g'(x)=3, giving 6*(3x+1).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.3",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "medium",
+    "purpose": "prereq-block",
+    "question": "If y = f(u) and u = g(x), what is dy/dx?",
+    "options": [
+      {
+        "text": "dy/du * du/dx",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "dy/du + du/dx",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "dy/du - du/dx",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "du/dx alone",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The chain rule composes derivatives by multiplication, not addition: dy/dx = dy/du * du/dx.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.4",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "medium",
+    "purpose": "prereq-block",
+    "question": "For h(x) = sin(x^2), what is h'(x)?",
+    "options": [
+      {
+        "text": "cos(x^2) * 2x",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "cos(x^2) + 2x",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "-cos(x^2) * 2x",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "2x * sin(x)",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Outer derivative cos(x^2) times inner derivative 2x, multiplied per the chain rule.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.5",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "For f(x) = e^(3x^2), what is f'(x)?",
+    "options": [
+      {
+        "text": "6x * e^(3x^2)",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "3x^2 * e^(3x^2) + 6x",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "e^(3x^2)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "6x + e^(3x^2)",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Outer derivative e^(3x^2) times inner derivative 6x, multiplied, not added.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.chain_rule.6",
+    "skill_id": "skill.chain_rule",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "For f(x) = ln(cos(x)), what is f'(x)?",
+    "options": [
+      {
+        "text": "-tan(x)",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "1/cos(x) - sin(x)",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "-sin(x)*cos(x)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "tan(x)",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "d/dx ln(cos(x)) = (1/cos(x)) * (-sin(x)) = -tan(x), by the chain rule.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.1",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "In a feedforward neural network, what does a single neuron compute?",
+    "options": [
+      {
+        "text": "A weighted sum of its inputs plus a bias, passed through an activation function",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The average of all inputs in the network",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A random number used for initialization",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The final class label directly",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A neuron computes activation(w·x + b).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.2",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the role of weights in a neural network?",
+    "options": [
+      {
+        "text": "They scale the contribution of each input to a neuron's output",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They store the final predictions",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "They determine the learning rate",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "They count the number of training epochs",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Weights are learned parameters that scale each input's contribution.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.3",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Why do neural networks need a nonlinear activation function?",
+    "options": [
+      {
+        "text": "Without nonlinearity, stacking layers collapses to a single linear transform",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Nonlinearity makes training faster in all cases",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It is only needed for image data",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It replaces the need for a loss function",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Composing only linear layers is still linear; nonlinearity gives networks their expressive power.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.4",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is a 'hidden layer' in a neural network?",
+    "options": [
+      {
+        "text": "Any layer between the input and output layers",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "A layer whose weights are never updated",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A layer that is only used at inference time",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The layer that computes the loss",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Hidden layers sit between input and output and are not directly observed.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.5",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "Why is weight initialization important for training deep networks?",
+    "options": [
+      {
+        "text": "Poor initialization can cause vanishing or exploding activations/gradients",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It only affects the final accuracy, never training stability",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Weights are never actually initialized; they start at zero",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It only matters for convolutional layers",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Initialization scale interacts with depth and activation choice to affect gradient flow.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.neural_network_fundamentals.6",
+    "skill_id": "skill.neural_network_fundamentals",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "What distinguishes a network's capacity from its generalization?",
+    "options": [
+      {
+        "text": "Capacity is how complex a function it can represent; generalization is how well it performs on unseen data",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They are the same thing",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Capacity only depends on the dataset size",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Generalization is fixed by the choice of optimizer alone",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A high-capacity model can fit complex functions but may generalize poorly without enough data/regularization.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.activation_functions.1",
+    "skill_id": "skill.activation_functions",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What range does the sigmoid activation function output?",
+    "options": [
+      {
+        "text": "(0, 1)",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "(-1, 1)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "(-inf, inf)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "[0, inf)",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Sigmoid squashes inputs into the open interval (0, 1).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.activation_functions.2",
+    "skill_id": "skill.activation_functions",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is a key advantage of ReLU over sigmoid in hidden layers of deep networks?",
+    "options": [
+      {
+        "text": "It reduces (but doesn't eliminate) vanishing gradients for positive inputs",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It has no drawbacks and should replace sigmoid everywhere, including output layers",
+        "is_key": false,
+        "misconception_id": "misc.relu_always_better"
+      },
+      {
+        "text": "It always outputs values between 0 and 1",
+        "is_key": false,
+        "misconception_id": "misc.relu_always_better"
+      },
+      {
+        "text": "It removes the need for a loss function",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "ReLU's gradient is 1 for positive inputs, easing vanishing gradients versus sigmoid's saturating regions; ReLU is not a universal replacement, e.g. it isn't used to produce output probabilities.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.activation_functions.3",
+    "skill_id": "skill.activation_functions",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Which activation function is typically used in the output layer for multi-class classification to produce a probability distribution?",
+    "options": [
+      {
+        "text": "Softmax",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "ReLU",
+        "is_key": false,
+        "misconception_id": "misc.relu_always_better"
+      },
+      {
+        "text": "Linear",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Tanh",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Softmax converts logits into a normalized probability distribution over classes.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.activation_functions.4",
+    "skill_id": "skill.activation_functions",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "What problem can occur when many ReLU units receive consistently negative input?",
+    "options": [
+      {
+        "text": "They can become 'dead', always outputting zero and never recovering",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They saturate near 1, just like sigmoid",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "They cause the loss function to become negative",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "They stop the optimizer from updating any weights in the network",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Persistently negative pre-activations give ReLU zero gradient, a failure mode called 'dying ReLU'.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.1",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Backpropagation computes gradients of the loss with respect to weights primarily by:",
+    "options": [
+      {
+        "text": "Applying the chain rule to propagate gradients backward through the computation graph",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "Summing the loss gradient independently at each layer with no dependence on other layers",
+        "is_key": false,
+        "misconception_id": "misc.backprop_local_gradient_only"
+      },
+      {
+        "text": "Randomly perturbing weights and measuring the resulting loss change",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Directly solving a closed-form equation for the optimal weights",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Backprop is the chain rule applied systematically backward through the network's computation graph.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.2",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "During backpropagation, the gradient at a hidden layer depends on:",
+    "options": [
+      {
+        "text": "The gradients flowing back from all layers downstream of it, multiplied through by local derivatives",
+        "is_key": true,
+        "misconception_id": "misc.backprop_local_gradient_only"
+      },
+      {
+        "text": "Only that layer's own weights and activation, independent of later layers",
+        "is_key": false,
+        "misconception_id": "misc.backprop_local_gradient_only"
+      },
+      {
+        "text": "Only the very first layer's gradient",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The learning rate alone",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Each layer's gradient is the chain-rule product of local derivatives and everything downstream.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.3",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "If layer 2's output feeds into layer 3, and we're computing d(Loss)/d(layer2_weights), the chain rule requires us to:",
+    "options": [
+      {
+        "text": "Multiply the local layer-2 derivative by the gradient already backpropagated from layer 3",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "Add the local layer-2 derivative to the gradient from layer 3",
+        "is_key": false,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "Ignore layer 3's gradient entirely",
+        "is_key": false,
+        "misconception_id": "misc.backprop_local_gradient_only"
+      },
+      {
+        "text": "Recompute the forward pass from scratch for each weight",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Chain rule composes derivatives across layers by multiplication, propagating the upstream gradient backward.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.4",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "In backprop, what does the 'local gradient' at a node get multiplied by before being passed further back?",
+    "options": [
+      {
+        "text": "The upstream gradient flowing in from the node(s) it feeds into",
+        "is_key": true,
+        "misconception_id": "misc.chain_rule_sum"
+      },
+      {
+        "text": "Nothing — local gradients are used as-is with no upstream term",
+        "is_key": false,
+        "misconception_id": "misc.backprop_local_gradient_only"
+      },
+      {
+        "text": "The learning rate",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The batch size",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Each node's local derivative is multiplied by the upstream gradient per the chain rule (backprop = repeated chain-rule application, not per-layer addition).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.5",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "Which prerequisite concept is most directly required to derive the backpropagation update rule for a hidden layer?",
+    "options": [
+      {
+        "text": "The chain rule for derivatives of composite functions",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Matrix inversion",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The central limit theorem",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Big-O complexity analysis",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Backpropagation is a systematic application of the chain rule to a layered computation graph.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.backpropagation.6",
+    "skill_id": "skill.backpropagation",
+    "difficulty": "hard",
+    "purpose": "resolution-check",
+    "question": "A network's loss stops decreasing early in training even though gradients are computed correctly. Which is the most likely explanation tied to backpropagation mechanics rather than data?",
+    "options": [
+      {
+        "text": "Gradients are vanishing as they are multiplied back through many layers",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The chain rule no longer applies once training starts",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Backpropagation only works for the first epoch",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The loss function has no derivative",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Repeated multiplication of small local gradients through depth can shrink gradients toward zero (vanishing gradients).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.1",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is one epoch in neural network training?",
+    "options": [
+      {
+        "text": "One full pass through the entire training dataset",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "One single weight update",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "One evaluation on the test set",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The final trained model",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "An epoch is one complete pass over the training data.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.2",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does a 'batch size' control during training?",
+    "options": [
+      {
+        "text": "How many training examples are used to compute each gradient update",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "How many epochs the model trains for",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The number of layers in the network",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The final test accuracy directly",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Batch size is the number of examples averaged over for one gradient step.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.3",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What are the four steps of a standard PyTorch/Keras-style training loop iteration?",
+    "options": [
+      {
+        "text": "Forward pass, compute loss, backward pass, optimizer step",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Backward pass, forward pass, save model, evaluate",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Load data, save model, forward pass, done",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Compute loss, save checkpoint, restart, repeat",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Standard loop: forward -> loss -> backward (gradients) -> optimizer.step() (update weights).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.4",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "medium",
+    "purpose": "resolution-check",
+    "question": "Training loss decreases steadily then suddenly plateaus at a high value. Which explanation is a mechanics-level issue rather than 'the model already converged optimally'?",
+    "options": [
+      {
+        "text": "Gradients may be vanishing through the network's depth, stalling learning",
+        "is_key": true,
+        "misconception_id": "misc.vanishing_gradient_confusion"
+      },
+      {
+        "text": "A flat loss curve always means optimal convergence has been reached",
+        "is_key": false,
+        "misconception_id": "misc.vanishing_gradient_confusion"
+      },
+      {
+        "text": "The dataset has too many examples",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "PyTorch stops training automatically after convergence",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A stalled loss can indicate vanishing/exploding gradients or a learning-rate issue, not necessarily true convergence — this must be diagnosed, not assumed.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.5",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "Why is it important to call optimizer.zero_grad() (or equivalent) before each backward pass?",
+    "options": [
+      {
+        "text": "Gradients accumulate by default, so stale gradients from the previous step would otherwise add in",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It resets the model's weights to their initial values",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It is only needed once at the very start of training",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It changes the loss function being used",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Without clearing, gradients from prior steps accumulate into the current step's gradient.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.training_neural_networks.6",
+    "skill_id": "skill.training_neural_networks",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "A model trains well on the training set but its validation loss starts rising after several epochs while training loss keeps falling. What is the most direct diagnosis?",
+    "options": [
+      {
+        "text": "Overfitting — the model is fitting training-set noise rather than generalizable patterns",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The chain rule has stopped applying",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The batch size is too large to compute gradients",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The activation function has no gradient",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A widening train/validation gap is the classic overfitting signature.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.gradient_descent_variants.1",
+    "skill_id": "skill.gradient_descent_variants",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does the learning rate control in gradient descent?",
+    "options": [
+      {
+        "text": "The size of the step taken in the direction of the negative gradient",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The number of layers updated",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The batch size used per step",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The final test accuracy directly",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Learning rate scales how far weights move along the negative gradient each step.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.gradient_descent_variants.2",
+    "skill_id": "skill.gradient_descent_variants",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is the key difference between stochastic gradient descent (SGD) and full-batch gradient descent?",
+    "options": [
+      {
+        "text": "SGD estimates the gradient from one (or a few) examples per step, introducing noise vs. the full-batch gradient",
+        "is_key": true,
+        "misconception_id": "misc.sgd_same_as_gd"
+      },
+      {
+        "text": "SGD and full-batch gradient descent always follow identical trajectories",
+        "is_key": false,
+        "misconception_id": "misc.sgd_same_as_gd"
+      },
+      {
+        "text": "SGD does not use gradients at all",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Full-batch gradient descent cannot be used for neural networks",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "SGD's per-step gradient is a noisy estimate of the true full-batch gradient, not identical to it.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.gradient_descent_variants.3",
+    "skill_id": "skill.gradient_descent_variants",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does momentum add to a gradient descent update?",
+    "options": [
+      {
+        "text": "A running average of past gradients, smoothing the update direction",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "A random perturbation to escape all local minima guaranteed",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "An extra hidden layer to the network",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A second loss function",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Momentum accumulates a velocity term from past gradients to smooth/accelerate descent.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.gradient_descent_variants.4",
+    "skill_id": "skill.gradient_descent_variants",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "Why might the Adam optimizer converge faster than plain SGD on many deep learning problems?",
+    "options": [
+      {
+        "text": "It adapts per-parameter learning rates using estimates of first and second gradient moments",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It always uses a larger fixed learning rate than SGD",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It ignores gradients after the first epoch",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It replaces backpropagation with a different rule for computing gradients",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Adam maintains per-parameter adaptive learning rates from moving averages of gradients and their squares.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.overfitting_regularization.1",
+    "skill_id": "skill.overfitting_regularization",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does 'overfitting' mean?",
+    "options": [
+      {
+        "text": "A model fits the training data very well but generalizes poorly to new data",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "A model performs poorly on both training and test data",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A model that trains too slowly",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A model with too few parameters to learn anything",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Overfitting is high training performance with poor generalization to unseen data.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.overfitting_regularization.2",
+    "skill_id": "skill.overfitting_regularization",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Can overfitting occur even with a very large training dataset?",
+    "options": [
+      {
+        "text": "Yes — it depends on model capacity relative to the signal/complexity in the data, not dataset size alone",
+        "is_key": true,
+        "misconception_id": "misc.overfitting_is_just_memorizing"
+      },
+      {
+        "text": "No — overfitting is only possible with small datasets",
+        "is_key": false,
+        "misconception_id": "misc.overfitting_is_just_memorizing"
+      },
+      {
+        "text": "No — more data always eliminates overfitting completely",
+        "is_key": false,
+        "misconception_id": "misc.overfitting_is_just_memorizing"
+      },
+      {
+        "text": "Only if the model has zero parameters",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A sufficiently high-capacity model can still overfit even large datasets; data size reduces but doesn't categorically prevent overfitting.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.overfitting_regularization.3",
+    "skill_id": "skill.overfitting_regularization",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is the general effect of L2 regularization on model weights?",
+    "options": [
+      {
+        "text": "It penalizes large weight magnitudes, encouraging smaller, smoother weights",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It forces all weights to exactly zero",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It increases model capacity",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It removes the need for a validation set",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "L2 regularization adds a penalty proportional to the squared weight magnitude.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.overfitting_regularization.4",
+    "skill_id": "skill.overfitting_regularization",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "What does the bias-variance tradeoff describe?",
+    "options": [
+      {
+        "text": "The balance between a model being too simple (high bias) vs. too sensitive to training noise (high variance)",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The tradeoff between training speed and inference speed",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The choice between two different loss functions",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The number of GPUs used for training",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "High bias underfits; high variance overfits — regularization and model complexity trade off between them.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.cross_validation.1",
+    "skill_id": "skill.cross_validation",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the main purpose of k-fold cross-validation?",
+    "options": [
+      {
+        "text": "To get a more robust estimate of a model's generalization performance",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "To automatically fix an overfitting model without any other changes",
+        "is_key": false,
+        "misconception_id": "misc.cv_prevents_overfitting"
+      },
+      {
+        "text": "To increase the size of the training dataset",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "To replace the need for a test set entirely in all cases",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Cross-validation estimates generalization performance by rotating which fold is held out; it detects, but does not by itself fix, overfitting.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.cross_validation.2",
+    "skill_id": "skill.cross_validation",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "In 5-fold cross-validation, how many times is the model trained?",
+    "options": [
+      {
+        "text": "5 times, each time on a different 4/5 split with the remaining 1/5 held out",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Once, on the entire dataset",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "25 times",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It depends only on the number of features",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Each of the 5 folds takes a turn as the held-out validation set.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.cross_validation.3",
+    "skill_id": "skill.cross_validation",
+    "difficulty": "hard",
+    "purpose": "resolution-check",
+    "question": "A model shows strong cross-validation scores but still overfits badly once deployed on truly new data. What does this most likely indicate?",
+    "options": [
+      {
+        "text": "The CV folds weren't representative of the deployment distribution, or CV was leaking information",
+        "is_key": true,
+        "misconception_id": "misc.cv_prevents_overfitting"
+      },
+      {
+        "text": "Cross-validation guarantees deployment performance and this shouldn't be possible",
+        "is_key": false,
+        "misconception_id": "misc.cv_prevents_overfitting"
+      },
+      {
+        "text": "The model has too few parameters",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The loss function is broken",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "CV estimates generalization under its own sampling assumptions; it doesn't guarantee real-world performance if the deployment distribution differs or there's leakage.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.1",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does an INNER JOIN return?",
+    "options": [
+      {
+        "text": "Only rows that have matching values in both tables",
+        "is_key": true,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "All rows from both tables regardless of a match",
+        "is_key": false,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "Only rows from the left table",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Only rows with NULL values",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "INNER JOIN keeps only rows where the join condition matches in both tables.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.2",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does a LEFT JOIN return that an INNER JOIN would not?",
+    "options": [
+      {
+        "text": "All rows from the left table, with NULLs for unmatched right-table columns",
+        "is_key": true,
+        "misconception_id": "misc.left_join_symmetric"
+      },
+      {
+        "text": "Only rows that match in both tables",
+        "is_key": false,
+        "misconception_id": "misc.left_join_symmetric"
+      },
+      {
+        "text": "All rows from the right table only",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Rows sorted alphabetically",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "LEFT JOIN preserves every row from the left table even without a match on the right.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.3",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Table `orders` has a row with `customer_id = 7` that does not exist in `customers`. What happens with `orders INNER JOIN customers ON orders.customer_id = customers.id`?",
+    "options": [
+      {
+        "text": "That order row is excluded from the result",
+        "is_key": true,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "That order row appears with NULL customer columns",
+        "is_key": false,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "The query fails with an error",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It appears twice",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "INNER JOIN drops rows without a match on either side.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.4",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "With the same tables, what changes if you use `orders LEFT JOIN customers ON orders.customer_id = customers.id` instead?",
+    "options": [
+      {
+        "text": "The unmatched order row is kept, with NULLs for the customer columns",
+        "is_key": true,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "The unmatched order row is still excluded, same as INNER JOIN",
+        "is_key": false,
+        "misconception_id": "misc.left_join_symmetric"
+      },
+      {
+        "text": "Only customers with no orders are returned",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It behaves identically to a RIGHT JOIN on the same tables",
+        "is_key": false,
+        "misconception_id": "misc.left_join_symmetric"
+      }
+    ],
+    "explanation": "LEFT JOIN preserves left-table rows regardless of a match, unlike INNER JOIN.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.5",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "If `A LEFT JOIN B` and `A RIGHT JOIN B` are run on the same two tables in the same order, when do they return the same result set?",
+    "options": [
+      {
+        "text": "Only when every row in A matches a row in B and vice versa (no unmatched rows on either side)",
+        "is_key": true,
+        "misconception_id": "misc.left_join_symmetric"
+      },
+      {
+        "text": "Always — LEFT and RIGHT JOIN are interchangeable",
+        "is_key": false,
+        "misconception_id": "misc.left_join_symmetric"
+      },
+      {
+        "text": "Never under any circumstance",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Only when the tables have the same number of columns",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "LEFT and RIGHT JOIN only coincide when there are no unmatched rows on either side to reveal the row-preservation difference.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_joins.6",
+    "skill_id": "skill.sql_joins",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "Why can adding an INNER JOIN to a query silently reduce the row count compared to querying a single table?",
+    "options": [
+      {
+        "text": "Rows without a matching key in the joined table are dropped from the result",
+        "is_key": true,
+        "misconception_id": "misc.sql_inner_join_default_keeps_all"
+      },
+      {
+        "text": "INNER JOIN always increases row count",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "JOIN only affects columns, never row count",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "SQL guarantees the same row count regardless of join type",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "INNER JOIN filters out rows lacking a match, which is a common source of unexpectedly 'missing' data.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.hypothesis_testing.1",
+    "skill_id": "skill.hypothesis_testing",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "In hypothesis testing, what does the null hypothesis (H0) typically represent?",
+    "options": [
+      {
+        "text": "The default assumption of no effect or no difference",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The hypothesis the researcher wants to prove true",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A guaranteed true statement",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The sample mean",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "H0 is the default/no-effect baseline that a test tries to find evidence against.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.hypothesis_testing.2",
+    "skill_id": "skill.hypothesis_testing",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does a p-value of 0.03 mean in a hypothesis test?",
+    "options": [
+      {
+        "text": "Assuming H0 is true, there's a 3% chance of observing data this extreme or more",
+        "is_key": true,
+        "misconception_id": "misc.pvalue_probability_null_true"
+      },
+      {
+        "text": "There is a 3% probability that H0 is true",
+        "is_key": false,
+        "misconception_id": "misc.pvalue_probability_null_true"
+      },
+      {
+        "text": "There is a 97% probability that the alternative hypothesis is true",
+        "is_key": false,
+        "misconception_id": "misc.pvalue_probability_null_true"
+      },
+      {
+        "text": "The effect size is 0.03",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A p-value is P(data this extreme | H0 true), not P(H0 true | data).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.hypothesis_testing.3",
+    "skill_id": "skill.hypothesis_testing",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "A 95% confidence interval for a mean is [10.2, 12.8]. What is the correct interpretation?",
+    "options": [
+      {
+        "text": "If we repeated this sampling process many times, about 95% of such intervals would contain the true mean",
+        "is_key": true,
+        "misconception_id": "misc.confidence_interval_contains_true_value_95pct"
+      },
+      {
+        "text": "There is a 95% chance the true mean lies between 10.2 and 12.8 for this specific interval",
+        "is_key": false,
+        "misconception_id": "misc.confidence_interval_contains_true_value_95pct"
+      },
+      {
+        "text": "95% of the data falls between 10.2 and 12.8",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The true mean is definitely between 10.2 and 12.8",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Confidence level describes the long-run coverage of the procedure, not a probability statement about one already-computed interval.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.hypothesis_testing.4",
+    "skill_id": "skill.hypothesis_testing",
+    "difficulty": "hard",
+    "purpose": "resolution-check",
+    "question": "A colleague says 'our p-value was 0.01, so there's a 99% chance our new feature really works.' What's wrong with this statement?",
+    "options": [
+      {
+        "text": "It misinterprets the p-value as the probability the alternative hypothesis is true",
+        "is_key": true,
+        "misconception_id": "misc.pvalue_probability_null_true"
+      },
+      {
+        "text": "Nothing — this is a correct interpretation of p = 0.01",
+        "is_key": false,
+        "misconception_id": "misc.pvalue_probability_null_true"
+      },
+      {
+        "text": "p-values can never be below 0.05",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The statement is about confidence intervals, not p-values",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A p-value doesn't quantify the probability that a hypothesis is true; it's a statement about the data given the null.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.recursion.1",
+    "skill_id": "skill.recursion",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What two parts does every correct recursive function need?",
+    "options": [
+      {
+        "text": "A base case and a recursive case that moves toward it",
+        "is_key": true,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "Only a recursive case; the function stops automatically when inputs shrink",
+        "is_key": false,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "A loop and a counter",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Two return statements only",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Without an explicit base case, a recursive function can recurse forever even if inputs appear to shrink.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.recursion.2",
+    "skill_id": "skill.recursion",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What happens if a recursive function is missing its base case?",
+    "options": [
+      {
+        "text": "It can recurse indefinitely, eventually causing a stack overflow",
+        "is_key": true,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "Python automatically stops it after one call",
+        "is_key": false,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "It becomes an iterative loop instead",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It always returns None safely",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Missing base cases are a classic cause of infinite recursion and stack overflow errors.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.recursion.3",
+    "skill_id": "skill.recursion",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is the base case of a recursive factorial function `fact(n)`?",
+    "options": [
+      {
+        "text": "fact(0) = 1 (or fact(1) = 1)",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "fact(n) = n * fact(n-1) for all n",
+        "is_key": false,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "There is no base case needed for factorial",
+        "is_key": false,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "fact(n) = n",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "fact(0)=1 stops the recursion; every other call reduces n toward that base case.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.recursion.4",
+    "skill_id": "skill.recursion",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "Why does `def f(n): return f(n-1)` (with no base case) eventually crash?",
+    "options": [
+      {
+        "text": "Each call adds a new stack frame with no terminating condition, exhausting the call stack",
+        "is_key": true,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "Python detects the missing base case and returns 0",
+        "is_key": false,
+        "misconception_id": "misc.recursion_no_base_case_needed"
+      },
+      {
+        "text": "It runs forever without crashing",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It only fails for negative n",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Without a base case the recursion never stops, exhausting the call stack (RecursionError/StackOverflow).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.big_o.1",
+    "skill_id": "skill.big_o",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does O(n) describe about an algorithm?",
+    "options": [
+      {
+        "text": "Its running time grows linearly with input size n, as an upper bound",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "It always takes exactly n seconds to run",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It only describes worst-case runtime and nothing else",
+        "is_key": false,
+        "misconception_id": "misc.big_o_worst_case_only_matters"
+      },
+      {
+        "text": "It measures memory use only, never time",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Big-O gives an asymptotic upper bound on growth rate, applicable to time or space.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.big_o.2",
+    "skill_id": "skill.big_o",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Binary search on a sorted array of size n has what time complexity?",
+    "options": [
+      {
+        "text": "O(log n)",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "O(n)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "O(n log n)",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "O(1)",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Binary search halves the search space each step, giving logarithmic time.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.big_o.3",
+    "skill_id": "skill.big_o",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "Is it accurate to say 'Big-O notation always describes an algorithm's worst-case runtime'?",
+    "options": [
+      {
+        "text": "Not necessarily — O/Θ/Ω describe upper/tight/lower growth bounds and can be applied to best-, average-, or worst-case analyses",
+        "is_key": true,
+        "misconception_id": "misc.big_o_worst_case_only_matters"
+      },
+      {
+        "text": "Yes, Big-O and worst-case are always the same thing",
+        "is_key": false,
+        "misconception_id": "misc.big_o_worst_case_only_matters"
+      },
+      {
+        "text": "No, Big-O only applies to average-case analysis",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Big-O only measures space complexity, never time",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Big-O bounds growth rate; which case (best/average/worst) it's applied to is a separate, orthogonal choice made by the analysis.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.rest_api_design.1",
+    "skill_id": "skill.rest_api_design",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "Which HTTP method is conventionally used to retrieve a resource without side effects?",
+    "options": [
+      {
+        "text": "GET",
+        "is_key": true,
+        "misconception_id": "misc.rest_get_can_mutate"
+      },
+      {
+        "text": "POST",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "DELETE",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "PUT",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "GET is expected to be safe (no side effects) and cacheable/idempotent.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.rest_api_design.2",
+    "skill_id": "skill.rest_api_design",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Is it acceptable REST design to delete a resource via a GET request, e.g. `GET /items/5/delete`?",
+    "options": [
+      {
+        "text": "No — GET must be safe/side-effect-free; deletion should use DELETE (or POST)",
+        "is_key": true,
+        "misconception_id": "misc.rest_get_can_mutate"
+      },
+      {
+        "text": "Yes — as long as the endpoint works, the HTTP method doesn't matter",
+        "is_key": false,
+        "misconception_id": "misc.rest_get_can_mutate"
+      },
+      {
+        "text": "Yes, but only for admin users",
+        "is_key": false,
+        "misconception_id": "misc.rest_get_can_mutate"
+      },
+      {
+        "text": "No — GET requests are not allowed to have URL parameters",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Mutating state via GET breaks caching, prefetching and crawler safety assumptions that depend on GET being side-effect-free.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.rest_api_design.3",
+    "skill_id": "skill.rest_api_design",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What HTTP status code should a successful POST that creates a new resource typically return?",
+    "options": [
+      {
+        "text": "201 Created",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "200 OK only, never 201",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "404 Not Found",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "500 Internal Server Error",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "201 Created signals that a new resource was successfully created, often with a Location header.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.rest_api_design.4",
+    "skill_id": "skill.rest_api_design",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "A client caches GET responses aggressively. Why does this make it especially important that GET endpoints never mutate state?",
+    "options": [
+      {
+        "text": "A cached GET response could be reused instead of the request actually reaching the server, so expected side effects may silently not happen (or happen unexpectedly)",
+        "is_key": true,
+        "misconception_id": "misc.rest_get_can_mutate"
+      },
+      {
+        "text": "Caching has nothing to do with which HTTP method is used",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "GET requests cannot be cached at all",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Mutating GET requests always bypass the cache automatically",
+        "is_key": false,
+        "misconception_id": "misc.rest_get_can_mutate"
+      }
+    ],
+    "explanation": "HTTP infrastructure assumes GET is safe and may cache/replay/prefetch it, which is dangerous if GET has side effects.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.authentication_authorization.1",
+    "skill_id": "skill.authentication_authorization",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the difference between authentication and authorization?",
+    "options": [
+      {
+        "text": "Authentication verifies who you are; authorization determines what you're allowed to do",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They are the same thing",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Authorization happens before authentication always",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Authentication is only relevant for admin users",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Authentication = identity verification; authorization = permission checking.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.authentication_authorization.2",
+    "skill_id": "skill.authentication_authorization",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Is the payload of a standard (unencrypted) JWT safe to store secret data in?",
+    "options": [
+      {
+        "text": "No — the payload is base64-encoded and signed, not encrypted, so it's readable by anyone who has the token",
+        "is_key": true,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "Yes — JWTs are encrypted by default, so secrets are safe inside them",
+        "is_key": false,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "Yes, as long as HTTPS is used for transport",
+        "is_key": false,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "No, because JWTs cannot contain custom claims",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A standard JWT is signed (tamper-evident) but not encrypted; anyone holding it can decode the payload.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.authentication_authorization.3",
+    "skill_id": "skill.authentication_authorization",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does a JWT signature actually guarantee?",
+    "options": [
+      {
+        "text": "That the token's claims haven't been tampered with since it was signed",
+        "is_key": true,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "That the token's contents are hidden from the holder",
+        "is_key": false,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "That the token never expires",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "That the user's password is embedded securely",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The signature provides integrity/authenticity, not confidentiality of the payload.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.authentication_authorization.4",
+    "skill_id": "skill.authentication_authorization",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "Why is storing a user's plaintext password inside a JWT claim a serious security mistake?",
+    "options": [
+      {
+        "text": "Because the JWT payload is only base64-encoded, not encrypted, so anyone holding the token can trivially decode the password",
+        "is_key": true,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "Because JWTs cannot store strings",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "It isn't a mistake as long as the signature is valid",
+        "is_key": false,
+        "misconception_id": "misc.jwt_is_encrypted"
+      },
+      {
+        "text": "Because JWTs automatically expire after one use",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Signing (JWT default) is not the same as encryption; sensitive data in the payload is exposed.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.testing_fundamentals.1",
+    "skill_id": "skill.testing_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the main purpose of a unit test?",
+    "options": [
+      {
+        "text": "To verify that a specific, small piece of code behaves as expected in isolation",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "To test the entire deployed system end-to-end",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "To measure code execution speed only",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "To replace the need for code review",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Unit tests target small, isolated units of behavior (e.g. a function).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.testing_fundamentals.2",
+    "skill_id": "skill.testing_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Does a fully passing unit test suite guarantee a codebase has no bugs?",
+    "options": [
+      {
+        "text": "No — it only shows the specifically tested behaviors work as expected; untested paths can still have bugs",
+        "is_key": true,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      },
+      {
+        "text": "Yes — 100% passing tests guarantees zero bugs anywhere in the code",
+        "is_key": false,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      },
+      {
+        "text": "Yes, as long as there are more than 10 tests",
+        "is_key": false,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      },
+      {
+        "text": "No — unit tests can never catch any real bugs",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Tests only cover the behaviors/paths they actually exercise; passing tests is evidence, not proof, of correctness.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.testing_fundamentals.3",
+    "skill_id": "skill.testing_fundamentals",
+    "difficulty": "hard",
+    "purpose": "resolution-check",
+    "question": "A team ships a feature because 'all tests are green', and a production bug appears in an edge case with no test coverage. What does this best illustrate?",
+    "options": [
+      {
+        "text": "Passing tests only prove the tested behaviors work — untested edge cases remain unverified",
+        "is_key": true,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      },
+      {
+        "text": "The testing framework must be broken",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Green tests should have made this impossible",
+        "is_key": false,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      },
+      {
+        "text": "Production bugs can never happen if unit tests pass",
+        "is_key": false,
+        "misconception_id": "misc.unit_tests_prove_no_bugs"
+      }
+    ],
+    "explanation": "This is a textbook case of confusing 'tests pass' with 'code is bug-free' — coverage gaps hide bugs.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.docker.1",
+    "skill_id": "skill.docker",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the difference between a Docker image and a Docker container?",
+    "options": [
+      {
+        "text": "An image is a read-only template; a container is a running (or stopped) instance created from it",
+        "is_key": true,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "They are the same thing with different names",
+        "is_key": false,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "An image only exists while a container is running",
+        "is_key": false,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "A container is required before an image can be built",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The image is the template on disk; containers are runtime instances created from it and can be started/stopped/removed independently of the image.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.docker.2",
+    "skill_id": "skill.docker",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "If you run `docker stop mycontainer`, what happens to the image it was created from?",
+    "options": [
+      {
+        "text": "Nothing — the image is untouched and can be used to start new containers",
+        "is_key": true,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "The image is deleted along with the container",
+        "is_key": false,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "The image becomes read-write",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "A new image is automatically created",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Stopping (or even removing) a container does not delete the image it was built from.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.docker.3",
+    "skill_id": "skill.docker",
+    "difficulty": "hard",
+    "purpose": "probe",
+    "question": "Why can you run multiple containers from the same Docker image at the same time?",
+    "options": [
+      {
+        "text": "Because the image is an immutable template, and each container gets its own isolated writable layer/runtime state",
+        "is_key": true,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "You cannot — an image can only back one container at a time",
+        "is_key": false,
+        "misconception_id": "misc.docker_image_is_running_container"
+      },
+      {
+        "text": "Because containers share a single filesystem with no isolation",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Because Docker automatically merges containers together",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Images are read-only templates; each container instance is isolated, which is exactly why one image can back many concurrent containers.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.relational_modeling.1",
+    "skill_id": "skill.relational_modeling",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is the goal of normalizing a relational schema?",
+    "options": [
+      {
+        "text": "Reducing data redundancy and avoiding update anomalies",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Always minimizing the number of queries needed",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Guaranteeing the fastest possible query performance",
+        "is_key": false,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Storing all data in a single table",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Normalization organizes data to reduce redundancy and anomalies, not to directly maximize speed.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.relational_modeling.2",
+    "skill_id": "skill.relational_modeling",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Does fully normalizing a schema (3NF and beyond) always improve query performance?",
+    "options": [
+      {
+        "text": "No — heavy normalization can require many joins, which can hurt read performance for reporting workloads",
+        "is_key": true,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Yes — more normalization always means faster queries",
+        "is_key": false,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Yes, because normalized tables are always smaller",
+        "is_key": false,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Normalization has no effect on performance at all",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Normalization optimizes for update integrity, not necessarily read speed; denormalization is a common tradeoff for reporting/analytics workloads.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.relational_modeling.3",
+    "skill_id": "skill.relational_modeling",
+    "difficulty": "hard",
+    "purpose": "resolution-check",
+    "question": "A reporting dashboard query joins 8 normalized tables and is slow. What's the most defensible next step, given normalization tradeoffs?",
+    "options": [
+      {
+        "text": "Consider a denormalized read model / materialized view for this reporting path, while keeping the normalized schema for writes",
+        "is_key": true,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Normalize the schema even further, since more normalization always helps performance",
+        "is_key": false,
+        "misconception_id": "misc.normalization_removes_all_duplication"
+      },
+      {
+        "text": "Nothing can be done — normalized schemas can never be optimized for reads",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Delete the extra tables entirely",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "A common pattern is normalized write models plus denormalized read models for reporting.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.python.1",
+    "skill_id": "skill.python",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does `len([1, 2, 3])` return in Python?",
+    "options": [
+      {
+        "text": "3",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "2",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "[1, 2, 3]",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Error",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "len() returns the number of elements in the list.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.python.2",
+    "skill_id": "skill.python",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "Which keyword defines a function in Python?",
+    "options": [
+      {
+        "text": "def",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "function",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "func",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "lambda only",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "`def` introduces a named function definition.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.python.3",
+    "skill_id": "skill.python",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What is the output of `type([1, 2])` in Python?",
+    "options": [
+      {
+        "text": "<class 'list'>",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "<class 'tuple'>",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "<class 'array'>",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "<class 'dict'>",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Square brackets create a list, whose type is `list`.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.python.4",
+    "skill_id": "skill.python",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does a Python list comprehension `[x*2 for x in range(3)]` evaluate to?",
+    "options": [
+      {
+        "text": "[0, 2, 4]",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "[1, 2, 3]",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "[0, 1, 2]",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "[2, 4, 6]",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "range(3) yields 0,1,2; doubling each gives 0,2,4.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_fundamentals.1",
+    "skill_id": "skill.sql_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "Which SQL clause filters rows before aggregation?",
+    "options": [
+      {
+        "text": "WHERE",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "HAVING",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "GROUP BY",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "ORDER BY",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "WHERE filters individual rows before any GROUP BY aggregation happens.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_fundamentals.2",
+    "skill_id": "skill.sql_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What does `SELECT * FROM users;` return?",
+    "options": [
+      {
+        "text": "All columns for every row in the users table",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Only the first row of the users table",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The number of rows in the users table",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "An error, since * is invalid",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "`SELECT *` selects all columns; with no WHERE clause, all rows are returned.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_fundamentals.3",
+    "skill_id": "skill.sql_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Which clause is used to filter groups after a GROUP BY aggregation?",
+    "options": [
+      {
+        "text": "HAVING",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "WHERE",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "FILTER",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "LIMIT",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "HAVING filters on aggregated results, unlike WHERE which filters raw rows.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.sql_fundamentals.4",
+    "skill_id": "skill.sql_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does `ORDER BY price DESC LIMIT 1` return?",
+    "options": [
+      {
+        "text": "The single row with the highest price",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The single row with the lowest price",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "All rows sorted by price",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "An error",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "DESC sorts highest-first; LIMIT 1 takes just the top row.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.pandas.1",
+    "skill_id": "skill.pandas",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What pandas method reads a CSV file into a DataFrame?",
+    "options": [
+      {
+        "text": "pd.read_csv()",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "pd.load_csv()",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "pd.open_csv()",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "pd.import_csv()",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "pandas.read_csv() is the standard way to load CSV data.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.pandas.2",
+    "skill_id": "skill.pandas",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "What does `df.groupby('category')['sales'].sum()` compute?",
+    "options": [
+      {
+        "text": "The total sales for each distinct category",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The average sales across the whole DataFrame",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The number of categories",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Sales sorted alphabetically by category",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "groupby + sum aggregates the sales column within each category group.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.pandas.3",
+    "skill_id": "skill.pandas",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "What is the key difference between `df.loc[]` and `df.iloc[]`?",
+    "options": [
+      {
+        "text": "loc selects by label, iloc selects by integer position",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They are interchangeable in every case",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "iloc selects by label, loc selects by position",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "loc only works on Series, not DataFrames",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "loc is label-based indexing; iloc is purely positional (integer-based) indexing.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.supervised_learning.1",
+    "skill_id": "skill.supervised_learning",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What defines a supervised learning problem?",
+    "options": [
+      {
+        "text": "The training data includes labeled input-output pairs",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "The data has no labels at all",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "The model must be a neural network",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "There is no training phase",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Supervised learning trains on labeled (input, target) pairs.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.supervised_learning.2",
+    "skill_id": "skill.supervised_learning",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "Which task is a classification problem?",
+    "options": [
+      {
+        "text": "Predicting whether an email is spam or not spam",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Predicting a house's exact sale price in dollars",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Clustering customers into unlabeled segments",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Reducing the number of features in a dataset",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Spam/not-spam is a discrete-label classification task.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.supervised_learning.3",
+    "skill_id": "skill.supervised_learning",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Which task is a regression problem?",
+    "options": [
+      {
+        "text": "Predicting a continuous numeric value like house price",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Predicting a discrete category like 'cat' vs 'dog'",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Grouping unlabeled data points into clusters",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Reducing dimensionality via PCA",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Regression predicts continuous numeric outputs.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.supervised_learning.4",
+    "skill_id": "skill.supervised_learning",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "Why is a held-out test set necessary even after using cross-validation during model selection?",
+    "options": [
+      {
+        "text": "Repeated model-selection decisions based on CV can still overfit to the validation folds; a final untouched test set gives an unbiased estimate",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Test sets are only needed for classification, not regression",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Cross-validation makes a separate test set unnecessary in every case",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Test sets replace the need for a training set",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Model/hyperparameter selection via CV can indirectly overfit the validation folds, so a final held-out test set is kept for an unbiased performance estimate.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.ml_fundamentals.1",
+    "skill_id": "skill.ml_fundamentals",
+    "difficulty": "easy",
+    "purpose": "practice",
+    "question": "What is 'training' a machine learning model?",
+    "options": [
+      {
+        "text": "Adjusting model parameters using data so predictions improve on a defined objective",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "Manually writing rules for every possible input",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Only evaluating a model on a test set",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Deploying a model to production",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "Training fits parameters to data by optimizing a loss/objective.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.ml_fundamentals.2",
+    "skill_id": "skill.ml_fundamentals",
+    "difficulty": "medium",
+    "purpose": "practice",
+    "question": "Why is a train/test split used when building an ML model?",
+    "options": [
+      {
+        "text": "To estimate how well the model generalizes to data it hasn't seen",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "To make the training process run faster",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Because models cannot be trained on the full dataset",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "To remove the need for any evaluation metric",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "The test set approximates unseen, real-world data to check generalization.",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  },
+  {
+    "item_id": "item.ml_fundamentals.3",
+    "skill_id": "skill.ml_fundamentals",
+    "difficulty": "hard",
+    "purpose": "practice",
+    "question": "What is the difference between a model's parameters and its hyperparameters?",
+    "options": [
+      {
+        "text": "Parameters are learned from data during training; hyperparameters are set before training and control the learning process",
+        "is_key": true,
+        "misconception_id": null
+      },
+      {
+        "text": "They are the same thing",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Hyperparameters are learned, parameters are fixed by the user",
+        "is_key": false,
+        "misconception_id": null
+      },
+      {
+        "text": "Parameters only exist in deep learning models",
+        "is_key": false,
+        "misconception_id": null
+      }
+    ],
+    "explanation": "E.g. weights are parameters (learned); learning rate is a hyperparameter (chosen).",
+    "generated_by": "curated-seed",
+    "validated_by": "edupath-phase3-curation",
+    "graph_version": "v0.1.0-domain-pack"
+  }
+]

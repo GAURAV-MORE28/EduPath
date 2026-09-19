@@ -1,0 +1,1833 @@
+[
+  {
+    "skill_id": "skill.cli_basics",
+    "label": "Command Line / Shell Basics",
+    "aliases": [
+      "terminal",
+      "bash",
+      "CLI"
+    ],
+    "category": "tools_collaboration",
+    "kind": "tool",
+    "description": "Navigating and operating a Unix-like shell.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.linux_fundamentals",
+    "label": "Linux Fundamentals",
+    "aliases": [
+      "Linux",
+      "Unix basics"
+    ],
+    "category": "tools_collaboration",
+    "kind": "concept",
+    "description": "Core Linux OS concepts: processes, filesystem, permissions.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.git",
+    "label": "Git Version Control",
+    "aliases": [
+      "Git",
+      "version control"
+    ],
+    "category": "tools_collaboration",
+    "kind": "tool",
+    "description": "Tracking code changes with commits, branches and merges.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.github_workflow",
+    "label": "GitHub Collaboration Workflow",
+    "aliases": [
+      "GitHub",
+      "pull requests"
+    ],
+    "category": "tools_collaboration",
+    "kind": "practice",
+    "description": "Collaborating via forks, pull requests and issue tracking.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.code_review_practice",
+    "label": "Code Review Practice",
+    "aliases": [
+      "reviewing PRs"
+    ],
+    "category": "tools_collaboration",
+    "kind": "practice",
+    "description": "Giving and acting on structured code review feedback.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.agile_practices",
+    "label": "Agile / Scrum Practices",
+    "aliases": [
+      "Scrum",
+      "sprints"
+    ],
+    "category": "tools_collaboration",
+    "kind": "concept",
+    "description": "Iterative delivery practices: sprints, standups, backlogs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.documentation_practice",
+    "label": "Technical Documentation",
+    "aliases": [
+      "writing docs"
+    ],
+    "category": "tools_collaboration",
+    "kind": "practice",
+    "description": "Writing clear READMEs, API docs and design notes.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.version_control_branching",
+    "label": "Branching Strategies",
+    "aliases": [
+      "Git flow",
+      "trunk-based dev"
+    ],
+    "category": "tools_collaboration",
+    "kind": "practice",
+    "description": "Choosing and applying a branching model for a team.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.programming_fundamentals",
+    "label": "Programming Fundamentals",
+    "aliases": [
+      "intro to programming"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Variables, types, expressions and basic program structure.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.control_flow",
+    "label": "Control Flow & Loops",
+    "aliases": [
+      "conditionals",
+      "loops"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Branching and iteration constructs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.functions_modularity",
+    "label": "Functions & Modularity",
+    "aliases": [
+      "functions",
+      "modular code"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Decomposing programs into reusable functions/modules.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.oop",
+    "label": "Object-Oriented Programming",
+    "aliases": [
+      "OOP",
+      "classes and objects"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Encapsulation, inheritance and polymorphism.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.error_handling",
+    "label": "Error Handling & Exceptions",
+    "aliases": [
+      "exception handling"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Detecting, raising and handling runtime errors.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.debugging",
+    "label": "Debugging Techniques",
+    "aliases": [
+      "troubleshooting code"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "practice",
+    "description": "Systematic isolation and diagnosis of defects.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.testing_fundamentals",
+    "label": "Software Testing Fundamentals",
+    "aliases": [
+      "unit testing",
+      "TDD"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "practice",
+    "description": "Writing tests that verify behavior and catch regressions.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.design_patterns",
+    "label": "Software Design Patterns",
+    "aliases": [
+      "design patterns"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Reusable solutions to recurring design problems.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.recursion",
+    "label": "Recursion",
+    "aliases": [
+      "recursive functions"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Solving problems via functions that call themselves.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.regex",
+    "label": "Regular Expressions",
+    "aliases": [
+      "regex"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "tool",
+    "description": "Pattern matching and text extraction with regex.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.json_data_formats",
+    "label": "Data Interchange Formats (JSON/CSV)",
+    "aliases": [
+      "JSON",
+      "CSV"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Reading, writing and validating structured data formats.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.async_programming",
+    "label": "Asynchronous Programming",
+    "aliases": [
+      "async/await",
+      "concurrency basics"
+    ],
+    "category": "programming_fundamentals",
+    "kind": "concept",
+    "description": "Non-blocking execution with async/await and event loops.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.python",
+    "label": "Python Programming",
+    "aliases": [
+      "Python",
+      "Python3"
+    ],
+    "category": "python",
+    "kind": "tool",
+    "description": "General-purpose programming in Python.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.python_data_structures",
+    "label": "Python Data Structures",
+    "aliases": [
+      "lists",
+      "dicts",
+      "tuples",
+      "sets"
+    ],
+    "category": "python",
+    "kind": "concept",
+    "description": "Python's built-in collection types and their operations.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.python_oop",
+    "label": "Python OOP",
+    "aliases": [
+      "Python classes"
+    ],
+    "category": "python",
+    "kind": "concept",
+    "description": "Classes, dunder methods and inheritance in Python.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.python_venv_packaging",
+    "label": "Python Environments & Packaging",
+    "aliases": [
+      "virtualenv",
+      "pip",
+      "poetry"
+    ],
+    "category": "python",
+    "kind": "tool",
+    "description": "Isolating dependencies and packaging Python projects.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.numpy",
+    "label": "NumPy",
+    "aliases": [
+      "numpy",
+      "numerical computing in Python"
+    ],
+    "category": "python",
+    "kind": "tool",
+    "description": "Vectorized numerical computing with NumPy arrays.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.pandas",
+    "label": "Pandas",
+    "aliases": [
+      "pandas",
+      "dataframes"
+    ],
+    "category": "python",
+    "kind": "tool",
+    "description": "Tabular data manipulation with pandas DataFrames.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.unit_testing_python",
+    "label": "Unit Testing in Python",
+    "aliases": [
+      "pytest"
+    ],
+    "category": "python",
+    "kind": "practice",
+    "description": "Writing and running unit tests with pytest.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.web_scraping",
+    "label": "Web Scraping",
+    "aliases": [
+      "scraping",
+      "requests + BeautifulSoup"
+    ],
+    "category": "python",
+    "kind": "tool",
+    "description": "Extracting data from web pages programmatically.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_arrays_strings",
+    "label": "Arrays & Strings",
+    "aliases": [
+      "array manipulation",
+      "string algorithms"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Core operations and patterns on arrays and strings.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_linked_lists",
+    "label": "Linked Lists",
+    "aliases": [
+      "singly/doubly linked lists"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Node-based sequential data structures.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_stacks_queues",
+    "label": "Stacks & Queues",
+    "aliases": [
+      "LIFO",
+      "FIFO"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Stack and queue abstractions and their uses.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_hashing",
+    "label": "Hashing & Hash Tables",
+    "aliases": [
+      "hash maps"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Hash-based lookup structures and collision handling.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_trees",
+    "label": "Trees",
+    "aliases": [
+      "binary trees",
+      "BST"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Hierarchical structures: binary trees, BSTs, traversals.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_graphs",
+    "label": "Graphs",
+    "aliases": [
+      "graph algorithms",
+      "BFS",
+      "DFS"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Graph representations and traversal algorithms.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dsa_sorting_searching",
+    "label": "Sorting & Searching Algorithms",
+    "aliases": [
+      "sorting",
+      "binary search"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Common sorting and searching algorithms and trade-offs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.big_o",
+    "label": "Algorithmic Complexity (Big-O)",
+    "aliases": [
+      "time complexity",
+      "space complexity"
+    ],
+    "category": "data_structures_algorithms",
+    "kind": "concept",
+    "description": "Analyzing algorithm efficiency with asymptotic notation.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.algebra_basics",
+    "label": "Algebra Fundamentals",
+    "aliases": [
+      "basic algebra"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Manipulating expressions and solving equations.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.functions_graphs_math",
+    "label": "Functions & Graphs (Math)",
+    "aliases": [
+      "mathematical functions"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Functions, domain/range, and graphing.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.calculus_limits",
+    "label": "Limits & Continuity",
+    "aliases": [
+      "limits"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "The limit concept underlying calculus.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.derivatives",
+    "label": "Derivatives",
+    "aliases": [
+      "differentiation"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Rates of change and differentiation rules.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.chain_rule",
+    "label": "Chain Rule",
+    "aliases": [
+      "chain rule differentiation",
+      "composite function derivative"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Differentiating a composition of functions as a product of derivatives.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.integrals",
+    "label": "Integrals",
+    "aliases": [
+      "integration"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Antiderivatives and accumulated change.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.multivariable_calculus",
+    "label": "Multivariable Calculus",
+    "aliases": [
+      "partial derivatives",
+      "gradients"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Calculus with functions of several variables; gradients.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.linear_algebra_vectors",
+    "label": "Vectors & Vector Spaces",
+    "aliases": [
+      "vectors"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Vector operations, norms and vector spaces.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.linear_algebra_matrices",
+    "label": "Matrices & Matrix Operations",
+    "aliases": [
+      "matrix multiplication"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Matrix algebra and its geometric interpretation.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.eigenvalues_eigenvectors",
+    "label": "Eigenvalues & Eigenvectors",
+    "aliases": [
+      "eigendecomposition"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Characteristic vectors/values of linear transformations.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.optimization_basics",
+    "label": "Optimization Basics",
+    "aliases": [
+      "gradient descent",
+      "convex optimization basics"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Finding function minima/maxima, gradient-based methods.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.math_for_ml",
+    "label": "Mathematics for Machine Learning",
+    "aliases": [
+      "ML math foundations"
+    ],
+    "category": "math_foundations",
+    "kind": "concept",
+    "description": "Umbrella grouping of the math skills ML relies on.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.probability_fundamentals",
+    "label": "Probability Fundamentals",
+    "aliases": [
+      "probability basics"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Events, random variables and basic probability rules.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.descriptive_statistics",
+    "label": "Descriptive Statistics",
+    "aliases": [
+      "mean",
+      "median",
+      "variance"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Summarizing data with central tendency and dispersion.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.probability_distributions",
+    "label": "Probability Distributions",
+    "aliases": [
+      "normal distribution",
+      "binomial"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Common discrete/continuous distributions and their properties.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.inferential_statistics",
+    "label": "Inferential Statistics",
+    "aliases": [
+      "confidence intervals"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Drawing conclusions about populations from samples.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.hypothesis_testing",
+    "label": "Hypothesis Testing",
+    "aliases": [
+      "p-values",
+      "t-tests"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Formal procedure for testing statistical claims.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.ab_testing",
+    "label": "A/B Testing & Experimentation",
+    "aliases": [
+      "experiment design"
+    ],
+    "category": "probability_statistics",
+    "kind": "practice",
+    "description": "Designing and analyzing controlled experiments.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.regression_analysis",
+    "label": "Regression Analysis",
+    "aliases": [
+      "linear regression",
+      "logistic regression"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Modeling relationships between variables.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.bayesian_thinking",
+    "label": "Bayesian Reasoning",
+    "aliases": [
+      "Bayes theorem"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Updating beliefs with evidence via Bayes' theorem.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.time_series_analysis",
+    "label": "Time Series Analysis",
+    "aliases": [
+      "seasonality",
+      "trend"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Analyzing data indexed over time.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.statistics_for_data_analysis",
+    "label": "Statistics for Data Analysis",
+    "aliases": [
+      "stats foundations"
+    ],
+    "category": "probability_statistics",
+    "kind": "concept",
+    "description": "Umbrella grouping of statistics skills a data analyst needs.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.ml_fundamentals",
+    "label": "Machine Learning Fundamentals",
+    "aliases": [
+      "intro to machine learning"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "What ML is and the standard learning workflow.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.supervised_learning",
+    "label": "Supervised Learning",
+    "aliases": [
+      "classification",
+      "regression (ML)"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Learning a mapping from labeled examples.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.unsupervised_learning",
+    "label": "Unsupervised Learning",
+    "aliases": [
+      "clustering",
+      "dimensionality reduction"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Finding structure in unlabeled data.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.clustering",
+    "label": "Clustering Algorithms",
+    "aliases": [
+      "k-means",
+      "hierarchical clustering"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Grouping similar data points.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dimensionality_reduction",
+    "label": "Dimensionality Reduction",
+    "aliases": [
+      "PCA",
+      "t-SNE"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Reducing feature space while preserving structure.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.model_evaluation",
+    "label": "Model Evaluation & Metrics",
+    "aliases": [
+      "precision",
+      "recall",
+      "F1",
+      "ROC-AUC"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Quantifying model quality with the right metric.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.overfitting_regularization",
+    "label": "Overfitting & Regularization",
+    "aliases": [
+      "bias-variance tradeoff"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Why models overfit and how regularization helps.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.cross_validation",
+    "label": "Cross-Validation",
+    "aliases": [
+      "k-fold CV"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Estimating generalization performance robustly.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.feature_engineering",
+    "label": "Feature Engineering",
+    "aliases": [
+      "feature construction"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Transforming raw data into useful model inputs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.decision_trees_ensembles",
+    "label": "Decision Trees & Ensemble Methods",
+    "aliases": [
+      "random forest",
+      "XGBoost"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Tree-based models and ensembling.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.scikit_learn",
+    "label": "scikit-learn",
+    "aliases": [
+      "sklearn"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "tool",
+    "description": "Fitting and evaluating classical ML models in Python.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.hyperparameter_tuning",
+    "label": "Hyperparameter Tuning",
+    "aliases": [
+      "grid search",
+      "random search"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "practice",
+    "description": "Systematically searching for good hyperparameters.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.model_interpretability",
+    "label": "Model Interpretability",
+    "aliases": [
+      "SHAP",
+      "feature importance"
+    ],
+    "category": "machine_learning_fundamentals",
+    "kind": "concept",
+    "description": "Explaining what drives a model's predictions.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.deep_learning_fundamentals",
+    "label": "Deep Learning Fundamentals",
+    "aliases": [
+      "intro to deep learning"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Umbrella grouping of core neural-network skills.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.neural_network_fundamentals",
+    "label": "Neural Network Fundamentals",
+    "aliases": [
+      "perceptron",
+      "feedforward networks"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Layers, weights and forward computation in neural nets.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.activation_functions",
+    "label": "Activation Functions",
+    "aliases": [
+      "ReLU",
+      "sigmoid",
+      "softmax"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Nonlinearities that give neural nets their expressive power.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.loss_functions",
+    "label": "Loss Functions",
+    "aliases": [
+      "cross-entropy loss",
+      "MSE loss"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Objectives that quantify prediction error for training.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.backpropagation",
+    "label": "Backpropagation",
+    "aliases": [
+      "backprop",
+      "gradient computation in neural nets"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Computing gradients through a network via the chain rule.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.gradient_descent_variants",
+    "label": "Gradient Descent Variants",
+    "aliases": [
+      "SGD",
+      "Adam optimizer",
+      "momentum"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Optimization algorithms used to train neural networks.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.training_neural_networks",
+    "label": "Training Neural Networks",
+    "aliases": [
+      "training loop",
+      "epochs and batches"
+    ],
+    "category": "deep_learning",
+    "kind": "practice",
+    "description": "Running the end-to-end loop that fits a neural network.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.regularization_dl",
+    "label": "Deep Learning Regularization",
+    "aliases": [
+      "dropout",
+      "batch normalization"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Techniques that reduce overfitting in deep nets.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.batch_normalization",
+    "label": "Batch Normalization",
+    "aliases": [
+      "batchnorm"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Normalizing layer activations to stabilize training.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.pytorch",
+    "label": "PyTorch",
+    "aliases": [
+      "PyTorch"
+    ],
+    "category": "deep_learning",
+    "kind": "tool",
+    "description": "Building and training neural networks with PyTorch.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.tensorflow_keras",
+    "label": "TensorFlow / Keras",
+    "aliases": [
+      "TensorFlow",
+      "Keras"
+    ],
+    "category": "deep_learning",
+    "kind": "tool",
+    "description": "Building and training neural networks with TensorFlow/Keras.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.cnn",
+    "label": "Convolutional Neural Networks",
+    "aliases": [
+      "CNNs",
+      "convnets"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Architectures specialized for grid-like (image) data.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.rnn_sequence_models",
+    "label": "RNNs & Sequence Models",
+    "aliases": [
+      "LSTM",
+      "GRU"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Architectures for sequential/temporal data.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.transformers_attention",
+    "label": "Transformers & Attention",
+    "aliases": [
+      "self-attention"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Attention-based architectures underlying modern NLP/LLMs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.transfer_learning",
+    "label": "Transfer Learning",
+    "aliases": [
+      "fine-tuning pretrained models"
+    ],
+    "category": "deep_learning",
+    "kind": "concept",
+    "description": "Adapting a pretrained model to a new task.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.computer_vision_fundamentals",
+    "label": "Computer Vision Fundamentals",
+    "aliases": [
+      "intro to CV"
+    ],
+    "category": "computer_vision",
+    "kind": "concept",
+    "description": "Umbrella grouping of computer-vision skills.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.image_processing_basics",
+    "label": "Image Processing Basics",
+    "aliases": [
+      "digital image fundamentals"
+    ],
+    "category": "computer_vision",
+    "kind": "concept",
+    "description": "Pixels, color spaces and basic image transforms.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.opencv",
+    "label": "OpenCV",
+    "aliases": [
+      "OpenCV"
+    ],
+    "category": "computer_vision",
+    "kind": "tool",
+    "description": "Classical image processing and CV with OpenCV.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.cnn_image_classification",
+    "label": "Image Classification with CNNs",
+    "aliases": [
+      "image classifiers"
+    ],
+    "category": "computer_vision",
+    "kind": "practice",
+    "description": "Training a CNN to classify images.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.object_detection",
+    "label": "Object Detection",
+    "aliases": [
+      "YOLO",
+      "bounding boxes"
+    ],
+    "category": "computer_vision",
+    "kind": "concept",
+    "description": "Localizing and classifying multiple objects in an image.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.image_segmentation",
+    "label": "Image Segmentation",
+    "aliases": [
+      "semantic segmentation"
+    ],
+    "category": "computer_vision",
+    "kind": "concept",
+    "description": "Pixel-level classification of image regions.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.nlp_and_llms",
+    "label": "NLP & LLMs",
+    "aliases": [
+      "intro to NLP"
+    ],
+    "category": "nlp",
+    "kind": "concept",
+    "description": "Umbrella grouping of NLP and language-model skills.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.nlp_fundamentals",
+    "label": "NLP Fundamentals",
+    "aliases": [
+      "text preprocessing",
+      "tokenization"
+    ],
+    "category": "nlp",
+    "kind": "concept",
+    "description": "Core text-processing concepts for NLP.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.word_embeddings",
+    "label": "Word Embeddings",
+    "aliases": [
+      "word2vec",
+      "GloVe"
+    ],
+    "category": "nlp",
+    "kind": "concept",
+    "description": "Dense vector representations of words/tokens.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.llm_basics",
+    "label": "Large Language Model Basics",
+    "aliases": [
+      "LLMs",
+      "generative language models"
+    ],
+    "category": "nlp",
+    "kind": "concept",
+    "description": "How modern large language models work at a conceptual level.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.prompt_engineering",
+    "label": "Prompt Engineering",
+    "aliases": [
+      "prompt design"
+    ],
+    "category": "nlp",
+    "kind": "practice",
+    "description": "Crafting inputs that reliably steer an LLM's output.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.huggingface",
+    "label": "Hugging Face Ecosystem",
+    "aliases": [
+      "transformers library",
+      "HF hub"
+    ],
+    "category": "nlp",
+    "kind": "tool",
+    "description": "Using the Hugging Face libraries/hub for NLP models.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.mlops_fundamentals",
+    "label": "MLOps Fundamentals",
+    "aliases": [
+      "ML lifecycle management"
+    ],
+    "category": "mlops",
+    "kind": "concept",
+    "description": "Practices for reliably operating ML systems in production.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.experiment_tracking",
+    "label": "Experiment Tracking",
+    "aliases": [
+      "MLflow",
+      "Weights & Biases"
+    ],
+    "category": "mlops",
+    "kind": "tool",
+    "description": "Logging and comparing ML experiment runs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.model_versioning",
+    "label": "Model Versioning",
+    "aliases": [
+      "model registry"
+    ],
+    "category": "mlops",
+    "kind": "concept",
+    "description": "Tracking and promoting trained model artifacts.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.model_serving",
+    "label": "Model Serving & Deployment",
+    "aliases": [
+      "inference API"
+    ],
+    "category": "mlops",
+    "kind": "practice",
+    "description": "Exposing a trained model for online/offline inference.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.ml_monitoring",
+    "label": "ML Model Monitoring",
+    "aliases": [
+      "data drift",
+      "model drift"
+    ],
+    "category": "mlops",
+    "kind": "concept",
+    "description": "Detecting degradation of a deployed model over time.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_pipelines",
+    "label": "Data Pipelines",
+    "aliases": [
+      "ETL for ML",
+      "feature pipelines"
+    ],
+    "category": "mlops",
+    "kind": "concept",
+    "description": "Automated flows that prepare data for training/serving.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_engineering_basics",
+    "label": "Data Engineering Basics",
+    "aliases": [
+      "data ingestion"
+    ],
+    "category": "mlops",
+    "kind": "concept",
+    "description": "Fundamentals of moving and transforming data at scale.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_cleaning",
+    "label": "Data Cleaning & Wrangling",
+    "aliases": [
+      "handling missing data"
+    ],
+    "category": "data_analysis",
+    "kind": "practice",
+    "description": "Detecting and fixing data quality issues.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.exploratory_data_analysis",
+    "label": "Exploratory Data Analysis",
+    "aliases": [
+      "EDA"
+    ],
+    "category": "data_analysis",
+    "kind": "practice",
+    "description": "Summarizing and visualizing data to find patterns.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.excel",
+    "label": "Spreadsheet Analysis (Excel)",
+    "aliases": [
+      "Excel",
+      "pivot tables"
+    ],
+    "category": "data_analysis",
+    "kind": "tool",
+    "description": "Analyzing tabular data with spreadsheets.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.spreadsheet_formulas",
+    "label": "Advanced Spreadsheet Formulas",
+    "aliases": [
+      "VLOOKUP",
+      "XLOOKUP"
+    ],
+    "category": "data_analysis",
+    "kind": "concept",
+    "description": "Formula-based computation and lookups in spreadsheets.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.etl_fundamentals",
+    "label": "ETL Fundamentals",
+    "aliases": [
+      "extract transform load"
+    ],
+    "category": "data_analysis",
+    "kind": "concept",
+    "description": "Moving data between systems with transformation steps.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.business_requirements_analysis",
+    "label": "Business Requirements Analysis",
+    "aliases": [
+      "stakeholder requirements"
+    ],
+    "category": "data_analysis",
+    "kind": "practice",
+    "description": "Translating a business question into an analysis plan.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.kpi_metrics_design",
+    "label": "KPI & Metrics Design",
+    "aliases": [
+      "metric definition"
+    ],
+    "category": "data_analysis",
+    "kind": "practice",
+    "description": "Defining metrics that faithfully track a business goal.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_governance",
+    "label": "Data Governance & Quality",
+    "aliases": [
+      "data quality"
+    ],
+    "category": "data_analysis",
+    "kind": "concept",
+    "description": "Policies and checks that keep data trustworthy.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_ethics_privacy",
+    "label": "Data Ethics & Privacy",
+    "aliases": [
+      "PII handling"
+    ],
+    "category": "data_analysis",
+    "kind": "concept",
+    "description": "Handling data responsibly and respecting privacy.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.communication_stakeholders",
+    "label": "Communicating Insights to Stakeholders",
+    "aliases": [
+      "presenting analysis"
+    ],
+    "category": "data_analysis",
+    "kind": "practice",
+    "description": "Presenting analytical findings to a non-technical audience.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_visualization_fundamentals",
+    "label": "Data Visualization Fundamentals",
+    "aliases": [
+      "chart design basics"
+    ],
+    "category": "data_visualization",
+    "kind": "concept",
+    "description": "Choosing the right chart to communicate data clearly.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.matplotlib_seaborn",
+    "label": "Matplotlib & Seaborn",
+    "aliases": [
+      "matplotlib",
+      "seaborn"
+    ],
+    "category": "data_visualization",
+    "kind": "tool",
+    "description": "Plotting data in Python with matplotlib/seaborn.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.tableau",
+    "label": "Tableau",
+    "aliases": [
+      "Tableau"
+    ],
+    "category": "data_visualization",
+    "kind": "tool",
+    "description": "Building interactive dashboards in Tableau.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.powerbi",
+    "label": "Power BI",
+    "aliases": [
+      "Power BI"
+    ],
+    "category": "data_visualization",
+    "kind": "tool",
+    "description": "Building interactive dashboards in Power BI.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.dashboarding",
+    "label": "Dashboard Design",
+    "aliases": [
+      "BI dashboards"
+    ],
+    "category": "data_visualization",
+    "kind": "practice",
+    "description": "Designing dashboards for ongoing monitoring.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.data_storytelling",
+    "label": "Data Storytelling & Communication",
+    "aliases": [
+      "narrative with data"
+    ],
+    "category": "data_visualization",
+    "kind": "practice",
+    "description": "Framing data findings as a persuasive narrative.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.sql_fundamentals",
+    "label": "SQL Fundamentals",
+    "aliases": [
+      "SQL",
+      "SELECT queries"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Querying relational data with SQL.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.sql_joins",
+    "label": "SQL Joins",
+    "aliases": [
+      "INNER JOIN",
+      "LEFT JOIN"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Combining rows across tables with joins.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.sql_aggregation",
+    "label": "SQL Aggregation & Grouping",
+    "aliases": [
+      "GROUP BY",
+      "aggregate functions"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Summarizing rows with GROUP BY and aggregate functions.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.relational_modeling",
+    "label": "Relational Database Design",
+    "aliases": [
+      "normalization",
+      "ER modeling"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Designing normalized relational schemas.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.indexing_query_optimization",
+    "label": "Indexing & Query Optimization",
+    "aliases": [
+      "query plans"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Speeding up queries with indexes and plan analysis.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.transactions_acid",
+    "label": "Transactions & ACID",
+    "aliases": [
+      "ACID properties"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Guarantees relational transactions provide.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.nosql_fundamentals",
+    "label": "NoSQL Fundamentals",
+    "aliases": [
+      "document databases",
+      "key-value stores"
+    ],
+    "category": "databases_sql",
+    "kind": "concept",
+    "description": "Non-relational data models and when to use them.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.postgresql",
+    "label": "PostgreSQL",
+    "aliases": [
+      "Postgres"
+    ],
+    "category": "databases_sql",
+    "kind": "tool",
+    "description": "Operating and querying a PostgreSQL database.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.orm_usage",
+    "label": "ORM Usage",
+    "aliases": [
+      "SQLAlchemy",
+      "object-relational mapping"
+    ],
+    "category": "databases_sql",
+    "kind": "tool",
+    "description": "Mapping objects to relational rows via an ORM.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.database_migrations",
+    "label": "Database Migrations",
+    "aliases": [
+      "schema migrations",
+      "Alembic"
+    ],
+    "category": "databases_sql",
+    "kind": "practice",
+    "description": "Evolving a schema safely over time.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.backend_fundamentals",
+    "label": "Backend Engineering Fundamentals",
+    "aliases": [
+      "backend basics"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Umbrella grouping of core backend-development skills.",
+    "assessable": false
+  },
+  {
+    "skill_id": "skill.http_fundamentals",
+    "label": "HTTP Fundamentals",
+    "aliases": [
+      "HTTP protocol",
+      "status codes"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Request/response semantics of the HTTP protocol.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.rest_api_design",
+    "label": "REST API Design",
+    "aliases": [
+      "RESTful APIs"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Designing resource-oriented HTTP APIs.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.rest_vs_grpc",
+    "label": "RPC & gRPC Basics",
+    "aliases": [
+      "gRPC"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "When and how to use RPC-style APIs vs REST.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.graphql",
+    "label": "GraphQL",
+    "aliases": [
+      "GraphQL"
+    ],
+    "category": "backend_engineering",
+    "kind": "tool",
+    "description": "Query-driven APIs with GraphQL.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.backend_framework",
+    "label": "Backend Web Framework",
+    "aliases": [
+      "FastAPI",
+      "Express.js",
+      "Flask",
+      "Django"
+    ],
+    "category": "backend_engineering",
+    "kind": "tool",
+    "description": "Building HTTP services with a backend framework.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.authentication_authorization",
+    "label": "Authentication & Authorization",
+    "aliases": [
+      "OAuth",
+      "JWT"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Verifying identity and enforcing access control.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.caching",
+    "label": "Caching Strategies",
+    "aliases": [
+      "Redis caching",
+      "cache invalidation"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Speeding up systems by caching computed/fetched data.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.message_queues",
+    "label": "Message Queues",
+    "aliases": [
+      "RabbitMQ",
+      "Kafka basics"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Asynchronous communication between services.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.microservices",
+    "label": "Microservices Architecture",
+    "aliases": [
+      "service decomposition"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Decomposing a system into independently deployable services.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.system_design_fundamentals",
+    "label": "System Design Fundamentals",
+    "aliases": [
+      "scalability basics"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Designing systems that scale and stay reliable.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.load_balancing",
+    "label": "Load Balancing",
+    "aliases": [
+      "load balancers"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Distributing traffic across multiple instances.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.api_testing",
+    "label": "API Testing",
+    "aliases": [
+      "integration testing for APIs",
+      "Postman"
+    ],
+    "category": "backend_engineering",
+    "kind": "practice",
+    "description": "Verifying API behavior with automated tests.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.websockets",
+    "label": "WebSockets & Real-Time Communication",
+    "aliases": [
+      "websockets"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Bidirectional, persistent client-server communication.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.api_documentation",
+    "label": "API Documentation (OpenAPI/Swagger)",
+    "aliases": [
+      "OpenAPI",
+      "Swagger"
+    ],
+    "category": "backend_engineering",
+    "kind": "practice",
+    "description": "Documenting an API in a machine-readable spec.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.rate_limiting",
+    "label": "API Rate Limiting & Throttling",
+    "aliases": [
+      "rate limiting"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Protecting a service from excess/abusive traffic.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.idempotency",
+    "label": "Idempotency in APIs",
+    "aliases": [
+      "idempotent requests"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Designing requests safe to retry without side effects.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.env_config_management",
+    "label": "Configuration & Secrets Management",
+    "aliases": [
+      "env vars",
+      "secrets"
+    ],
+    "category": "backend_engineering",
+    "kind": "concept",
+    "description": "Managing environment-specific config and secrets safely.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.docker",
+    "label": "Docker & Containerization",
+    "aliases": [
+      "Docker",
+      "containers"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "tool",
+    "description": "Packaging and running applications in containers.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.kubernetes_basics",
+    "label": "Kubernetes Basics",
+    "aliases": [
+      "K8s"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "concept",
+    "description": "Orchestrating containers at scale with Kubernetes.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.ci_cd",
+    "label": "CI/CD Pipelines",
+    "aliases": [
+      "continuous integration",
+      "continuous deployment"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "practice",
+    "description": "Automating build, test and deployment pipelines.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.cloud_fundamentals",
+    "label": "Cloud Computing Fundamentals",
+    "aliases": [
+      "AWS basics",
+      "cloud services"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "concept",
+    "description": "Core concepts of public cloud platforms.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.cost_estimation_cloud",
+    "label": "Cloud Cost Awareness",
+    "aliases": [
+      "cloud billing"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "concept",
+    "description": "Estimating and controlling cloud infrastructure cost.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.infrastructure_as_code",
+    "label": "Infrastructure as Code",
+    "aliases": [
+      "Terraform basics"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "concept",
+    "description": "Defining infrastructure declaratively as versioned code.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.logging_monitoring",
+    "label": "Logging & Monitoring",
+    "aliases": [
+      "observability basics"
+    ],
+    "category": "devops_infrastructure",
+    "kind": "concept",
+    "description": "Instrumenting systems to observe health and behavior.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.security_fundamentals",
+    "label": "Application Security Fundamentals",
+    "aliases": [
+      "secure coding basics"
+    ],
+    "category": "security",
+    "kind": "concept",
+    "description": "Core principles of building secure applications.",
+    "assessable": true
+  },
+  {
+    "skill_id": "skill.web_security_owasp",
+    "label": "Web Security (OWASP)",
+    "aliases": [
+      "SQL injection",
+      "XSS",
+      "CSRF"
+    ],
+    "category": "security",
+    "kind": "concept",
+    "description": "Common web vulnerabilities and how to prevent them.",
+    "assessable": true
+  }
+]

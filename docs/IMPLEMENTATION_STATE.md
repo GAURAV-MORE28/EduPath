@@ -10,6 +10,9 @@
 ### Current Phase
 
 **Phase 1 — Foundation. Complete.**
+**Phase 3 (data) — Domain knowledge pack. Partially complete (content curated
+and validated offline; not yet loaded into Postgres or consumed by app
+code — see "Domain Knowledge Pack" section below).**
 
 ### Overall Project Status
 
@@ -20,6 +23,13 @@ three services together. No business logic (profiling, skill graph, gap
 analysis, planning, assessment, reflection, tutor) exists yet — that is
 intentional; this phase is infrastructure only.
 
+In parallel (per design §39.1's explicit "start Phase 3 on day one"
+guidance), the **domain knowledge pack** — curated skills, roles,
+prerequisite graph, resource catalog, misconception catalog, an initial
+assessment item bank, and a demo dataset — has been authored and validated
+under `data/`. This is content/data, decoupled from application code; no
+backend or frontend code reads it yet. See "Domain Knowledge Pack" below.
+
 ### Completed Phases
 
 | Phase (per design §39.1) | Status |
@@ -27,7 +37,7 @@ intentional; this phase is infrastructure only.
 | 0 — Engineering state protocol | ✅ Done |
 | 1 — Foundation (repo skeleton, Docker Compose, FastAPI, Postgres schema, LLM Gateway, Trace Emitter, Next.js shell) | ✅ Done |
 | 2 — Learner profiling | ❌ Not started |
-| 3 — Skill graph + catalog (critical path) | ❌ Not started |
+| 3 — Skill graph + catalog (critical path) | 🟡 Data curated & validated (`data/`); human review pass, Postgres loader, and NetworkX graph-load-at-startup integration still not started |
 | 4 — Gap analysis | ❌ Not started |
 | 5 — Planner | ❌ Not started |
 | 6 — Resource retrieval | ❌ Not started |
@@ -174,6 +184,11 @@ Tailwind v4, App Router, ESLint), then customized:
 - `docker-compose.yml`, `.env.example`, `.gitignore` (new)
 - `docs/IMPLEMENTATION_STATE.md` (this file, rewritten)
 - `docs/CHANGELOG.md` (entry appended)
+- `data/README.md` (new — domain knowledge pack contract/usage)
+- `data/scripts/build_dataset.py` (new — canonical source of curated data)
+- `data/scripts/validate_dataset.py` (new — validator)
+- `data/dataset/{meta,skills,roles,skill_edges,resources,misconceptions,assessment_items}.json` (generated)
+- `data/dataset/demo/{demo_learner,demo_learner_state,demo_scenario}.json`, `demo_resume.md` (generated)
 
 ### Dependencies Installed
 
@@ -204,11 +219,53 @@ and `pg_trgm` extensions are enabled. No other table in the conceptual
 schema (`LearnerProfile`, `Skill`, `SkillEdge`, `Role`, ...) exists yet —
 each is created by the migration the owning phase adds.
 
-### Data Assets Status
+### Domain Knowledge Pack
 
-Unchanged from Phase 0 — no skill graph, resource catalog, or item bank work
-has started. Still the critical-path risk item (design §39.2); should start
-in parallel with Phase 2.
+Created under `data/` (repo root, deliberately decoupled from
+`backend/app/` — see `data/README.md` for the full contract). Source of
+truth is `data/scripts/build_dataset.py` (Python literals — terser and
+easier to review/diff than hand-written JSON); it generates
+`data/dataset/*.json`, which `data/scripts/validate_dataset.py` checks.
+Regenerate/validate with:
+
+```bash
+python data/scripts/build_dataset.py
+python data/scripts/validate_dataset.py
+```
+
+Current state: **validates with 0 errors and 0 warnings.**
+`graph_version = "v0.1.0-domain-pack"`.
+
+| Asset | Count | Notes |
+|---|---|---|
+| Skills | 158 | 3 roles (design §11.5's example roles): ML Engineer, Data Analyst, Backend Developer. 6 are non-assessable `PART_OF` grouping/umbrella skills. |
+| Roles | 3 | `role.ml_engineer` (46 required skills), `role.data_analyst` (30), `role.backend_developer` (50). |
+| Skill edges | 203 | `PREREQUISITE_OF` (hard/soft), `PART_OF`, `RELATED_TO` — the closed edge-type set from `ARCHITECTURE_CONTRACTS.md` §5, minus the edge types that live in other files (`REQUIRES` in roles.json, `TARGETS` in resources.json, `ASSESSES`/`MISCONCEPTION_OF`/`ROOTED_IN`/`REMEDIATED_BY` in misconceptions.json/assessment_items.json). Hard-prerequisite subgraph verified acyclic (validator check #3). |
+| Resources | 140 | Real URLs only (official docs, Khan Academy, 3Blue1Brown, Kaggle Learn, Hugging Face, OWASP, PostgreSQL/SQLAlchemy docs, etc.) — see `data/README.md` "Link validation" for how these were spot-checked (two stale domains found and fixed: `linuxjourney.com`, `mode.com`). Every role-required skill has ≥ 1 resource. |
+| Misconceptions | 18 | Covers the demo chain (chain rule / backprop / training) plus a representative spread of other core skills (SQL joins, hypothesis testing, recursion, Big-O, REST, auth, testing, Docker, relational modeling). |
+| Assessment items | 95 | Covers 23 skills, most to the design §11.5 "≥ 6 mixed-difficulty items" standard; **not** exhaustive across all 158 skills — see "Known scope decisions" below. |
+| Demo dataset | 4 files | `demo_learner.json`, `demo_resume.md`, `demo_learner_state.json`, `demo_scenario.json` under `data/dataset/demo/` — implements the design §38.1 "Asha" persona and the `Chain Rule → Backpropagation → Training Neural Networks` seeded path, including the `misc.chain_rule_sum` misconception and a scripted-wrong-answer attempt matching §38.2 step 8. |
+
+**Known scope decisions (do not assume beyond these without checking
+`data/README.md`):**
+- Assessment item bank is an *initial* bank (95 items / 23 skills), not full
+  coverage of all 158 skills — `validate_dataset.py`'s coverage report names
+  exactly which assessable skills still have 0 items. Building out full
+  coverage is Phase 7 (Assessor) work, informed by this report.
+- No entry in this pack has had a **human review pass** yet — every edge,
+  resource, misconception and item currently has
+  `reviewed_by: "edupath-phase3-curation"` as a placeholder. Design §11.5
+  calls for human review of every drafted prerequisite edge before trusting
+  it in production gap analysis; treat this as a strong first draft.
+- `link_status` is seeded `"ok"` for all 140 resources based on a
+  spot-check, not a full crawl. Run a real HEAD-request link-validation pass
+  before a live demo or before Phase 6 depends on it.
+- **Nothing in `data/` is loaded into Postgres or read by any backend/frontend
+  code yet.** The `Skill`, `SkillEdge`, `Role`, `RoleRequirement`,
+  `Misconception`, `Resource`, `ResourceSkill`, `PracticeItem` tables from
+  `ARCHITECTURE_CONTRACTS.md`'s data model don't exist yet (no migration adds
+  them) — that migration + a one-time seed loader from `data/dataset/*.json`
+  is Phase 3/4 remaining work, per `data/README.md` "Consuming this data".
 
 ### API Status
 
@@ -297,29 +354,45 @@ upload, text extraction (PyMuPDF/python-docx), Profiler Agent (real LLM
 calls via the gateway — this is where a real provider needs wiring, or
 `REPLAY_MODE`/`LLM_PROVIDER=none` degraded mode continues), Evidence
 Verifier, Skill Normalizer, confirmation UI, GitHub summary tool. Depends on
-Phase 1 (done) and Phase 3's aliases (skill graph curation — start now, in
-parallel, since it's content work per design §39.1).
+Phase 1 (done) and Phase 3's aliases (skill graph curation — the aliases
+needed by the Skill Normalizer now exist in `data/dataset/skills.json`).
+
+Also still open on **Phase 3** itself (not blocking Phase 2, but required
+before Gap Analysis/Phase 4 can run against real data): a human review pass
+over the curated graph, a Postgres migration for the graph/catalog tables
+(design §28: `Skill`, `SkillEdge`, `Role`, `RoleRequirement`,
+`Misconception`, `Resource`, `ResourceSkill`, `PracticeItem`), a one-time
+seed loader from `data/dataset/*.json` into those tables, and the
+NetworkX-load-at-startup integration (`ARCHITECTURE_CONTRACTS.md` §5).
 
 ### Exact Next Task
 
-1. Start Phase 3 (skill graph + catalog curation) in parallel — it is
-   content/labor work, not code, and is the critical-path bottleneck.
-2. For Phase 2 code: add `LearnerProfile`, `Document`, `Evidence` tables +
+1. For Phase 2 code: add `LearnerProfile`, `Document`, `Evidence` tables +
    migration (design §28); implement `POST /api/learners`,
    `POST /api/learners/me/documents`; wire a real LLM provider into
    `LLMGateway` (or keep `LLM_PROVIDER=none` and build against the degraded
    path first); implement `ProfilerAgent.run()` with `parse_document` and
    `github_repo_summary` tools (no side-effect tools); implement the
    Evidence Verifier service (span verification, tier assignment, PII
-   scrubbing) and the Skill Normalizer service; build `G1 Onboarding` as a
-   real LangGraph graph (replacing the bootstrap graph for this flow);
-   surface `GET /api/learners/me/claims/pending` and the confirmation UI.
-3. Add a Postgres-backed record/replay table for the LLM Gateway before or
+   scrubbing) and the Skill Normalizer service (can now use
+   `data/dataset/skills.json` aliases for normalization candidates); build
+   `G1 Onboarding` as a real LangGraph graph (replacing the bootstrap graph
+   for this flow); surface `GET /api/learners/me/claims/pending` and the
+   confirmation UI.
+2. Add a Postgres-backed record/replay table for the LLM Gateway before or
    alongside the first real agent call.
+3. Before Phase 4 (Gap Analysis) starts: add the Phase 3 graph/catalog
+   migration + seed loader described above, so the Gap Engine has real
+   Postgres/NetworkX data to run against instead of reading
+   `data/dataset/*.json` directly.
 
 ### Commands To Verify Current State
 
 ```bash
+# Domain knowledge pack (from repo root; stdlib-only, any Python 3.9+)
+python data/scripts/build_dataset.py
+python data/scripts/validate_dataset.py
+
 # Backend tests (from backend/, with .venv activated or via pip install -e ".[dev]")
 cd backend && python -m pytest -q
 
