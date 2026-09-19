@@ -21,8 +21,14 @@ confirmation, basic GitHub metadata).
 **Phase 4 — Skill-Gap Engine. Implemented** (deterministic `analyze_gaps`:
 statuses, prerequisite closure/ordering, the BLOCKED overlay, priority,
 strengths, audit flags, learning objectives with verify-before-teach;
-`GET /api/learners/me/gaps`). Planning, assessment and reflection remain out
-of scope, per design's phase ordering.
+`GET /api/learners/me/gaps`).
+**Phase 6 — Resource Retriever/Ranker. Implemented** (graph-anchored
+eligibility filter, hybrid dense+keyword retrieval fused by RRF,
+deterministic ranking per design §15.3, MMR near-duplicate removal, live
+link validation). Planning, assessment and reflection remain out of scope,
+per design's phase ordering — Phase 6 landed ahead of Phase 5 (Planner) at
+the operator's explicit direction, since a Planner needs real
+`ResourceRecommendation[]` to schedule against.
 
 ### Overall Project Status
 
@@ -55,8 +61,22 @@ role's subgraph (Phase 3) against a learner's evidence-graded skill state
 §12.4's claim-evidence integrity checks), and `LearningObjective`s —
 `UNVERIFIED` gaps become verify-before-teach *probe* objectives, never
 beginner lessons. Exposed via `GET /api/learners/me/gaps`. No LLM anywhere
-in this decision path. No planning, assessment, or reflection logic exists
-yet, by design.
+in this decision path.
+
+The **Resource Retriever/Ranker** (Phase 6, design §14.3/§15) is now also
+implemented: `ResourceRetrievalService` anchors to a `(skill_id,
+target_level)` gap, applies design §14.3's graph-anchored hard eligibility
+filter (targeting, difficulty band, prerequisites, link status, duration,
+language, modality), runs hybrid dense (embedding cosine) + keyword
+(token-overlap) retrieval fused by Reciprocal Rank Fusion, scores every
+eligible candidate with design §15.3's weighted formula (level fit,
+quality, modality preference, relevance, duration fit, novelty, prior-
+failure penalty), and diversifies the top-K via MMR-style same-provider-
+and-modality de-duplication. No resource is ever invented — every
+`ResourceRecommendation.resource_id` is drawn from the real catalog.
+A separate live link-validation job (`backend/scripts/validate_links.py`)
+checks every resource URL and records `link_status`/`last_verified_at`.
+No planning, assessment, or reflection logic exists yet, by design.
 
 ### Completed Phases
 
@@ -68,7 +88,7 @@ yet, by design.
 | 3 — Skill graph + catalog (critical path) | ✅ Implemented (Postgres tables, NetworkX loader, validation, versioning, traversal queries, catalog ingestion, resource embeddings + FTS index). Curated content itself still needs a human review pass (§11.5) before production gap analysis trusts it. |
 | 4 — Gap analysis | ✅ Implemented (deterministic Gap Engine: statuses, prerequisite closure/ordering, BLOCKED overlay, priority, strengths, audit flags, learning objectives with verify-before-teach). See "Completed Work" below. |
 | 5 — Planner | ❌ Not started |
-| 6 — Resource retrieval | ❌ Not started |
+| 6 — Resource retrieval | ✅ Implemented (hybrid retrieval, deterministic ranking, MMR, link validation job). Landed ahead of Phase 5 at the operator's direction. See "Completed Work" below. |
 | 7 — Practice + assessment | ❌ Not started |
 | 8 — Reflection / re-planning (core differentiator) | ❌ Not started |
 | 9 — Tutor | ❌ Not started |
@@ -507,6 +527,91 @@ naming convention):
   `part_of_children`). **201 tests total, all passing** (160 from Phase
   1-3, 41 new).
 
+**Phase 6 — Resource Retriever/Ranker** (design §14.3, §15;
+ARCHITECTURE_CONTRACTS.md §15; package `backend/app/retrieval/`, an
+addition beyond design §35's named-package list, same latitude Phase 3 used
+for `catalog/`):
+
+- **Pure ranking core** (`backend/app/retrieval/ranker.py`): `recommend()`
+  implements design §14.3 points 2-5 end to end as a pure function (no
+  DB/gateway import in the module — same "unit-testable with hand-built
+  fixtures" shape as `app/gap/engine.py`).
+  - **Eligibility filter** (`filter_eligible`/`eligibility_checks`): targets
+    the skill (structural, via the caller's candidate fetch), difficulty
+    band overlap `[current_level, current_level+1]`, prerequisites MET,
+    `link_status == "ok"` (read literally — `"redirected"` does not pass),
+    duration vs. session cap, language, modality exclusion. "Prerequisites
+    MET or scheduled earlier" only checks MET — no Planner/schedule exists
+    yet to know "earlier" (see "Architectural Decisions").
+  - **Hybrid retrieval** (`_hybrid_relevance`): dense (cosine similarity
+    over the resource's existing `EmbeddingGateway`-computed embedding, the
+    same `_cosine` convention `skill_normalizer.py` uses) + keyword
+    (token-overlap over title/`learning_objective_text`, title double-
+    weighted to approximate Postgres FTS's title-weight-A convention),
+    fused by Reciprocal Rank Fusion, normalized to `[0, 1]`. Deliberately
+    **not** `CatalogRepository.search_resources_by_text`/
+    `search_resources_by_vector` (Postgres-only, untestable under SQLite) —
+    see "Architectural Decisions" for the full reasoning.
+  - **Ranking** (`score_candidates`): design §15.3's weighted formula
+    (`level_fit` 0.35, `quality` 0.20, `modality_pref` 0.15, `relevance`
+    0.15, `duration_fit` 0.10, `novelty` 0.05, minus a flat prior-failure
+    penalty) — weights live in `backend/app/core/thresholds.py`'s new
+    `RESOURCE_RANK_WEIGHTS`/`RESOURCE_PRIOR_FAILURE_PENALTY`/
+    `RESOURCE_QUALITY_*`/`RRF_K`/`DEFAULT_SESSION_CAP_MINUTES` constants.
+  - **MMR diversification** (`mmr_diversify`): strict first-occurrence-
+    per-(provider, modality) selection with graceful duplicate fallback
+    only when the eligible pool can't otherwise fill `top_k` — design
+    §15.3's literal "removes near-duplicates (same provider and modality)",
+    not general embedding-space MMR.
+- **Async orchestration** (`backend/app/retrieval/service.py`):
+  `ResourceRetrievalService.recommend_for_skill` fetches real
+  `Resource`/`ResourceSkill` rows (new `CatalogRepository.get_resources_targeting_skill`),
+  computes the query embedding from the skill's label/description via
+  `EmbeddingGateway`, and calls the pure core. Raises `UnknownSkillError`
+  for an unsupported skill (never silently empty); returns `[]` when the
+  skill has no targeting resources or nothing survives the eligibility
+  filter.
+- **Link validation** (design §15.2): `backend/app/retrieval/link_validator.py`
+  (`check_url`/`validate_resources`, `httpx.AsyncClient` injected — same
+  pattern as `github_client.py`, HEAD falling back to GET, bounded
+  concurrency) is the *live* network check; static URL well-formedness was
+  already a build-time invariant in `app/graph/validation.py` (Phase 3).
+  New `CatalogRepository.update_link_statuses` bulk-writes results.
+  `backend/scripts/validate_links.py` is the "runs before demo and nightly"
+  CLI job entrypoint (mirrors `scripts/seed_catalog.py`).
+- **Web fallback gateway** (design §14.3 point 6's optional O4 path):
+  `backend/app/gateway/web_fallback_gateway.py`, same provider-agnostic
+  shape as the LLM/Embedding/VLM Gateways — degrades to `fetched=False`
+  (no results) whenever no provider is configured (this project's
+  permanent state). `WebFallbackResult` deliberately has no `resource_id`,
+  so it can never be mistaken for a real, catalog-backed recommendation.
+  Never called automatically by `ResourceRetrievalService` — a caller must
+  opt in explicitly, since these results are `unvetted` by construction.
+- **Schemas**: `ResourceRecommendation` (`backend/app/schemas/common.py`)
+  got its real design §25.2 field list this phase (previously
+  `{resource_id, score, data: dict}`); no API route consumes it yet (see
+  "No API route this phase" below).
+- **No API route added.** Design §27's endpoint table has no row for the
+  Resource Retriever/Ranker — it's Planner-internal. Matching that, this
+  phase adds no new HTTP surface; `ResourceRetrievalService` is ready for
+  the Planner (Phase 5, not yet implemented) to call once it exists.
+- **Tests**: 43 new — `tests/test_ranker.py` (25, hand-built
+  `ResourceCandidate` fixtures: every eligibility rule individually,
+  relevance/RRF normalization, every ranking-formula component including
+  modality preference and the prior-failure penalty, MMR duplicate removal
+  and its homogeneous-pool fallback, and the full `recommend()` pipeline —
+  dedup, "never invents a resource_id", `top_k`), `tests/test_retrieval_service.py`
+  (8, against the real curated dataset via `catalog_session`: real
+  `get_resources_targeting_skill` results, a full real-data
+  `recommend_for_skill` call for `skill.chain_rule` gated on
+  `skill.algebra_basics`, empty-on-unmet-prerequisite/too-small-session-cap/
+  no-targeting-resources, `UnknownSkillError` on an unsupported skill, and
+  `update_link_statuses`), `tests/test_link_validator.py` (8,
+  `httpx.MockTransport`: ok/redirected/404/network-error/HEAD-rejected-
+  falls-back-to-GET/both-methods-fail), `tests/test_web_fallback_gateway.py`
+  (2, degrade-path). **244 tests total, all passing** (201 from Phase 1-4,
+  43 new).
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -516,7 +621,8 @@ naming convention):
 - `app/core/__init__.py`, `app/core/errors.py`
 - `app/schemas/__init__.py`, `app/schemas/envelope.py`,
   `app/schemas/common.py` (extended, Phase 4: real `SkillGap`/
-  `LearningObjective` field lists), `app/schemas/gap.py` (new, Phase 4)
+  `LearningObjective` field lists; extended, Phase 6: real
+  `ResourceRecommendation` field list), `app/schemas/gap.py` (new, Phase 4)
 - `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`,
   `app/db/models.py` (extended, Phase 3 and Phase 2 — see below)
 - `app/db/migrations/env.py`, `app/db/migrations/script.py.mako`,
@@ -525,7 +631,8 @@ naming convention):
   `app/db/migrations/versions/0003_learner_profiling.py` (new, Phase 2)
 - `app/gateway/__init__.py`, `app/gateway/llm_gateway.py`,
   `app/gateway/embedding_gateway.py` (Phase 3),
-  `app/gateway/vlm_gateway.py` (new, Phase 2)
+  `app/gateway/vlm_gateway.py` (new, Phase 2),
+  `app/gateway/web_fallback_gateway.py` (new, Phase 6)
 - `app/orchestration/__init__.py`, `app/orchestration/state.py`,
   `app/orchestration/graphs.py` (extended, Phase 2: real `build_onboarding_graph`)
 - `app/agents/__init__.py`, `app/agents/base.py`,
@@ -535,13 +642,17 @@ naming convention):
 - `app/services/__init__.py`
 - `app/repositories/__init__.py`,
   `app/repositories/user_repository.py` (extended, Phase 2: `get_or_create`),
-  `app/repositories/catalog_repository.py` (Phase 3),
+  `app/repositories/catalog_repository.py` (Phase 3; extended, Phase 6:
+  `get_resources_targeting_skill`, `update_link_statuses`),
   `app/repositories/profiling_repository.py` (new, Phase 2)
 - `app/graph/__init__.py`, `app/graph/loader.py`,
   `app/graph/queries.py` (extended, Phase 4: `hard_prerequisite_out_edges`,
   `part_of_children`), `app/graph/validation.py` (Phase 3)
 - `app/catalog/__init__.py`, `app/catalog/ingest.py` (Phase 3)
 - `app/gap/__init__.py`, `app/gap/engine.py` (new package, Phase 4)
+- `app/retrieval/__init__.py`, `app/retrieval/ranker.py`,
+  `app/retrieval/service.py`, `app/retrieval/link_validator.py` (new
+  package, Phase 6)
 - `app/profiling/__init__.py`, `app/profiling/document_parser.py`,
   `app/profiling/pii.py`, `app/profiling/chunker.py`,
   `app/profiling/injection.py`, `app/profiling/claim_extraction.py`,
@@ -552,7 +663,9 @@ naming convention):
 - `app/core/__init__.py`, `app/core/errors.py`,
   `app/core/thresholds.py` (new, Phase 2 — tunable numeric defaults;
   extended, Phase 4: `LEVEL_MASTERY_THRESHOLD`/`LEVEL_TIER_REQUIRED`/
-  `LEVEL_MIN_N_OBS`)
+  `LEVEL_MIN_N_OBS`; extended, Phase 6: `RESOURCE_RANK_WEIGHTS`/
+  `RESOURCE_PRIOR_FAILURE_PENALTY`/`RESOURCE_QUALITY_*`/`RRF_K`/
+  `DEFAULT_SESSION_CAP_MINUTES`)
 - `app/schemas/profiling.py` (new, Phase 2)
 - `app/sse/__init__.py`, `app/sse/trace.py`
 - `app/api/__init__.py`, `app/api/deps.py` (extended, Phase 2:
@@ -561,7 +674,8 @@ naming convention):
   `app/api/v1/router.py` (extended, Phase 4: registers `gap_router`),
   `app/api/v1/health.py`, `app/api/v1/runs.py`,
   `app/api/v1/learners.py` (new, Phase 2), `app/api/v1/gap.py` (new, Phase 4)
-- `scripts/seed_catalog.py` (Phase 3 — CLI catalog ingestion entrypoint)
+- `scripts/seed_catalog.py` (Phase 3 — CLI catalog ingestion entrypoint),
+  `scripts/validate_links.py` (new, Phase 6 — CLI link-validation entrypoint)
 - `tests/__init__.py`, `tests/conftest.py` (extended: `catalog_session`
   fixture (Phase 3), `app_client` fixture + storage-tmp-dir redirect
   (Phase 2)), `tests/test_health.py`,
@@ -576,7 +690,10 @@ naming convention):
   `tests/test_claim_extraction.py`, `tests/test_skill_normalizer.py`,
   `tests/test_profiler_agent.py`, `tests/test_github_client.py`,
   `tests/test_learners_api.py`, `tests/test_commit.py` (all new, Phase 2);
-  `tests/test_gap_engine.py`, `tests/test_gap_api.py` (all new, Phase 4)
+  `tests/test_gap_engine.py`, `tests/test_gap_api.py` (all new, Phase 4);
+  `tests/test_ranker.py`, `tests/test_retrieval_service.py`,
+  `tests/test_link_validator.py`, `tests/test_web_fallback_gateway.py`
+  (all new, Phase 6)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -710,15 +827,19 @@ Current state: **validates with 0 errors and 0 warnings.**
 Seven endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
 (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
-`POST /api/learners/me/claims/confirm`, `GET /api/learners/me/gaps` (new,
-Phase 4 — optional `?role=` override). The rest of design §27's table
+`POST /api/learners/me/claims/confirm`, `GET /api/learners/me/gaps` (Phase
+4 — optional `?role=` override). The rest of design §27's table
 (target-role change, plans, practice, chat, dispute, progress, decisions,
 demo seed) is not implemented yet — each needs the Planner/Assessor/
 Reflection later phases explicitly exclude.
 `SkillGraphService`/`CatalogRepository` (Phase 3) are still internal
 services with no direct HTTP surface of their own beyond `/gaps`; the intake
 route reads `CatalogRepository.get_role` for role validation, but nothing
-exposes `/skills/{id}` or similar yet.
+exposes `/skills/{id}` or similar yet. **The Resource Retriever/Ranker
+(Phase 6) also has no HTTP surface** — by design (see ARCHITECTURE_CONTRACTS.md
+§15: design §27's table has no row for it; it's Planner-internal).
+`ResourceRetrievalService` is fully implemented and tested, just not yet
+called from any route — the Planner (Phase 5) is its first intended caller.
 
 ### Agent Status
 
@@ -730,13 +851,14 @@ Only one LangGraph business graph exists for real: G1 Onboarding
 phase (5, 8, 9). No agent other than the Profiler has tool access, and the
 Profiler's tools (`parse_document`'s underlying parsing, `github_repo_summary`)
 have no side effects, per ARCHITECTURE_CONTRACTS.md §13. The Gap Engine
-(Phase 4) is **not** an LLM agent — it is one of the deterministic services
-ARCHITECTURE_CONTRACTS.md §2 explicitly excludes from that list; no LLM call
-exists anywhere in `app/gap/`.
+(Phase 4) and the Resource Retriever/Ranker (Phase 6) are **not** LLM
+agents — both are deterministic services ARCHITECTURE_CONTRACTS.md §2
+explicitly excludes from that list; no LLM call exists anywhere in
+`app/gap/` or `app/retrieval/`.
 
 ### Tests Status
 
-Backend: **201 tests, all passing** (`backend/tests/`) — run with
+Backend: **244 tests, all passing** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
@@ -748,9 +870,12 @@ the full learners API, evidence commit — see the Phase 2 "Tests" bullet
 under "Completed Work" above for the exact breakdown) plus Phase 4's 41
 (Gap Engine statuses/BLOCKED overlay/audit flags/learning objectives, the
 `/gaps` API route, two new `SkillGraphService` methods — see the Phase 4
-"Tests" bullet under "Completed Work" above). All run against
-SQLite (`tests/conftest.py`'s existing dialect-portability convention); the
-Postgres-only catalog paths
+"Tests" bullet under "Completed Work" above) plus Phase 6's 43 (ranker
+eligibility/hybrid-relevance/scoring/MMR, the retrieval service against
+real catalog data, link validation, the web fallback gateway's degrade
+path — see the Phase 6 "Tests" bullet under "Completed Work" above). All
+run against SQLite (`tests/conftest.py`'s existing dialect-portability
+convention); the Postgres-only catalog paths
 (`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
 the generated `search_vector` column) and the full learner-profiling flow
 through the real FastAPI app were both verified manually this session
@@ -839,18 +964,42 @@ one.
   "Architectural Decisions" below for the full reasoning. It does mean
   design §13.4's worked example (Python `MET` from GitHub evidence alone)
   won't reproduce exactly until Phase 7 lands or the priors are retuned.
-- **(Phase 4)** `LearningObjective.est_minutes_low/high` are always `None` —
-  deferred to the Resource Retriever/Ranker (Phase 6, design §14.3/§15),
-  not duplicated here (design §14.1 explicitly avoids mixing retrieval
-  planes). `acceptance_criteria` also omits design §13.5's
-  `no_open_misconceptions_for(skill)` clause — no per-learner misconception
-  status table exists yet (design's `Learner -HAS_MISCONCEPTION-> Misconception`
-  overlay isn't built; only the curated, global `Misconception` node is).
-  Add both once their owning phase/table exists.
+- **(Phase 4, still open post-Phase 6)** `LearningObjective.est_minutes_low/high`
+  are still always `None` — the Gap Engine (`app/gap/engine.py`) does not
+  call the now-implemented Resource Retriever (`app/retrieval/`) to
+  populate them; wiring that is Phase 5's (Planner) job, since that's the
+  first place both a `LearningObjective` and its candidate resources need
+  to be in scope together. `acceptance_criteria` also still omits design
+  §13.5's `no_open_misconceptions_for(skill)` clause — no per-learner
+  misconception status table exists yet (design's
+  `Learner -HAS_MISCONCEPTION-> Misconception` overlay isn't built; only
+  the curated, global `Misconception` node is). Add both once their owning
+  phase/table exists.
 - **(Phase 4)** `POST /api/learners/me/skills/{skill_id}/dispute` (design
   §12.4: disputing an audit flag) is not implemented — audit flags are
   emitted every call, never suppressed or remembered as disputed. A later
   phase should add the dispute table/endpoint if this matters before a demo.
+- **(Phase 6)** No `LearningActivity`/`Assessment` table exists to source
+  `learner_history` (novelty / prior-failure-penalty inputs) from live
+  data — `ResourceRetrievalService.recommend_for_skill` accepts it as a
+  parameter (defaults to empty) rather than querying anything. The
+  algorithm is complete and tested; a real caller supplies real history
+  once Phase 7/8 writes one of those tables.
+- **(Phase 6)** The link-validation job (`scripts/validate_links.py`) has
+  not been run this session against the live 140-resource catalog (no
+  network access in this environment) — `Resource.link_status` still
+  reflects Phase 3's ingestion-time spot-check seed (`"ok"` for all 140),
+  not a fresh live check. Run it before trusting `link_status` in a demo.
+- **(Phase 6)** Hybrid relevance uses the same deterministic, hashed
+  bag-of-tokens embedding fallback as everywhere else in this project
+  (`LLM_PROVIDER=none`) — not semantically strong (see
+  `app/gateway/embedding_gateway.py`'s existing note from Phase 3). Ranking
+  quality should be re-evaluated once a real embedding provider is wired in
+  (design §32's labeled query set, still not built).
+- **(Phase 6)** `RESOURCE_RANK_WEIGHTS`/`RESOURCE_PRIOR_FAILURE_PENALTY`/
+  the quality-recency windows are hand-set defaults per design §15.3,
+  unvalidated against real usage data (none exists yet) — calibrate once
+  design §32's evaluation set exists, per ARCHITECTURE_CONTRACTS.md §14.
 
 ### Architectural Decisions
 
@@ -948,6 +1097,40 @@ one.
   on `.gap_type` (lowercase: `met`/`weak`/`unverified`/`missing`). This
   keeps `BLOCKED`'s "why" inspectable (`blocked_by[]` plus `gap_type`)
   without needing a second lookup.
+- **(Phase 6)** Hybrid dense+keyword retrieval is computed in pure Python
+  over already-fetched `Resource` rows (cosine similarity against the
+  stored `embedding`; token-overlap keyword scoring), not via
+  `CatalogRepository.search_resources_by_text`/`search_resources_by_vector`.
+  Those two methods are Postgres-only and already documented (Phase 3) as
+  "not exercised by pytest" — building the Ranker's core algorithm on top
+  of them would make it just as untestable, directly conflicting with this
+  phase's explicit test requirements. See ARCHITECTURE_CONTRACTS.md §15 for
+  the full reasoning; this is a deliberate deviation from a literal reading
+  of design §14.3 point 3 ("run dense and keyword search... fuse by RRF"),
+  in favor of dialect-portability and testability — the retrieval *result*
+  (RRF-fused, relevance-ranked eligible resources) is the same either way,
+  only the SQL-vs-Python mechanism differs.
+- **(Phase 6)** `link_status == "ok"` is read literally in the eligibility
+  filter — `"redirected"` does not pass. Design §14.3 point 2 states the
+  filter as `link_status = ok`, and design §15.1 treats `ok`/`redirected`/
+  `broken` as three distinct values, so this is the literal reading, not
+  a simplification. Revisit if a later phase's calibration shows
+  "redirected but reachable" resources are being filtered out too
+  aggressively.
+- **(Phase 6)** MMR diversification is a strict first-occurrence-per-
+  (provider, modality) selection, not general embedding-space Maximal
+  Marginal Relevance — design §15.3's literal closing sentence describes
+  "same provider and modality" de-duplication, not corpus-wide diversity
+  scoring, so that's what's implemented. Falls back to filling remaining
+  slots with duplicates, best score first, only when the eligible pool
+  can't otherwise reach `top_k` — a demo/run should still get resources
+  rather than an under-filled list over a diversity purity constraint.
+- **(Phase 6)** `ResourceRetrievalService`/`recommend()` are not exposed
+  via a new API route — design §27's endpoint table has no row for the
+  Resource Retriever/Ranker (it's Planner-internal per design §14.3), so
+  adding one would be inventing an endpoint the design doc doesn't call
+  for. The Planner (Phase 5, not yet implemented) is the intended first
+  caller.
 
 ### Contract Changes
 
@@ -973,8 +1156,8 @@ own §5/§9 additions:
   accepts one file (or one `github_url`) per call, not the batched
   `file(s)` design §27's table shows — see "Known Issues".
 
-`docs/ARCHITECTURE_CONTRACTS.md` §4, §5, §6, and §7 updated this phase
-(Phase 4, Gap Engine):
+`docs/ARCHITECTURE_CONTRACTS.md` §4, §5, §6, and §7 updated Phase 4 (Gap
+Engine):
 - §4: pointed to `backend/app/gap/engine.py` as the implementation and
   recorded the "computed on demand, not persisted" decision.
 - §5: recorded the two new `SkillGraphService` methods and the startup
@@ -984,21 +1167,48 @@ own §5/§9 additions:
   (`backend/app/core/thresholds.py`) and the mastery-priors-cap-at-WEAK
   nuance (see "Known Issues").
 
+`docs/ARCHITECTURE_CONTRACTS.md` §2, §6, §9, §12, and §13 updated, and a new
+§15 added, this phase (Phase 6, Resource Retriever/Ranker):
+- §2: pointed to `backend/app/retrieval/ranker.py`'s `recommend()` as the
+  implementation.
+- §6: noted `ResourceRecommendation` now has a real field list.
+- §9: recorded the two new `CatalogRepository` methods
+  (`get_resources_targeting_skill`, `update_link_statuses`).
+- §12: recorded `retrieval/` as a package-naming addition (alongside
+  Phase 3's `catalog/`).
+- §13: recorded the Web Fallback Gateway's implementation and its
+  "never confused with a real recommendation" ID-less design.
+- New §15 (this file's own numbering, not design's §15): the full set of
+  Phase 6 decisions — pure-Python hybrid retrieval instead of the
+  Postgres-only FTS/pgvector methods, the literal `link_status == "ok"`
+  reading, the MMR-as-de-duplication interpretation, the "prerequisites
+  MET only" simplification, "no API route this phase," and the
+  `learner_history`-as-parameter decision pending a `LearningActivity`
+  table.
+
 ### Next Phase
 
 **Phase 5 — Planner** (design §39.1, §16-§19): the Planner Agent (draft/patch
 modes) plus the deterministic Plan Validator (V1-V10, ARCHITECTURE_CONTRACTS.md
 §10) and Fallback Planner, consuming the Gap Engine's `LearningObjective[]`
-(Phase 4, implemented — `GET /api/learners/me/gaps`) and the Resource
-Retriever/Ranker's `ResourceRecommendation[]` (Phase 6 — likely needs to land
-first or alongside, since the Planner needs real candidates to schedule, not
-just objectives) to produce a `WeeklyPlan`/`PlanItem[]`.
+(Phase 4, implemented — `GET /api/learners/me/gaps`) and the now-implemented
+Resource Retriever/Ranker's `ResourceRecommendation[]` (Phase 6,
+`ResourceRetrievalService.recommend_for_skill`) to produce a
+`WeeklyPlan`/`PlanItem[]`. This is also the natural place to: wire
+`LearningObjective.est_minutes_low/high` from real candidate resources
+(both a `LearningObjective` and its candidates are finally in scope
+together at the Planner); add `POST /api/learners/me/plans` (design §27,
+the first real caller of `app/retrieval/`); and populate
+`ResourceUsageRecord`/`learner_history` from whatever activity-tracking
+table the Planner's "Act" loop introduces.
 
 Still open on **Phase 3**: a human review pass over the curated content
 (§11.5) — every edge/resource/misconception/item still shows
-`reviewed_by: "edupath-phase3-curation"`, a placeholder — and a live
-HEAD-request link-validation sweep over the 140 resource URLs (`link_status`
-is currently a spot-check, not a full crawl).
+`reviewed_by: "edupath-phase3-curation"`, a placeholder. The live
+link-validation sweep itself is now implemented
+(`scripts/validate_links.py`, Phase 6) but has not been *run* this session
+(no network access in this environment) — run it before trusting
+`link_status` in a demo.
 
 Still open on **Phase 2**: a Postgres-backed LLM Gateway replay cache (now
 overdue — the Profiler is a real agent call); wiring Phase 2's per-request
@@ -1006,31 +1216,40 @@ overdue — the Profiler is a real agent call); wiring Phase 2's per-request
 startup-loaded graph cache Phase 4 introduced; true multi-file document
 upload (currently one file per call).
 
-Still open on **Phase 4**: `LearningObjective.est_minutes_low/high` (needs
-Phase 6's Resource Retriever); the `no_open_misconceptions_for(skill)`
+Still open on **Phase 4**: the `no_open_misconceptions_for(skill)`
 acceptance-criteria clause (needs a per-learner misconception status table,
 not built yet); the skill-dispute endpoint (design §12.4,
-`POST /api/learners/me/skills/{skill_id}/dispute`).
+`POST /api/learners/me/skills/{skill_id}/dispute`);
+`LearningObjective.est_minutes_low/high` (Resource Retriever now exists,
+Phase 6 — wiring the two together is Phase 5's job, per "Next Phase" above).
+
+Still open on **Phase 6**: no `LearningActivity`/`Assessment` table exists
+yet to source real `learner_history` (novelty/prior-failure-penalty
+inputs) from — Phase 7/8's job; ranking weights are unvalidated hand-set
+defaults (design §32's evaluation set doesn't exist yet); the live
+web-search provider behind `WebFallbackGateway` is unimplemented (optional
+per the phase brief).
 
 ### Exact Next Task
 
-1. For Phase 5/6 code: decide whether the Resource Retriever/Ranker (Phase
-   6, design §14.3/§15 — eligibility filter, hybrid retrieval, ranking
-   formula, MMR diversification) lands before or alongside the Planner,
-   since a `WeeklyPlan` needs real `ResourceRecommendation[]` to schedule,
-   not just `LearningObjective[]`. The design doc orders these 5 then 6, but
-   a Planner with no resources to place has nothing to validate against V1
-   (time budget)/V4 (difficulty band).
-2. Implement the Planner Agent (`app/agents/planner.py`, currently a
-   placeholder) in draft/patch modes per design §16-§17, plus the
-   deterministic Plan Validator (`app/planning/` per the package-naming
-   convention) enforcing V1-V10 and the always-succeeds Fallback Planner
-   (ARCHITECTURE_CONTRACTS.md §10).
-3. Test against real Gap Engine output from Phase 2's intake + document
-   flow (`GET /api/learners/me/gaps`), not just the seeded demo state.
-4. Before trusting the graph in a live demo: run the human review pass and
-   live link-validation sweep noted above (Phase 3 remaining work).
-5. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
+1. Implement the Planner Agent (`app/agents/planner.py`, currently a
+   placeholder) in draft/patch modes per design §16-§17, calling
+   `GET /api/learners/me/gaps` (Phase 4) for objectives and
+   `ResourceRetrievalService.recommend_for_skill` (Phase 6) for candidate
+   resources per objective.
+2. Implement the deterministic Plan Validator (`app/planning/` per the
+   package-naming convention) enforcing V1-V10 and the always-succeeds
+   Fallback Planner (ARCHITECTURE_CONTRACTS.md §10).
+3. Add `POST /api/learners/me/plans` / `GET /api/learners/me/plans/current`
+   (design §27) — the first real callers of both `app/gap/` and
+   `app/retrieval/` from a single orchestrated flow (likely G2 Planning,
+   design §9.3).
+4. Test against real Gap Engine + Resource Retriever output from Phase 2's
+   intake + document flow, not just the seeded demo state.
+5. Before trusting the graph in a live demo: run the human review pass
+   (Phase 3) and the now-implemented live link-validation sweep
+   (`scripts/validate_links.py`, Phase 6) noted above.
+6. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
    now overdue since the Profiler is a real agent call) before adding more
    agents (Planner) on top of the same gap.
 
@@ -1052,6 +1271,9 @@ cd frontend && npm run build
 # from repo root)
 cd backend && alembic upgrade head
 python scripts/seed_catalog.py
+
+# Live link-validation sweep (Phase 6; requires network access and a seeded DB)
+python scripts/validate_links.py
 
 # Full stack (from repo root; requires Docker Desktop running)
 docker compose up -d --build

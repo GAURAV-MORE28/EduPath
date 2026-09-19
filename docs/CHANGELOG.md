@@ -8,6 +8,76 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 6 | 2026-09-19] Hybrid Resource Retrieval + Ranking
+
+- Added `backend/app/retrieval/` (design §14.3/§15; ARCHITECTURE_CONTRACTS.md
+  §2, an addition beyond design §35's named-package list, same latitude
+  Phase 3 used for `catalog/`):
+  - `ranker.py`: `recommend()` — a **pure function** (no DB/gateway import)
+    implementing design §14.3 points 2-5: eligibility filter (targets the
+    skill, difficulty band overlap, prerequisites MET, `link_status == "ok"`
+    read literally, duration vs. session cap, language, modality exclusion),
+    hybrid dense (embedding cosine, reusing `EmbeddingGateway`) + keyword
+    (token-overlap) retrieval fused by Reciprocal Rank Fusion, design
+    §15.3's weighted ranking formula (level fit, quality, modality
+    preference, relevance, duration fit, novelty, prior-failure penalty),
+    and MMR-style same-provider-and-modality de-duplication. No resource is
+    ever invented — every `resource_id` traces back to a real catalog row.
+  - `service.py`: `ResourceRetrievalService` — the async DB-fetch +
+    embedding-call orchestration around the pure core.
+  - `link_validator.py`: the *live* half of design §15.2's "link validation
+    job" (HEAD falling back to GET, `httpx.AsyncClient` injected for
+    offline tests, same pattern as `github_client.py`); static URL
+    well-formedness was already a build-time invariant (Phase 3).
+- New `backend/app/core/thresholds.py` constants: `RESOURCE_RANK_WEIGHTS`,
+  `RESOURCE_PRIOR_FAILURE_PENALTY`, `RESOURCE_QUALITY_TIER_BASE` +
+  recency-window constants, `RRF_K`, `DEFAULT_SESSION_CAP_MINUTES`.
+- New `CatalogRepository` methods: `get_resources_targeting_skill` (plain
+  `Resource`/`ResourceSkill` join, dialect-portable) and
+  `update_link_statuses` (bulk write for the link-validation job).
+- New `backend/scripts/validate_links.py`: CLI entrypoint for the "runs
+  before demo and nightly" link-validation sweep (mirrors
+  `scripts/seed_catalog.py`).
+- Added `backend/app/gateway/web_fallback_gateway.py` (design §14.3 point
+  6's optional O4 fallback): same provider-agnostic shape as the
+  LLM/Embedding/VLM Gateways, degrades to `fetched=False` (no results) with
+  no provider configured (this project's permanent state). Never called
+  automatically — a caller must opt in, since results are `unvetted` by
+  construction and carry no `resource_id`.
+- `ResourceRecommendation` (`backend/app/schemas/common.py`) got its real
+  design §25.2 field list this phase.
+- **Decided:** hybrid retrieval runs in pure Python over already-fetched
+  rows, not via `CatalogRepository.search_resources_by_text`/
+  `search_resources_by_vector` (Postgres-only, already documented as
+  untestable under pytest) — see `docs/ARCHITECTURE_CONTRACTS.md` §15 for
+  the full reasoning against design §14.3 point 3's literal wording.
+- **Decided: no new API route.** Design §27's endpoint table has no row for
+  the Resource Retriever/Ranker (Planner-internal); this phase adds none,
+  matching that. `ResourceRetrievalService` is ready for the Planner (Phase
+  5, not yet implemented) to call.
+- 43 new backend tests: `tests/test_ranker.py` (25, hand-built fixtures —
+  every eligibility rule, relevance/RRF normalization, every ranking
+  component including modality preference and the prior-failure penalty,
+  MMR duplicate removal and its fallback, the full pipeline's dedup/
+  never-invents-a-resource-id/`top_k` guarantees), `tests/test_retrieval_service.py`
+  (8, real curated dataset via `catalog_session`), `tests/test_link_validator.py`
+  (8, `httpx.MockTransport`), `tests/test_web_fallback_gateway.py` (2,
+  degrade path). **244 tests total, all passing** (201 from Phase 1-4, 43
+  new).
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §2, §6, §9, §12, §13, and a new
+  §15 (this file's own numbering) covering every Phase 6 decision in full.
+- **Not implemented this phase (out of scope, per design's phase
+  ordering):** planning, assessment, reflection. Also not implemented: a
+  real embedding/web-search provider (both gateways still degrade
+  deterministically, this project's permanent state absent a configured
+  provider); a `LearningActivity` table to source real `learner_history`
+  from (Phase 7/8); wiring `LearningObjective.est_minutes_low/high` from
+  real candidates (Phase 5, Planner); running the link-validation sweep
+  against the live catalog this session (no network access in this
+  environment).
+
+---
+
 ## [Phase 4 | 2026-09-19] Skill-Gap Engine
 
 - Added `backend/app/gap/engine.py` (design §12 naming convention,

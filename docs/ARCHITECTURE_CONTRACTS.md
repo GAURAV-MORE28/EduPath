@@ -42,7 +42,9 @@ file and justifying the addition against design §8.1's role-by-role table.
 
 \* Skill Normalizer uses a small LLM only for ambiguous-alias disambiguation; it is
 not counted among the 5 agents. **Implemented (Phase 2):**
-`backend/app/profiling/skill_normalizer.py`.
+`backend/app/profiling/skill_normalizer.py`. **Resource Retriever/Ranker
+implemented (Phase 6):** `backend/app/retrieval/ranker.py`'s `recommend()` —
+no LLM call anywhere in the package (see §15 below).
 
 ## 3. Evidence tiers (never conflate these)
 
@@ -171,6 +173,8 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   `WeeklyPlan`, `PlanItem`, `AssessmentResult`, `StruggleSignal`, `ReflectionResult`,
   `ReplanRequest`, `ProgressReport`. **`SkillGap`/`LearningObjective` implemented
   (Phase 4):** `backend/app/schemas/common.py`, real §25.2 field lists.
+  **`ResourceRecommendation` implemented (Phase 6):** same file — no API
+  route consumes it yet (see §15 below), but the schema itself is real.
 
 ## 7. IDs
 
@@ -260,6 +264,11 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   doesn't enforce FKs by default) — see IMPLEMENTATION_STATE.md "Completed
   Work". A real auth flow should eventually create `User` rows directly;
   `get_or_create` stays safe to keep even then (idempotent).
+- **Addition (Phase 6):** `CatalogRepository.get_resources_targeting_skill`
+  (a plain `Resource`/`ResourceSkill` join, dialect-portable — unlike
+  `search_resources_by_text`/`search_resources_by_vector` above) and
+  `update_link_statuses` (bulk `link_status`/`last_verified_at` write for
+  the link-validation job, design §15.2). See §15 below.
 
 ## 10. Validation rules (Plan Validator V1–V10)
 
@@ -295,7 +304,9 @@ A **Fallback Planner** must always exist and must always satisfy the hard rules
 - Graph edge types are UPPER_SNAKE verbs (`PREREQUISITE_OF`, `REQUIRES`, `TARGETS`).
 - Service/module package names mirror agent/service responsibility, one package per
   responsibility (design §35): `profiling/`, `graph/`, `gap/`, `planning/`,
-  `assessment/`, `reflection/`, `tutor/`, `provenance/`, `gateway/`.
+  `assessment/`, `reflection/`, `tutor/`, `provenance/`, `gateway/`. Additions
+  beyond this list, same package-per-responsibility convention: `catalog/`
+  (Phase 3), `retrieval/` (Phase 6).
 - Decision/record types are suffixed `Record` (`DecisionRecord`, `ReflectionRecord`)
   or `Revision`/`Result` per the schema list in §25.2 — reuse the exact schema names
   from that section rather than inventing synonyms.
@@ -310,7 +321,13 @@ A **Fallback Planner** must always exist and must always satisfy the hard rules
 - `learner_id` is session-derived everywhere; no query path accepts it from an LLM
   argument or unauthenticated input.
 - Web fallback content is allowlisted, SSRF-safe, and always flagged `unvetted` —
-  never auto-committed as evidence or a resource.
+  never auto-committed as evidence or a resource. **Implemented (Phase 6):**
+  `backend/app/gateway/web_fallback_gateway.py` degrades to `fetched=False`
+  (no results) whenever no provider is configured — this project's permanent
+  state, since no real web-search provider/domain allowlist has been wired
+  in. `WebFallbackResult` deliberately carries no `resource_id` (nothing in
+  the catalog to reference), so it can never be confused with a real
+  `ResourceRecommendation`.
 - MCP is **not** the system backbone (design §26.1). Only a stretch, read-only MCP
   adapter is in scope, and only over already-existing read-only tools.
 
@@ -323,3 +340,66 @@ A **Fallback Planner** must always exist and must always satisfy the hard rules
   defaults to be calibrated on the evaluation set** — never hardcode them as if they
   were derived constants, and keep them in one place (config/thresholds), not
   scattered through code.
+
+## 15. Resource retrieval conventions (Phase 6, design §14.3/§15)
+
+- **Package:** `backend/app/retrieval/` — an addition beyond design §35's
+  named-package list, same latitude Phase 3 used for `catalog/`.
+  `ranker.py` is the pure, deterministic pipeline (no DB/gateway import);
+  `service.py` is the async DB-fetch + embedding-call orchestration layer,
+  same split as `app/gap/engine.py` (pure) vs. `app/profiling/onboarding.py`
+  (orchestration).
+- **No resource is ever invented.** Every `ResourceRecommendation.resource_id`
+  is drawn from the `candidates` list handed to `recommend()`, which is
+  itself sourced from `CatalogRepository.get_resources_targeting_skill` —
+  real `Resource` rows via real `TARGETS` edges. There is no code path from
+  an LLM output to a `resource_id` or a raw URL in this package.
+- **Decided:** hybrid dense+keyword retrieval is computed **in pure Python**
+  over already-fetched `Resource` rows (cosine similarity against the
+  existing `EmbeddingGateway`-computed `embedding` vector; token-overlap
+  keyword scoring), **not** via `CatalogRepository.search_resources_by_text`/
+  `search_resources_by_vector` (Postgres-only, §9 above). Reason: those two
+  methods already raise `NotImplementedError` under SQLite and are
+  documented as "not exercised by pytest" (§9's Phase 3 note) — building the
+  Ranker on top of them would make its core algorithm just as untestable,
+  directly conflicting with this phase's test requirements. The Ranker's
+  hybrid step is therefore dialect-portable and fully unit-tested; the
+  Postgres-only FTS/pgvector SQL methods remain available for a future
+  phase that specifically needs to query across the *whole* catalog rather
+  than an already graph-anchored candidate set.
+- **Eligibility filter** (design §14.3 point 2) checks resource `TARGETS`
+  the skill (via `get_resources_targeting_skill`, so this is structural, not
+  a runtime check), difficulty band overlap
+  (`level_from <= current_level + 1 and level_to >= current_level`),
+  prerequisites, `link_status == "ok"` (not `"redirected"` — the design
+  text's `link_status = ok` is read literally), duration vs. session cap,
+  language, and modality exclusion. **Simplification:** "prerequisites are
+  MET **or scheduled earlier**" only checks MET — no Planner/schedule exists
+  yet to know what counts as "earlier" (Planner is Phase 5, not yet
+  implemented as of this phase).
+- **MMR diversification** is a strict first-occurrence-per-(provider,
+  modality) selection with graceful fallback to duplicates only when the
+  eligible pool is too homogeneous to fill `top_k` otherwise — not a
+  cosine-based corpus-wide MMR. This matches design §15.3's literal closing
+  sentence ("removes near-duplicates — same provider and modality — from
+  the top-K"), not the general Maximal Marginal Relevance algorithm by that
+  name.
+- **Link validation** (design §15.2): `backend/app/retrieval/link_validator.py`
+  (HEAD, falling back to GET, `httpx.AsyncClient` injected — same pattern as
+  `github_client.py`) is the *live* check; static URL well-formedness is
+  already a build-time invariant in `app/graph/validation.py` (Phase 3).
+  `backend/scripts/validate_links.py` is the "runs before demo and nightly"
+  job entrypoint, writing results via
+  `CatalogRepository.update_link_statuses`.
+- **No API route this phase.** Design §27's endpoint table has no row for
+  the Resource Retriever/Ranker — it is Planner-internal (§14.3: "objective
+  → ... → `ResourceRecommendation[]`", consumed by `POST
+  /api/learners/me/plans`). Matching that, this phase adds no new HTTP
+  surface; `ResourceRetrievalService` is ready for the Planner (Phase 5,
+  not yet implemented) to call once it exists.
+- **No `LearningActivity` table yet.** design §15.3's `novelty`/
+  `penalty_if_prior_failure` components take a `learner_history:
+  list[ResourceUsageRecord]` parameter rather than querying a live table —
+  no `LearningActivity`/`Assessment` table exists yet to source this from
+  (Phase 7/8). The algorithm is complete and tested now; a real caller
+  supplies real history once one of those phases writes it.

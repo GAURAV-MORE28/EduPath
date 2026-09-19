@@ -66,9 +66,19 @@ class LearningObjective(BaseModel):
 
 
 class ResourceRecommendation(BaseModel):
+    """design §25.2/§15.3. Produced by the Resource Retriever/Ranker
+    (`app/retrieval/ranker.py`'s `ResourceRecommendation` dataclass, mapped
+    1:1 by whichever caller needs the Pydantic shape — no API route
+    consumes this directly yet; design §27 has no endpoint row for this
+    service, only the future Planner calling it internally)."""
+
     resource_id: str
+    objective_id: str | None = None
+    skill_id: str = ""
     score: float = 0.0
-    data: dict[str, Any] = {}
+    score_breakdown: dict[str, float] = {}
+    eligibility_checks: dict[str, bool] = {}
+    provenance: dict[str, Any] = {}
 
 
 class WeeklyPlan(BaseModel):

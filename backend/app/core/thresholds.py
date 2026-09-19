@@ -46,3 +46,35 @@ LEVEL_TIER_REQUIRED: dict[int, str] = {1: "E1", 2: "E2", 3: "E3"}
 # Only L3 (Proficient) requires a minimum observation count under the tier gate;
 # L1/L2 have no such requirement (ARCHITECTURE_CONTRACTS.md §3).
 LEVEL_MIN_N_OBS: dict[int, int] = {3: 3}
+
+
+# design §15.3: Resource Retriever/Ranker (Phase 6) deterministic ranking
+# weights. `score = sum(RESOURCE_RANK_WEIGHTS[k] * component[k]) -
+# RESOURCE_PRIOR_FAILURE_PENALTY (if applicable)`. Hand-set defaults per the
+# design doc; adjust against a labeled query set (design §32) once one exists.
+RESOURCE_RANK_WEIGHTS: dict[str, float] = {
+    "level_fit": 0.35,
+    "quality": 0.20,
+    "modality_pref": 0.15,
+    "relevance": 0.15,
+    "duration_fit": 0.10,
+    "novelty": 0.05,
+}
+
+# "penalty_if_prior_failure: a resource followed by failure on the same skill."
+RESOURCE_PRIOR_FAILURE_PENALTY = 0.3
+
+# `quality` component: curation_tier base score (design §15.1's curated/
+# community/unvetted tiers) multiplied by a `last_verified_at` recency factor.
+RESOURCE_QUALITY_TIER_BASE: dict[str, float] = {"curated": 1.0, "community": 0.6, "unvetted": 0.2}
+RESOURCE_QUALITY_RECENCY_FRESH_DAYS = 180  # verified within this window -> full recency credit
+RESOURCE_QUALITY_RECENCY_STALE_DAYS = 365  # verified within this window -> partial credit, else floor
+RESOURCE_QUALITY_RECENCY_STALE_FACTOR = 0.75
+RESOURCE_QUALITY_RECENCY_FLOOR_FACTOR = 0.5  # applied beyond the stale window, or when never verified
+
+# Reciprocal Rank Fusion's smoothing constant (design §14.3 point 3), standard default.
+RRF_K = 60
+
+# Default active-time budget per session when the learner hasn't set
+# `IntakePreferences.session_length_min` (design §15.3's "fits session cap").
+DEFAULT_SESSION_CAP_MINUTES = 45

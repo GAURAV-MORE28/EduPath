@@ -15,6 +15,7 @@ Two responsibilities:
 from __future__ import annotations
 
 from dataclasses import dataclass
+from datetime import date
 
 from sqlalchemy import delete, select, text
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -129,6 +130,41 @@ class CatalogRepository:
     async def get_role(self, role_id: str) -> Role | None:
         result = await self.session.execute(select(Role).where(Role.role_id == role_id))
         return result.scalar_one_or_none()
+
+    async def get_resources_targeting_skill(self, skill_id: str) -> list[tuple[Resource, ResourceSkill]]:
+        """`(Resource, ResourceSkill)` pairs for every `TARGETS` edge into
+        `skill_id` — the Resource Retriever's (Phase 6) raw candidate pool
+        before eligibility filtering/ranking (`app/retrieval/`). A plain
+        SQL join, dialect-portable (SQLite in tests, Postgres in prod),
+        unlike `search_resources_by_text`/`search_resources_by_vector`
+        above.
+        """
+        result = await self.session.execute(
+            select(Resource, ResourceSkill)
+            .join(ResourceSkill, ResourceSkill.resource_id == Resource.resource_id)
+            .where(ResourceSkill.skill_id == skill_id)
+        )
+        return [(row[0], row[1]) for row in result.all()]
+
+    async def update_link_statuses(self, results: dict[str, tuple[str, date]]) -> int:
+        """Bulk-apply a link-validation run's results (design §15.2's "link
+        validation job... sets `link_status`"): `results` maps
+        `resource_id -> (link_status, last_verified_at)`. Skips unknown
+        resource IDs rather than raising (a stale/removed resource in a run
+        that started before a re-ingestion shouldn't fail the whole job).
+        Returns the number of rows actually updated. Does not commit — the
+        caller controls the transaction boundary (`backend/scripts/validate_links.py`).
+        """
+        if not results:
+            return 0
+        rows = await self.session.execute(select(Resource).where(Resource.resource_id.in_(results)))
+        updated = 0
+        for resource in rows.scalars().all():
+            status, verified_at = results[resource.resource_id]
+            resource.link_status = status
+            resource.last_verified_at = verified_at
+            updated += 1
+        return updated
 
     async def get_latest_graph_meta(self) -> GraphMeta | None:
         result = await self.session.execute(
