@@ -432,3 +432,93 @@ class PlanItem(Base):
     depends_on: Mapped[list] = mapped_column(JSON, default=list)
     reason: Mapped[dict] = mapped_column(JSON, default=dict)
     status: Mapped[str] = mapped_column(String(16), default="planned")  # planned / done / skipped
+
+
+# ---------------------------------------------------------------------------
+# Phase 8 -- Assessment, Mastery, Struggle Detection (design §18, §19, §10.4;
+# ARCHITECTURE_CONTRACTS.md §2/§17)
+# ---------------------------------------------------------------------------
+
+
+class PracticeSession(Base):
+    """Addition beyond design §28's table list -- the server-side staging
+    record between `POST /api/learners/me/practice` (assembles a set) and
+    `POST /api/practice/{set_id}/submit` (grades it). Holds the item IDs and
+    (crucially) the answer keys/misconception tags *server-side only* --
+    design §18.3: "Client responses never include the misconception_id or
+    the key. Tags are stripped server-side." Same staging-table precedent as
+    `PendingClaim` (Phase 2): no Postgres-backed LangGraph checkpointer
+    exists to hold this as in-flight run state instead.
+    """
+
+    __tablename__ = "practice_sessions"
+
+    set_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    purpose: Mapped[str] = mapped_column(String(32))  # practice / probe / resolution-check / prereq-block
+    item_ids: Mapped[list] = mapped_column(JSON, default=list)
+    misconception_id: Mapped[str | None] = mapped_column(String(128), nullable=True)  # set for a resolution-check set
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending / submitted
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Assessment(Base):
+    """design §28/§25.2. `items` is the per-item `AssessmentResult.items[]`
+    payload (design §25.2: item_id, skill_id, difficulty, chosen_option,
+    correct, misconception_id?, time_sec, attempt_no) -- stored as JSON
+    rather than a child table since it is written once, atomically, at
+    submit time and never queried by individual item (design §18.4: "the
+    Mastery Updater consumes the item-level rows" in-process, not via a
+    separate table)."""
+
+    __tablename__ = "assessments"
+
+    assessment_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    purpose: Mapped[str] = mapped_column(String(32))  # practice / probe / resolution-check / prereq-block
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    items: Mapped[list] = mapped_column(JSON, default=list)
+    score: Mapped[float] = mapped_column(Float)
+    prereq_block_score: Mapped[float | None] = mapped_column(Float, nullable=True)
+    submitted_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class StruggleSignal(Base):
+    """design §28/§25.2/§19.2."""
+
+    __tablename__ = "struggle_signals"
+
+    signal_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    signal_class: Mapped[str] = mapped_column(String(32))  # low_score / repeated_misconception / ...
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    confidence: Mapped[str] = mapped_column(String(8))  # low / medium / high
+    evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    counts: Mapped[dict] = mapped_column(JSON, default=dict)
+    thresholds_used: Mapped[dict] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(String(8), default="open")  # open / closed
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LearnerMisconception(Base):
+    """design §28's `Learner -HAS_MISCONCEPTION-> Misconception` learner
+    overlay. `remediation_cycles` is an addition beyond §28's field list --
+    design §20.8's "after two failed remediation cycles -> persistent"
+    needs somewhere to count them; not itself an edge/node in the curated
+    graph (ARCHITECTURE_CONTRACTS.md §5: only the global `Misconception`
+    node is curated, this table is the per-learner status overlay).
+    """
+
+    __tablename__ = "learner_misconceptions"
+    __table_args__ = (UniqueConstraint("learner_id", "misconception_id", name="uq_learner_misconception"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    misconception_id: Mapped[str] = mapped_column(String(128), ForeignKey("misconceptions.misconception_id"), index=True)
+    status: Mapped[str] = mapped_column(String(16))  # suspected / confirmed / remediating / resolved / persistent
+    evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    remediation_cycles: Mapped[int] = mapped_column(Integer, default=0)
+    first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    last_remediated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

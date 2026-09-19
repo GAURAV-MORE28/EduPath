@@ -109,3 +109,65 @@ PRACTICE_ITEMS_PER_LESSON = 2
 # graph-level rule-validation retry loop (distinct from PlannerAgent's own
 # internal schema-validation retry, ARCHITECTURE_CONTRACTS.md §6/§11).
 PLANNER_MAX_DRAFT_ATTEMPTS = 2
+
+
+# design §10.4: Mastery Updater (Phase 8) -- Beta-count item weights.
+# "difficulty defaults: easy 0.7, medium 1.0, hard 1.3 for correct; the
+# reverse for incorrect, since missing an easy item is more informative of
+# weakness." Keyed the same way PracticeItem.difficulty already is (easy/medium/hard).
+MASTERY_CORRECT_WEIGHTS: dict[str, float] = {"easy": 0.7, "medium": 1.0, "hard": 1.3}
+MASTERY_INCORRECT_WEIGHTS: dict[str, float] = {"easy": 1.3, "medium": 1.0, "hard": 0.7}
+
+# An uninformative Beta(1, 1) prior for a skill assessed with no prior
+# evidence-tier state at all (e.g. a probe on a skill never claimed) --
+# E0-E2 have fixed priors (EVIDENCE_TIER_PRIORS above); E3 "has no fixed
+# prior -- it accumulates per assessed item" (design §10.3), so this is only
+# the starting point when there is truly nothing to build on.
+MASTERY_DEFAULT_PRIOR: tuple[float, float] = (1.0, 1.0)
+
+# design §10.4 band table already defined above
+# (MASTERY_BAND_LEARNING_MAX/_DEVELOPING_MAX/_PROFICIENT_MIN_N_OBS).
+# Confidence buckets: "low/medium/high from n_obs (0-1 / 2-3 / >=4)".
+MASTERY_CONFIDENCE_LOW_MAX_N_OBS = 1
+MASTERY_CONFIDENCE_MEDIUM_MAX_N_OBS = 3
+
+
+# design §18.2: Assessor Agent (Phase 8) -- assembly / generation defaults.
+PRACTICE_SET_TARGET_SIZE = 5  # "Assemble a set of ~5 items"
+PRACTICE_SET_PREREQ_BLOCK_MIN_ITEMS = 2  # "append >= 2 items on that prerequisite"
+ASSESSOR_MAX_RETRIES = 2  # ARCHITECTURE_CONTRACTS.md §11
+
+
+# design §19.2: Struggle Classifier (Phase 8) -- deterministic thresholds.
+# Time/retries are corroborating evidence only (design §19.5), never sole
+# authority for any single class below.
+LOW_SCORE_THRESHOLD = 0.6
+LOW_SCORE_MIN_ITEMS = 3
+LOW_SCORE_SEVERE_THRESHOLD = 0.4  # below this, confidence steps up from low to medium
+
+REPEATED_MISCONCEPTION_CONFIRM_COUNT = 2  # ">= 2 distinct items in <= 14 days -> confirmed"
+REPEATED_MISCONCEPTION_WINDOW_DAYS = 14
+
+MISSING_PREREQUISITE_PROBE_THRESHOLD = 0.6
+
+EXCESSIVE_DIFFICULTY_SCORE_THRESHOLD = 0.5
+EXCESSIVE_DIFFICULTY_MIN_ITEMS = 2
+# design §15.1/§10.4: PracticeItem.difficulty (easy/medium/hard) mapped onto
+# the same 1-3 integer scale as SkillGap.current_level, so "difficulty >
+# level" (design §19.2) is comparable.
+DIFFICULTY_LABEL_TO_LEVEL: dict[str, int] = {"easy": 1, "medium": 2, "hard": 3}
+
+OVERLOAD_MIN_CORROBORATING_SIGNALS = 2  # "time alone is insufficient"
+OVERLOAD_PLANNED_VS_ACTUAL_RATIO = 1.5  # "> 1.5x in a week"
+OVERLOAD_COMPLETION_RATE_THRESHOLD = 0.6  # "completion < 60% of items"
+
+INSUFFICIENT_PRACTICE_MAX_N_OBS = 4  # "n_obs < 4"
+
+# design §19.4: at most one reflection/remediation-triggered revision per
+# (learner, skill or misconception) per cooldown window, unless new assessed
+# evidence exists.
+STRUGGLE_REVISION_COOLDOWN_HOURS = 24
+
+# design §20.8: "after two failed remediation cycles -> persistent... does
+# not loop indefinitely."
+MAX_REMEDIATION_CYCLES = 2

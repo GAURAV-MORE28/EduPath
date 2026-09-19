@@ -145,6 +145,38 @@ class CatalogRepository:
         result = await self.session.execute(select(Resource).where(Resource.resource_id.in_(resource_ids)))
         return list(result.scalars().all())
 
+    async def get_practice_item(self, item_id: str) -> PracticeItem | None:
+        result = await self.session.execute(select(PracticeItem).where(PracticeItem.item_id == item_id))
+        return result.scalar_one_or_none()
+
+    async def get_practice_items_by_ids(self, item_ids: list[str]) -> list[PracticeItem]:
+        if not item_ids:
+            return []
+        result = await self.session.execute(select(PracticeItem).where(PracticeItem.item_id.in_(item_ids)))
+        return list(result.scalars().all())
+
+    async def create_practice_item(self, item: PracticeItem) -> PracticeItem:
+        """Persists an Assessor-generated item into the same global item
+        bank curated items live in (design §18.2 point 5: "store in the
+        bank with provenance"). `generated_by`/`validated_by`/
+        `graph_version` (Phase 3 additions to design §28's field list)
+        record that provenance -- `generated_by="assessor-llm"` vs.
+        curated seed content's `"curated-seed"`.
+        """
+        self.session.add(item)
+        await self.session.flush()
+        return item
+
+    async def get_misconception(self, misconception_id: str) -> Misconception | None:
+        result = await self.session.execute(
+            select(Misconception).where(Misconception.misconception_id == misconception_id)
+        )
+        return result.scalar_one_or_none()
+
+    async def get_misconceptions_for_skill(self, skill_id: str) -> list[Misconception]:
+        result = await self.session.execute(select(Misconception).where(Misconception.skill_id == skill_id))
+        return list(result.scalars().all())
+
     async def get_practice_items_for_skill(self, skill_id: str, purpose: str | None = None) -> list[PracticeItem]:
         """Curated `PracticeItem`s that `ASSESSES` `skill_id` (design §11.3),
         optionally filtered to one `purpose` (`probe` for verify-before-teach,

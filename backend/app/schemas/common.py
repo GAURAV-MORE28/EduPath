@@ -8,7 +8,8 @@ do not add business fields here ahead of that work.
 `SkillGap` and `LearningObjective` got their real §25.2 field lists in Phase
 4 (Gap Engine, `app/gap/engine.py`) — see `app/schemas/gap.py` for the full
 gap-report response shape built on top of them. `WeeklyPlan`/`PlanItem` got
-theirs in Phase 5 (Planner, `app/planning/`).
+theirs in Phase 5 (Planner, `app/planning/`). `AssessmentResult`/
+`StruggleSignal` got theirs in Phase 8 (Assessment, `app/assessment/`).
 """
 from __future__ import annotations
 
@@ -130,19 +131,50 @@ class WeeklyPlan(BaseModel):
     overall_reason: str = ""  # display-only
 
 
+class AssessmentItemResult(BaseModel):
+    """design §18.4/§25.2's per-item `AssessmentResult.items[]` entry.
+    `misconception_id` is set only when the chosen (incorrect) option was
+    tagged to one — design §18.3: never the *key*, only ever attached to a
+    wrong answer actually chosen."""
+
+    item_id: str
+    skill_id: str
+    difficulty: str  # easy | medium | hard
+    chosen_option: int
+    correct: bool
+    misconception_id: str | None = None
+    time_sec: int | None = None
+    attempt_no: int = 1
+
+
 class AssessmentResult(BaseModel):
+    """design §25.2/§18.4."""
+
     assessment_id: str
     learner_id: str
-    score: float | None = None
-    data: dict[str, Any] = {}
+    skill_id: str
+    purpose: str  # practice | probe | resolution-check | prereq-block
+    items: list[AssessmentItemResult] = []
+    score: float = 0.0
+    prereq_block_score: float | None = None
+    submitted_at: str = ""
 
 
 class StruggleSignal(BaseModel):
+    """design §25.2/§19.2. `signal_class` intentionally avoids the Python
+    keyword `class` (ARCHITECTURE_CONTRACTS.md §12: field values keep the
+    design doc's own casing; the Python attribute name is this project's
+    own naming choice, same as `app/gap/engine.py`'s `gap_type`)."""
+
     signal_id: str
     learner_id: str
+    signal_class: str  # low_score | repeated_misconception | missing_prerequisite | excessive_difficulty | cognitive_overload | insufficient_practice
     skill_id: str
-    signal_class: str
-    confidence: float = 0.0
+    confidence: str = "low"  # low | medium | high
+    evidence_ids: list[str] = []
+    counts: dict[str, Any] = {}
+    thresholds_used: dict[str, Any] = {}
+    status: str = "open"  # open | closed
 
 
 class ReflectionResult(BaseModel):
