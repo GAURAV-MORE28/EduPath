@@ -4,10 +4,15 @@ This directory is the **Phase 3** deliverable (design doc §11.5, §39.1): the
 curated skill graph, resource catalog, misconception catalog, assessment item
 bank, and demo dataset that later phases (Gap Engine, Planner, Assessor,
 Reflection, Tutor) read from. It is intentionally **decoupled from
-application code** — nothing under `backend/app/` imports from here yet;
-later phases load these JSON files (or a Postgres table seeded from them)
-independently, per `ARCHITECTURE_CONTRACTS.md` §5 ("Graph is curated offline,
-versioned, loaded from Postgres into NetworkX at process startup").
+application code** at the source level — nothing under `backend/app/`
+hand-edits or generates this JSON — but it is now the seed input to a real
+ingestion pipeline: `backend/app/catalog/ingest.py` (run via
+`backend/scripts/seed_catalog.py`) reads `data/dataset/*.json`, validates it
+(`backend/app/graph/validation.py`), and loads it into Postgres, which
+`backend/app/graph/loader.py` then loads into NetworkX at query time, per
+`ARCHITECTURE_CONTRACTS.md` §5 ("Graph is curated offline, versioned, loaded
+from Postgres into NetworkX at process startup"). No backend/frontend code
+reads these JSON files directly outside that ingestion path.
 
 ## Layout
 
@@ -126,15 +131,26 @@ For this pack:
 
 ## Consuming this data
 
-Later phases should treat `data/dataset/*.json` as the seed data for a
-one-time load into Postgres (the graph tables `Skill`, `SkillEdge`, `Role`,
-`RoleRequirement`, `Misconception`, `Resource`, `ResourceSkill`,
-`PracticeItem` from `ARCHITECTURE_CONTRACTS.md`'s data model), which is then
-loaded into NetworkX at process startup per §5. Do not read these JSON files
-directly from request-handling code — write a loader/seed script (Phase 4+)
-that inserts them into the real tables once those migrations exist.
+**Implemented (Phase 3):** `data/dataset/*.json` is the seed data for
+`backend/app/catalog/ingest.py`, which loads it into the Postgres tables
+`Skill`, `SkillEdge`, `Role`, `RoleRequirement`, `Misconception`, `Resource`,
+`ResourceSkill`, `PracticeItem`, `GraphMeta` (migration
+`0002_skill_graph_catalog`). Run it with:
 
-The `graph_version` in `meta.json` (currently `v0.1.0-domain-pack`) should be
-copied into that seed migration/table and referenced by every
+```bash
+cd backend
+alembic upgrade head
+python scripts/seed_catalog.py
+```
+
+`backend/app/graph/loader.py` then builds a NetworkX graph from those
+Postgres tables (not from this JSON directly) — `SkillGraphService`
+(`backend/app/graph/queries.py`) is the read API later phases should use.
+Do not read these JSON files directly from request-handling code; go through
+that pipeline.
+
+The `graph_version` in `meta.json` (currently `v0.1.0-domain-pack`) is copied
+into `GraphMeta` on every ingestion run and should be referenced by every
 `DecisionRecord` produced against this graph, per
-`ARCHITECTURE_CONTRACTS.md` §14.
+`ARCHITECTURE_CONTRACTS.md` §14 (not yet applicable — `DecisionRecord`
+doesn't exist until Phase 4, Gap Analysis).

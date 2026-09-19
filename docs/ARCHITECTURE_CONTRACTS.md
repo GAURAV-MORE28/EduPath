@@ -97,8 +97,22 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   generated JSON (`data/dataset/`), with the curated content and a validator in
   `data/scripts/`. See `data/README.md`. Current `graph_version`: `v0.1.0-domain-pack`
   (158 skills / 3 roles / 203 skill-edges / 140 resources / 18 misconceptions / 95
-  items — not yet human-reviewed per §11.5, and not yet loaded into Postgres; that
-  loader is Phase 4+ work).
+  items — not yet human-reviewed per §11.5).
+- **Postgres tables + NetworkX loader (Phase 3, implemented):** migration
+  `0002_skill_graph_catalog` creates `skills`, `skill_edges`, `roles`,
+  `role_requirements`, `misconceptions`, `resources`, `resource_skills`,
+  `practice_items`, `graph_meta` (`backend/app/db/models.py`).
+  `backend/app/catalog/ingest.py` validates (`backend/app/graph/validation.py`)
+  then loads `data/dataset/*.json` into these tables (`replace_all`, one
+  transaction per run — the curated graph is versioned and reloaded whole, not
+  diffed row-by-row); run it with `backend/scripts/seed_catalog.py`.
+  `backend/app/graph/loader.py` builds the in-process `networkx.MultiDiGraph`
+  from those tables (all nine closed-set edge types materialized regardless of
+  which table an edge's data lives in); `backend/app/graph/queries.py`
+  (`SkillGraphService`) provides ancestor/descendant, topological-order,
+  role-subgraph and prerequisite-path-explanation queries. Not yet wired into
+  `app/main.py`'s startup lifespan (no API routes read the graph yet) — that
+  integration is Phase 4's (Gap Engine) to add alongside its first real caller.
 
 ## 6. Agent I/O contract
 
@@ -160,6 +174,25 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   that way (e.g., `preferences JSONB`, `constraints JSONB`, `options JSONB`).
 - No Redis, no Neo4j, no separate vector DB. Cache is in-process + a Postgres
   record/replay table.
+- **Decided (Phase 3):** list-valued columns (`Skill.aliases`,
+  `Resource.prerequisite_skill_ids`, `Misconception.remediation_candidates`,
+  `PracticeItem.options`) use the generic SQLAlchemy `JSON` type, not
+  `postgresql.ARRAY`/`JSONB` — the same model then works against both
+  Postgres (prod) and SQLite (tests), matching Phase 1's `User.consent_flags`
+  precedent. `Resource.embedding`/`Skill.embedding` use pgvector's `Vector`
+  type, which also round-trips under SQLite for storage (only its `<=>`
+  distance operator is Postgres-only — see `CatalogRepository.search_resources_by_vector`).
+- **Addition (Phase 3):** `GraphMeta` (append-only: one row per catalog
+  ingestion run — `graph_version`, `loaded_at`, entity counts) is not in
+  design §28's conceptual table list but is required by this section's
+  "graph is versioned" and §14's "record graph_version in every
+  DecisionRecord" — there was no other table to hold that version history.
+  `Misconception.remediation_candidates` (→ `REMEDIATED_BY` edges) and
+  `PracticeItem.purpose`/`explanation`/`generated_by`/`validated_by`/
+  `graph_version` (source/review metadata carried over verbatim from the
+  domain-pack JSON) are likewise additions beyond §28's field list, not
+  contradictions of it (§28 says "only fields that are actually used are
+  listed").
 
 ## 10. Validation rules (Plan Validator V1–V10)
 

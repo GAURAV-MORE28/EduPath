@@ -8,6 +8,73 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 3 | 2026-09-19] Skill Graph + Catalog Engine
+
+- Added Postgres tables for the curated Skill Graph and catalog
+  (`backend/app/db/models.py`, migration `0002_skill_graph_catalog`):
+  `Skill`, `SkillEdge`, `Role`, `RoleRequirement`, `Misconception`,
+  `Resource`, `ResourceSkill`, `PracticeItem`, plus `GraphMeta` (an
+  append-only graph-version history table — an addition beyond design §28's
+  conceptual list; see `docs/ARCHITECTURE_CONTRACTS.md` §9). List-valued
+  columns use generic `JSON` (not `ARRAY`) so the same model works against
+  SQLite in tests; `Resource.embedding`/`Skill.embedding` use pgvector's
+  `Vector(256)`. Migration also adds a generated `resources.search_vector`
+  `tsvector` column with a GIN index (PostgreSQL FTS).
+- `backend/app/graph/validation.py`: `GraphValidator`, a DB-independent port
+  of `data/scripts/validate_dataset.py`'s checks (duplicate IDs, missing
+  references, hard-prerequisite DAG cycle detection, orphan skills,
+  role/resource coverage, misconception-ancestor consistency, item
+  correctness, URL sanity) — runs inline during ingestion before anything is
+  written.
+- `backend/app/catalog/ingest.py` + `backend/scripts/seed_catalog.py`:
+  `CatalogIngestor` loads `data/dataset/*.json`, validates, maps dataset
+  field names to the ORM schema (documented per-field in `models.py`),
+  computes resource embeddings, and replaces the entire catalog in one
+  transaction, recording a `GraphMeta` row per run.
+- `backend/app/gateway/embedding_gateway.py`: `EmbeddingGateway`, mirroring
+  the LLM Gateway's shape — a deterministic, dependency-free fallback
+  (feature-hashed, L2-normalized) used whenever `LLM_PROVIDER=none`, so
+  ingestion and resource embeddings work fully offline and reproducibly.
+- `backend/app/graph/loader.py`: `GraphLoader` builds one
+  `networkx.MultiDiGraph` from the Postgres catalog holding all five
+  closed-set node types and materializing all nine closed-set edge types
+  (`PREREQUISITE_OF`, `PART_OF`, `REQUIRES`, `TARGETS`, `ASSESSES`,
+  `MISCONCEPTION_OF`, `ROOTED_IN`, `REMEDIATED_BY`, `RELATED_TO`).
+- `backend/app/graph/queries.py`: `SkillGraphService` — hard
+  ancestors/descendants, direct prerequisites/dependents, DAG check,
+  topological order/layers, role subgraph (required skills + prerequisite
+  closure, raises `UnknownRoleError` for an uncurated role per
+  ARCHITECTURE_CONTRACTS.md §5), prerequisite-path explanation (design
+  §14.4's "chain rule → backpropagation → training neural networks"
+  example), resource-targeting and misconception/remediation lookups.
+- `backend/app/repositories/catalog_repository.py`: bulk `replace_all` write
+  path plus read methods; `search_resources_by_text` (PostgreSQL FTS) and
+  `search_resources_by_vector` (pgvector cosine distance) as
+  retrieval-preparation primitives — Postgres-only, verified against a real
+  Postgres 16 + pgvector container this session (migration
+  upgrade/downgrade/re-upgrade, full 158-skill catalog seed, both search
+  paths returning real results).
+- 49 new backend tests (54 total, all passing): graph invariants (11,
+  hand-built one-violation-per-test fixtures), catalog ingestion against the
+  real domain pack (9), NetworkX graph loading — node/edge type completeness
+  (5), graph queries against the real 158-skill/3-role graph (17), embedding
+  gateway determinism (7). New `catalog_session` pytest fixture
+  (`tests/conftest.py`) ingests the real dataset once per test.
+- Added `networkx` to `backend/pyproject.toml` (design §34's graph engine).
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §5 (Postgres tables + NetworkX
+  loader now implemented, files named) and §9 (JSON-vs-ARRAY dialect
+  decision; `GraphMeta` and extra-field additions to design §28's
+  conceptual model, documented as additions, not contradictions).
+- **Not implemented this phase (explicitly out of scope, per the phase
+  brief):** the Gap Engine, Planner, any LLM agent, Reflection — this phase
+  is deterministic graph/catalog infrastructure only. Also not implemented:
+  the full resource-ranking formula (design §15.3), RRF fusion, MMR
+  diversification (Resource Retriever/Ranker, Phase 6), and wiring the
+  NetworkX loader into `app/main.py`'s startup lifespan (deferred to Phase
+  4's first real caller, since no route reads the graph yet).
+
+---
+
 ## [Phase 3 (data, partial) | 2026-09-19] Domain knowledge pack
 
 - Created `data/` at the repo root — deliberately decoupled from

@@ -25,3 +25,23 @@ async def sqlite_session() -> AsyncSession:
     async with session_factory() as session:
         yield session
     await engine.dispose()
+
+
+@pytest.fixture
+async def catalog_session() -> AsyncSession:
+    """A SQLite session with the real `data/dataset/*.json` domain pack
+    (Phase 3) already ingested. Exercises the full ingestion pipeline
+    (validate -> map -> embed -> write) against real curated data, not a
+    hand-rolled fixture, so graph/catalog tests double as a regression check
+    on the domain pack itself."""
+    from app.catalog.ingest import run_ingestion
+
+    engine = create_async_engine("sqlite+aiosqlite:///:memory:")
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    session_factory = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+    async with session_factory() as session:
+        await run_ingestion(session)
+    async with session_factory() as session:
+        yield session
+    await engine.dispose()

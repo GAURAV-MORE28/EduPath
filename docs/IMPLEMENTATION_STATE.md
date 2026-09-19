@@ -10,25 +10,26 @@
 ### Current Phase
 
 **Phase 1 — Foundation. Complete.**
-**Phase 3 (data) — Domain knowledge pack. Partially complete (content curated
-and validated offline; not yet loaded into Postgres or consumed by app
-code — see "Domain Knowledge Pack" section below).**
+**Phase 3 — Skill Graph + Catalog Engine. Implemented (Postgres tables,
+NetworkX loader, graph validation/versioning, traversal queries, catalog
+ingestion, retrieval-preparation infra). Human review pass over the curated
+content itself is still outstanding — see "Domain Knowledge Pack" below.**
 
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
 frontend, PostgreSQL + pgvector via Alembic migrations, a LangGraph
 orchestration skeleton, and a Docker Compose stack that builds and runs all
-three services together. No business logic (profiling, skill graph, gap
-analysis, planning, assessment, reflection, tutor) exists yet — that is
-intentional; this phase is infrastructure only.
+three services together.
 
-In parallel (per design §39.1's explicit "start Phase 3 on day one"
-guidance), the **domain knowledge pack** — curated skills, roles,
-prerequisite graph, resource catalog, misconception catalog, an initial
-assessment item bank, and a demo dataset — has been authored and validated
-under `data/`. This is content/data, decoupled from application code; no
-backend or frontend code reads it yet. See "Domain Knowledge Pack" below.
+The **Skill Graph + Catalog Engine** (Phase 3, design §11/§12/§15) is now
+implemented: the domain knowledge pack (`data/`, curated offline) loads into
+Postgres via a validated ingestion pipeline, and a NetworkX graph built from
+those tables answers prerequisite/ancestor/descendant/role-subgraph/
+path-explanation queries. This is deterministic infrastructure only — no
+learner-specific logic (profiling, gap analysis, planning, assessment,
+reflection, tutor) exists yet, by design (see this phase's explicit "DO NOT
+IMPLEMENT: skill-gap engine, planner, agents, reflection").
 
 ### Completed Phases
 
@@ -37,7 +38,7 @@ backend or frontend code reads it yet. See "Domain Knowledge Pack" below.
 | 0 — Engineering state protocol | ✅ Done |
 | 1 — Foundation (repo skeleton, Docker Compose, FastAPI, Postgres schema, LLM Gateway, Trace Emitter, Next.js shell) | ✅ Done |
 | 2 — Learner profiling | ❌ Not started |
-| 3 — Skill graph + catalog (critical path) | 🟡 Data curated & validated (`data/`); human review pass, Postgres loader, and NetworkX graph-load-at-startup integration still not started |
+| 3 — Skill graph + catalog (critical path) | ✅ Implemented (Postgres tables, NetworkX loader, validation, versioning, traversal queries, catalog ingestion, resource embeddings + FTS index). Curated content itself still needs a human review pass (§11.5) before production gap analysis trusts it. |
 | 4 — Gap analysis | ❌ Not started |
 | 5 — Planner | ❌ Not started |
 | 6 — Resource retrieval | ❌ Not started |
@@ -143,6 +144,99 @@ SQLite, LangGraph compile + run) passes. Frontend `npm run build` succeeds.
 - `.gitignore` added at repo root (`.venv`, `__pycache__`, `.env`,
   `node_modules`, `.next`, OS cruft).
 
+**Phase 3 — Skill Graph + Catalog Engine** (design §11, §12, §15, §28;
+ARCHITECTURE_CONTRACTS.md §5/§9):
+
+- **Postgres schema** (`backend/app/db/models.py`, migration
+  `0002_skill_graph_catalog`): `Skill`, `SkillEdge`, `Role`,
+  `RoleRequirement`, `Misconception`, `Resource`, `ResourceSkill`,
+  `PracticeItem`, `GraphMeta` (an addition beyond design §28's conceptual
+  list — an append-only graph-version history table; see
+  ARCHITECTURE_CONTRACTS.md §9 "Addition (Phase 3)"). List-valued columns use
+  the generic `JSON` type (not `ARRAY`/`JSONB`) so the same model works
+  against SQLite in tests, per Phase 1's `consent_flags` precedent.
+  `Resource.embedding`/`Skill.embedding` use pgvector's `Vector(256)`.
+- **Graph validation** (`backend/app/graph/validation.py`): `GraphValidator`
+  — a DB-independent port of `data/scripts/validate_dataset.py`'s checks
+  (duplicate IDs, missing references, hard-prerequisite DAG cycle detection,
+  orphan skills, role/resource coverage, misconception-ancestor consistency,
+  single-correct-option items, URL well-formedness) that runs inline during
+  ingestion, before anything is written — a bad catalog is rejected, not
+  partially loaded.
+- **Catalog ingestion** (`backend/app/catalog/ingest.py`,
+  `backend/scripts/seed_catalog.py`): `CatalogIngestor` reads
+  `data/dataset/*.json`, validates, maps dataset field names to the ORM
+  schema (documented per-field in `models.py`'s docstrings — e.g.
+  `affected_skill`/`root_prerequisite`/`manifestation` → `skill_id`/
+  `root_skill_id`/`signature`, matching design §28's naming), computes
+  resource embeddings, and replaces the entire catalog in one transaction
+  (`CatalogRepository.replace_all`) — the curated graph is versioned and
+  reloaded whole per ingestion run, not diffed row-by-row. Records a
+  `GraphMeta` row each run. Verified against both SQLite (test suite) and a
+  real Postgres 16 + pgvector container (`docker compose up postgres`,
+  `alembic upgrade head`, `python scripts/seed_catalog.py` — all three ran
+  clean this session, including a downgrade/upgrade round-trip).
+- **Embedding Gateway** (`backend/app/gateway/embedding_gateway.py`): same
+  shape as the LLM Gateway — a provider-agnostic interface with a
+  deterministic, dependency-free fallback (feature-hashed, L2-normalized bag
+  of tokens) used whenever `LLM_PROVIDER=none` (the default), so catalog
+  ingestion and resource embeddings work fully offline and reproducibly. A
+  real provider/local model is a `NotImplementedError` stub for whichever
+  later phase (Resource Retriever, Phase 6) needs semantic-quality
+  embeddings.
+- **Retrieval preparation** (migration `0002`,
+  `backend/app/repositories/catalog_repository.py`): `resources.embedding`
+  (pgvector) and a generated `resources.search_vector` `tsvector` column
+  (title weight A, `learning_objective_text` weight B) with a GIN index —
+  Postgres FTS, design §14.1's keyword-retrieval plane. `CatalogRepository`
+  exposes `search_resources_by_text` (FTS) and `search_resources_by_vector`
+  (pgvector cosine distance) as retrieval primitives; both are Postgres-only
+  and raise `NotImplementedError` under the SQLite test dialect (verified
+  live against Postgres this session). **Not implemented**: the full ranking
+  formula (design §15.3: level_fit/quality/modality/relevance/duration/
+  novelty weights), RRF fusion, and MMR diversification — that is the
+  Resource Retriever/Ranker service, explicitly out of this phase's scope.
+- **NetworkX graph loader** (`backend/app/graph/loader.py`): `GraphLoader`
+  builds one `networkx.MultiDiGraph` holding all five closed-set node types
+  (Role, Skill, Misconception, Resource, PracticeItem) and materializes all
+  nine closed-set edge types (`PREREQUISITE_OF`, `PART_OF`, `REQUIRES`,
+  `TARGETS`, `ASSESSES`, `MISCONCEPTION_OF`, `ROOTED_IN`, `REMEDIATED_BY`,
+  `RELATED_TO` — the last stored once in Postgres, materialized both
+  directions since it's defined as bidirectional) regardless of which
+  relational table an edge's data actually lives in. Node IDs are the
+  curated slugs, globally unique across types, so one graph namespace is
+  safe. Not yet wired into `app/main.py`'s startup lifespan — no API route
+  reads the graph yet, so there is nothing to hold the loaded singleton for;
+  that integration lands with Phase 4's first real caller (Gap Engine).
+- **Skill Graph Service** (`backend/app/graph/queries.py`):
+  `SkillGraphService` — `hard_ancestors`/`hard_descendants`,
+  `direct_prerequisites`/`direct_dependents`, `is_dag`, `topological_order`/
+  `topological_layers` (optionally over a subset), `role_subgraph` (required
+  skills + hard-prerequisite closure, design §12.1's "derived view, not
+  stored"; raises `UnknownRoleError` — "role not supported" — for an
+  uncurated role per ARCHITECTURE_CONTRACTS.md §5), `explain_skill_path`
+  (shortest hard-prerequisite path from a skill to the nearest role-required
+  skill — design §14.4's "chain rule → backpropagation → training neural
+  networks" example), `shortest_prerequisite_path` (general point-to-point),
+  plus `resources_targeting`, `misconceptions_for_skill`,
+  `remediation_resources_for_misconception`. Explicitly does **not** compare
+  this structure against learner evidence/mastery — that's the Gap Engine
+  (Phase 4, not implemented, per this phase's DO NOT IMPLEMENT list).
+- **Tests** (`backend/tests/`): 49 new tests across
+  `test_graph_validation.py` (11, hand-built fixtures — one violation per
+  test), `test_catalog_ingest.py` (9, against the real domain pack —
+  counts-match-meta, field-rename correctness, source/review metadata
+  preservation, embedding population, reject-invalid-dataset,
+  reingestion-replaces-not-duplicates), `test_graph_loader.py` (5, node/edge
+  type completeness, bidirectional RELATED_TO, cross-type relationships),
+  `test_graph_queries.py` (17, ancestors/descendants/topological
+  order/layers/role subgraph/path explanation, all against the real
+  158-skill/3-role graph), `test_embedding_gateway.py` (7, determinism,
+  normalization, dimensionality). A new `catalog_session` pytest fixture
+  (`tests/conftest.py`) ingests the real dataset into an in-memory SQLite DB
+  once per test — so these tests double as a regression check on the domain
+  pack itself, not just the code. **54 tests total, all passing.**
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -150,23 +244,35 @@ SQLite, LangGraph compile + run) passes. Frontend `npm run build` succeeds.
 - `app/__init__.py`, `app/main.py`, `app/config.py`, `app/logging_config.py`
 - `app/core/__init__.py`, `app/core/errors.py`
 - `app/schemas/__init__.py`, `app/schemas/envelope.py`, `app/schemas/common.py`
-- `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`, `app/db/models.py`
+- `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`,
+  `app/db/models.py` (extended, Phase 3 — see below)
 - `app/db/migrations/env.py`, `app/db/migrations/script.py.mako`,
-  `app/db/migrations/versions/0001_foundation.py`
-- `app/gateway/__init__.py`, `app/gateway/llm_gateway.py`
+  `app/db/migrations/versions/0001_foundation.py`,
+  `app/db/migrations/versions/0002_skill_graph_catalog.py` (new, Phase 3)
+- `app/gateway/__init__.py`, `app/gateway/llm_gateway.py`,
+  `app/gateway/embedding_gateway.py` (new, Phase 3)
 - `app/orchestration/__init__.py`, `app/orchestration/state.py`,
   `app/orchestration/graphs.py`
 - `app/agents/__init__.py`, `app/agents/base.py`, `app/agents/profiler.py`,
   `app/agents/planner.py`, `app/agents/assessor.py`,
   `app/agents/reflection.py`, `app/agents/tutor.py`
 - `app/services/__init__.py`
-- `app/repositories/__init__.py`, `app/repositories/user_repository.py`
+- `app/repositories/__init__.py`, `app/repositories/user_repository.py`,
+  `app/repositories/catalog_repository.py` (new, Phase 3)
+- `app/graph/__init__.py`, `app/graph/loader.py`, `app/graph/queries.py`,
+  `app/graph/validation.py` (new package, Phase 3)
+- `app/catalog/__init__.py`, `app/catalog/ingest.py` (new package, Phase 3)
 - `app/sse/__init__.py`, `app/sse/trace.py`
 - `app/api/__init__.py`, `app/api/deps.py`
 - `app/api/v1/__init__.py`, `app/api/v1/router.py`, `app/api/v1/health.py`,
   `app/api/v1/runs.py`
-- `tests/__init__.py`, `tests/conftest.py`, `tests/test_health.py`,
-  `tests/test_db_connection.py`, `tests/test_langgraph_init.py`
+- `scripts/seed_catalog.py` (new, Phase 3 — CLI catalog ingestion entrypoint)
+- `tests/__init__.py`, `tests/conftest.py` (extended: `catalog_session`
+  fixture, Phase 3), `tests/test_health.py`, `tests/test_db_connection.py`,
+  `tests/test_langgraph_init.py`, `tests/test_graph_validation.py`,
+  `tests/test_catalog_ingest.py`, `tests/test_graph_loader.py`,
+  `tests/test_graph_queries.py`, `tests/test_embedding_gateway.py` (all five
+  new, Phase 3)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -194,7 +300,8 @@ Tailwind v4, App Router, ESLint), then customized:
 
 **Backend** (`backend/pyproject.toml`): fastapi, uvicorn[standard], pydantic,
 pydantic-settings, sqlalchemy, asyncpg, alembic, pgvector, langgraph,
-langchain-core, python-multipart, sse-starlette, structlog, httpx.
+langchain-core, python-multipart, sse-starlette, structlog, httpx,
+**networkx (Phase 3, new — the graph engine per design §34).**
 Dev extra (`[dev]`): pytest, pytest-asyncio, aiosqlite.
 
 **Frontend** (`frontend/package.json`): next 16.3.5, react/react-dom 19.2.8.
@@ -214,10 +321,20 @@ the default and the gateway degrades deterministically.
 ### Database Status
 
 Postgres 16 + pgvector, running via Docker Compose, migrated with Alembic.
-One table exists: `users` (design §28's minimal `User` row). The `vector`
-and `pg_trgm` extensions are enabled. No other table in the conceptual
-schema (`LearnerProfile`, `Skill`, `SkillEdge`, `Role`, ...) exists yet —
-each is created by the migration the owning phase adds.
+Two migrations: `0001_foundation` (`vector`/`pg_trgm` extensions, `users`)
+and `0002_skill_graph_catalog` (`skills`, `skill_edges`, `roles`,
+`role_requirements`, `misconceptions`, `resources`, `resource_skills`,
+`practice_items`, `graph_meta`, plus a generated `resources.search_vector`
+tsvector column with a GIN index). Both verified this session against a real
+Postgres 16 + pgvector container: upgrade, downgrade, and re-upgrade all ran
+clean, and `backend/scripts/seed_catalog.py` populated the full 158-skill
+domain pack (158 skills, 3 roles, 203 edges, 140 resources, 18
+misconceptions, 95 items) with FTS and pgvector cosine-similarity queries
+both confirmed working end-to-end.
+
+No other table in the conceptual schema (`LearnerProfile`, `Document`,
+`Evidence`, ...) exists yet — each is created by the migration the owning
+phase adds.
 
 ### Domain Knowledge Pack
 
@@ -250,42 +367,59 @@ Current state: **validates with 0 errors and 0 warnings.**
 `data/README.md`):**
 - Assessment item bank is an *initial* bank (95 items / 23 skills), not full
   coverage of all 158 skills — `validate_dataset.py`'s coverage report names
-  exactly which assessable skills still have 0 items. Building out full
-  coverage is Phase 7 (Assessor) work, informed by this report.
+  exactly which assessable skills still have 0 items (this report is also now
+  available at ingestion/validation time via
+  `GraphValidator.validate(...).item_coverage`). Building out full coverage is
+  Phase 7 (Assessor) work.
 - No entry in this pack has had a **human review pass** yet — every edge,
   resource, misconception and item currently has
-  `reviewed_by: "edupath-phase3-curation"` as a placeholder. Design §11.5
-  calls for human review of every drafted prerequisite edge before trusting
-  it in production gap analysis; treat this as a strong first draft.
+  `reviewed_by: "edupath-phase3-curation"` as a placeholder, carried through
+  ingestion unchanged. Design §11.5 calls for human review of every drafted
+  prerequisite edge before trusting it in production gap analysis; treat this
+  as a strong first draft, now loaded into Postgres, but still not
+  human-reviewed content.
 - `link_status` is seeded `"ok"` for all 140 resources based on a
   spot-check, not a full crawl. Run a real HEAD-request link-validation pass
   before a live demo or before Phase 6 depends on it.
-- **Nothing in `data/` is loaded into Postgres or read by any backend/frontend
-  code yet.** The `Skill`, `SkillEdge`, `Role`, `RoleRequirement`,
-  `Misconception`, `Resource`, `ResourceSkill`, `PracticeItem` tables from
-  `ARCHITECTURE_CONTRACTS.md`'s data model don't exist yet (no migration adds
-  them) — that migration + a one-time seed loader from `data/dataset/*.json`
-  is Phase 3/4 remaining work, per `data/README.md` "Consuming this data".
+- **This data is now loaded into Postgres and read by application code**
+  (`backend/app/catalog/ingest.py`, `backend/app/graph/`) — see the Phase 3
+  bullets under "Completed Work" above. `data/dataset/*.json` remains the
+  source of truth; re-run `backend/scripts/seed_catalog.py` after any
+  regeneration (`python data/scripts/build_dataset.py`) to refresh Postgres.
 
 ### API Status
 
 Two endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE). None of the learner-scoped endpoints in design §27's table exist yet.
+Phase 3 deliberately added no API routes — `SkillGraphService` and
+`CatalogRepository` are internal services with no HTTP surface yet; the first
+route that needs them (most likely Gap Analysis's role-subgraph/explanation
+queries) is Phase 4's to add.
 
 ### Agent Status
 
 All five LLM agents exist as classes with the shared `Agent` interface, each
 raising `NotImplementedError`. No LangGraph business graphs (G1-G4) exist —
 only the bootstrap graph used to prove the framework. No agent has tool
-access.
+access. Phase 3 added no agents (it is 100% deterministic services, per
+ARCHITECTURE_CONTRACTS.md §2).
 
 ### Tests Status
 
-Backend: 5 tests, all passing (`backend/tests/`) — run with
-`cd backend && python -m pytest`. Covers: health endpoint responds with the
-expected shape; DB session + `UserRepository` round-trip (against SQLite, not
-Postgres — see `tests/conftest.py` for why); LangGraph bootstrap graph
-compiles and runs to `status="completed"`.
+Backend: **54 tests, all passing** (`backend/tests/`) — run with
+`cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
+shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
+compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
+invariants, catalog ingestion against the real domain pack, NetworkX graph
+loading, prerequisite/role-subgraph/path-explanation queries, embedding
+gateway determinism — see the Phase 3 "Tests" bullet under "Completed Work"
+above for the breakdown). All run against SQLite (`tests/conftest.py`'s
+existing dialect-portability convention); the Postgres-only paths
+(`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
+the generated `search_vector` column) were verified manually this session
+against a real Postgres 16 + pgvector container instead (see "Database
+Status" above) rather than added to the automated suite, since the project
+has no Postgres-backed CI/test tier yet.
 
 Frontend: no automated test file yet; `npm run build` (verified passing) is
 the build test called for in this phase. A real test runner (Vitest/Playwright)
@@ -317,6 +451,17 @@ one.
 - Docker Desktop must be running before `docker compose up`; if its engine
   is stopped, compose fails at the daemon connection (not a config issue —
   `docker compose config` validates independent of the daemon).
+- The Skill Graph is not yet loaded at app startup (`app/main.py`'s
+  `lifespan`) — Phase 3 built the loader but nothing calls it yet, since no
+  API route or agent needs the graph in-process until Phase 4. Wire this in
+  alongside Phase 4's first real caller rather than loading it speculatively
+  now.
+- `CatalogRepository.search_resources_by_text`/`search_resources_by_vector`
+  raise `NotImplementedError` under SQLite (Postgres-only SQL/operators) —
+  by design, but it means the automated test suite cannot exercise them; they
+  were only verified manually against a live Postgres container this
+  session, not via `pytest`. Re-verify manually after touching either method
+  until the project has a Postgres-backed CI tier.
 
 ### Architectural Decisions
 
@@ -337,54 +482,89 @@ one.
   statically prerender it and fails when the backend isn't reachable at
   build time. Any future page that fetches live backend/DB state should do
   the same.
+- **(Phase 3)** The curated catalog is loaded *whole* per ingestion run
+  (`CatalogRepository.replace_all`: delete everything, re-insert everything,
+  in one transaction), not diffed/upserted row-by-row. This matches the
+  design's "graph is curated offline, versioned" model (a new
+  `graph_version` means a new full snapshot, not a patch) and avoids
+  cross-dialect upsert/conflict-handling complexity. Revisit only if a later
+  phase needs incremental catalog updates without a full reload.
+- **(Phase 3)** List-valued ORM columns use generic `JSON`, not
+  `postgresql.ARRAY`; embeddings use pgvector's `Vector` type, whose distance
+  operators are Postgres-only — see ARCHITECTURE_CONTRACTS.md §9 "Decided
+  (Phase 3)" for the full rationale (SQLite test-dialect portability).
+- **(Phase 3)** `EmbeddingGateway`'s default (`LLM_PROVIDER=none`) fallback is
+  a deterministic feature-hashed, L2-normalized bag-of-tokens embedding
+  (`EMBEDDING_DIM = 256`, `backend/app/db/models.py`) — not semantically
+  strong, but offline, dependency-free, and reproducible (same text -> same
+  vector always), matching the LLM Gateway's existing degrade pattern and
+  ARCHITECTURE_CONTRACTS.md §14's offline-determinism requirement. Swap in a
+  real provider/local model when Phase 6 (Resource Retriever) needs
+  semantic-quality ranking — the interface is already provider-agnostic.
 
 ### Contract Changes
 
-None. No changes to `docs/ARCHITECTURE_CONTRACTS.md` were needed — Phase 1
-only implements infrastructure the contracts already describe (agent I/O
-envelope, API conventions, DB conventions, security boundary for
-`learner_id`). The one open item that doc explicitly deferred to
-implementation (§7, ID format) is now resolved — see Architectural Decisions
-above — but does not change the contract itself.
+`docs/ARCHITECTURE_CONTRACTS.md` §5 and §9 updated this phase (see that
+file's diff for exact wording):
+- §5: recorded that the Postgres tables + NetworkX loader described as
+  "Phase 4+ work" in the previous entry are now implemented, and named the
+  files (`app/catalog/ingest.py`, `app/graph/loader.py`,
+  `app/graph/queries.py`).
+- §9: recorded two **additions** to design §28's conceptual data model — the
+  `GraphMeta` table (graph-version history; §28 doesn't list it, but §5's
+  "graph is versioned" and §14's "record graph_version" need a home for that
+  version history) and a handful of extra columns
+  (`Misconception.remediation_candidates`, `PracticeItem.purpose`/
+  `explanation`/`generated_by`/`validated_by`/`graph_version`) that carry
+  source/review metadata and the `REMEDIATED_BY` edge target list from the
+  domain-pack JSON. Also recorded the `JSON`-over-`ARRAY` dialect-portability
+  decision. None of this contradicts §28 (which says "only fields that are
+  actually used are listed") or any other stable contract.
 
 ### Next Phase
 
-**Phase 2 — Learner profiling** (design §39.1): intake endpoint, document
-upload, text extraction (PyMuPDF/python-docx), Profiler Agent (real LLM
-calls via the gateway — this is where a real provider needs wiring, or
-`REPLAY_MODE`/`LLM_PROVIDER=none` degraded mode continues), Evidence
-Verifier, Skill Normalizer, confirmation UI, GitHub summary tool. Depends on
-Phase 1 (done) and Phase 3's aliases (skill graph curation — the aliases
-needed by the Skill Normalizer now exist in `data/dataset/skills.json`).
+**Phase 4 — Gap analysis** (design §39.1, §13): the deterministic Gap Engine
+(`analyze_gaps(role, learner, graph)`, design §13.3) that compares the
+target-role subgraph (`SkillGraphService.role_subgraph`, now implemented)
+against a learner's evidence/mastery to produce `SkillGap[]`
+(MET/WEAK/UNVERIFIED/MISSING/BLOCKED), `strengths[]`, `audit_flags[]`, and
+`LearningObjective[]`. Needs Phase 2 (Learner profiling — not started) to
+exist first for real learner evidence to analyze against, or can be built
+and tested against the seeded demo learner state
+(`data/dataset/demo/demo_learner_state.json`) in the meantime. This is also
+where the NetworkX graph gets wired into `app/main.py`'s startup lifespan for
+the first time (see "Known Issues" above).
 
-Also still open on **Phase 3** itself (not blocking Phase 2, but required
-before Gap Analysis/Phase 4 can run against real data): a human review pass
-over the curated graph, a Postgres migration for the graph/catalog tables
-(design §28: `Skill`, `SkillEdge`, `Role`, `RoleRequirement`,
-`Misconception`, `Resource`, `ResourceSkill`, `PracticeItem`), a one-time
-seed loader from `data/dataset/*.json` into those tables, and the
-NetworkX-load-at-startup integration (`ARCHITECTURE_CONTRACTS.md` §5).
+Phase 2 (Learner profiling) remains not started and is not blocked by
+anything in this phase; it can proceed independently, now with
+`data/dataset/skills.json`'s aliases available (loaded into Postgres) for the
+Skill Normalizer.
+
+Still open on **Phase 3** itself (does not block Phase 4, but should happen
+before this graph is trusted in a real demo): a human review pass over the
+curated content (§11.5) — every edge/resource/misconception/item still shows
+`reviewed_by: "edupath-phase3-curation"`, a placeholder — and a live
+HEAD-request link-validation sweep over the 140 resource URLs (`link_status`
+is currently a spot-check, not a full crawl).
 
 ### Exact Next Task
 
-1. For Phase 2 code: add `LearnerProfile`, `Document`, `Evidence` tables +
-   migration (design §28); implement `POST /api/learners`,
-   `POST /api/learners/me/documents`; wire a real LLM provider into
-   `LLMGateway` (or keep `LLM_PROVIDER=none` and build against the degraded
-   path first); implement `ProfilerAgent.run()` with `parse_document` and
-   `github_repo_summary` tools (no side-effect tools); implement the
-   Evidence Verifier service (span verification, tier assignment, PII
-   scrubbing) and the Skill Normalizer service (can now use
-   `data/dataset/skills.json` aliases for normalization candidates); build
-   `G1 Onboarding` as a real LangGraph graph (replacing the bootstrap graph
-   for this flow); surface `GET /api/learners/me/claims/pending` and the
-   confirmation UI.
-2. Add a Postgres-backed record/replay table for the LLM Gateway before or
-   alongside the first real agent call.
-3. Before Phase 4 (Gap Analysis) starts: add the Phase 3 graph/catalog
-   migration + seed loader described above, so the Gap Engine has real
-   Postgres/NetworkX data to run against instead of reading
-   `data/dataset/*.json` directly.
+1. For Phase 4 code: implement the Gap Engine as a deterministic service
+   (`app/gap/`, per ARCHITECTURE_CONTRACTS.md §12's package-naming
+   convention) implementing design §13.3's `analyze_gaps` algorithm on top of
+   `SkillGraphService.role_subgraph`/`hard_ancestors`/`topological_layers`
+   (all implemented, Phase 3); add the `LearnerSkillState`,
+   `LearnerMisconception` tables (design §28) + migration for the learner
+   overlay (design §12.1) the Gap Engine reads; add `GET
+   /api/learners/me/gaps` (or similar, per design §27); wire `GraphLoader`
+   into `app/main.py`'s lifespan so the NetworkX graph is loaded once at
+   startup rather than per-request.
+2. If Phase 2 (Learner profiling) isn't done first, build/test Phase 4
+   against the seeded demo learner state
+   (`data/dataset/demo/demo_learner_state.json`) so Gap Engine work isn't
+   blocked on Profiler work landing first.
+3. Before trusting this graph in a live demo: run the human review pass and
+   live link-validation sweep noted above (Phase 3 remaining work).
 
 ### Commands To Verify Current State
 
@@ -398,6 +578,11 @@ cd backend && python -m pytest -q
 
 # Frontend build
 cd frontend && npm run build
+
+# Skill graph + catalog migration and seed (from backend/; requires a running,
+# reachable Postgres — e.g. `docker compose up -d postgres` from repo root)
+cd backend && alembic upgrade head
+python scripts/seed_catalog.py
 
 # Full stack (from repo root; requires Docker Desktop running)
 docker compose up -d --build
