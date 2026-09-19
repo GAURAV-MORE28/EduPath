@@ -140,6 +140,28 @@ class SkillGraphService:
     def is_dag(self) -> bool:
         return nx.is_directed_acyclic_graph(self._hard_graph)
 
+    def hard_prerequisite_out_edges(self, skill_id: str) -> list[tuple[str, int]]:
+        """`(to_skill_id, min_level)` for every hard `PREREQUISITE_OF` edge
+        leading out of `skill_id` (design §13.3's `graph.hard_out_edges(s)` —
+        used by the Gap Engine to compute each skill's effective required
+        level: the max of its own role-required level and the `min_level`
+        demanded by any in-scope dependent)."""
+        self._require_skill(skill_id)
+        out = []
+        for _, v, data in self.graph.out_edges(skill_id, data=True):
+            if data.get("type") == "PREREQUISITE_OF" and data.get("strength") == HARD:
+                out.append((v, data.get("min_level") or 1))
+        return out
+
+    def part_of_children(self, parent_skill_id: str) -> list[str]:
+        """Skills `c` with a `PART_OF` edge `c -> parent_skill_id` (design
+        §11.3: "PART_OF | Skill -> Skill (area/parent)"). Used by the Gap
+        Engine's claim-evidence-mismatch audit (design §12.4): a claim on a
+        parent skill (e.g. "Full Stack") while evidence covers only some of
+        its PART_OF children (e.g. "React", not backend/database)."""
+        self._require_skill(parent_skill_id)
+        return [u for u, _, data in self.graph.in_edges(parent_skill_id, data=True) if data.get("type") == "PART_OF"]
+
     # -- topological ordering -----------------------------------------------
 
     def topological_order(self, subset: set[str] | None = None) -> list[str]:

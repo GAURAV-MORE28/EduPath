@@ -17,8 +17,12 @@ content itself is still outstanding — see "Domain Knowledge Pack" below.
 **Phase 2 — Learner Profiling + Evidence Pipeline. Implemented** (intake,
 document upload with text-first PDF/DOCX/text extraction + VLM-fallback
 hook, Profiler Agent, Evidence Verifier, Skill Normalizer, human
-confirmation, basic GitHub metadata). Gap analysis, planning, assessment
-and reflection remain out of scope, per design's phase ordering.
+confirmation, basic GitHub metadata).
+**Phase 4 — Skill-Gap Engine. Implemented** (deterministic `analyze_gaps`:
+statuses, prerequisite closure/ordering, the BLOCKED overlay, priority,
+strengths, audit flags, learning objectives with verify-before-teach;
+`GET /api/learners/me/gaps`). Planning, assessment and reflection remain out
+of scope, per design's phase ordering.
 
 ### Overall Project Status
 
@@ -41,9 +45,18 @@ span-verified skill claims (via a real LLM path with a deterministic,
 catalog-anchored fallback), normalize them against the curated Skill Graph,
 review/edit/remove them, and confirm them into `Evidence` +
 `LearnerSkillState` rows. This closes the loop from "raw learner input" to
-"graph-anchored, evidence-tiered learner state" — the exact input the Gap
-Engine (Phase 4, still not implemented) needs. No gap analysis, planning,
-assessment, or reflection logic exists yet, by design.
+"graph-anchored, evidence-tiered learner state."
+
+The **Skill-Gap Engine** (Phase 4, design §13) is now also implemented: a
+deterministic `analyze_gaps(role, learner_state, graph)` diffs a target
+role's subgraph (Phase 3) against a learner's evidence-graded skill state
+(Phase 2) to produce per-skill statuses (`MET`/`WEAK`/`UNVERIFIED`/
+`MISSING`/`BLOCKED`), priority-ordered root gaps, audit flags (design
+§12.4's claim-evidence integrity checks), and `LearningObjective`s —
+`UNVERIFIED` gaps become verify-before-teach *probe* objectives, never
+beginner lessons. Exposed via `GET /api/learners/me/gaps`. No LLM anywhere
+in this decision path. No planning, assessment, or reflection logic exists
+yet, by design.
 
 ### Completed Phases
 
@@ -53,7 +66,7 @@ assessment, or reflection logic exists yet, by design.
 | 1 — Foundation (repo skeleton, Docker Compose, FastAPI, Postgres schema, LLM Gateway, Trace Emitter, Next.js shell) | ✅ Done |
 | 2 — Learner profiling | ✅ Implemented (intake, document ingestion, Profiler Agent, Evidence Verifier, Skill Normalizer, human confirmation, GitHub metadata path). See "Completed Work" below. |
 | 3 — Skill graph + catalog (critical path) | ✅ Implemented (Postgres tables, NetworkX loader, validation, versioning, traversal queries, catalog ingestion, resource embeddings + FTS index). Curated content itself still needs a human review pass (§11.5) before production gap analysis trusts it. |
-| 4 — Gap analysis | ❌ Not started |
+| 4 — Gap analysis | ✅ Implemented (deterministic Gap Engine: statuses, prerequisite closure/ordering, BLOCKED overlay, priority, strengths, audit flags, learning objectives with verify-before-teach). See "Completed Work" below. |
 | 5 — Planner | ❌ Not started |
 | 6 — Resource retrieval | ❌ Not started |
 | 7 — Practice + assessment | ❌ Not started |
@@ -392,13 +405,118 @@ naming convention):
   directories are redirected to a session-scoped tmp dir in `conftest.py`
   so tests never write into the repo tree.
 
+**Phase 4 — Skill-Gap Engine** (design §12.3/§12.4/§13; ARCHITECTURE_CONTRACTS.md
+§4; package `backend/app/gap/` per §12's naming convention):
+
+- **Core algorithm** (`backend/app/gap/engine.py`): `analyze_gaps(role_id,
+  skill_records, evidence_records, graph)` — design §13.3's algorithm
+  implemented close to verbatim. A **pure function**: no DB/session, no
+  gateway/agent import anywhere in the module (ARCHITECTURE_CONTRACTS.md §4:
+  "100% deterministic... no LLM in the decision path"). Takes a
+  `SkillGraphService` (Phase 3) plus two small framework-independent record
+  types (`LearnerSkillRecord`, `EvidenceRecord`) so the whole algorithm is
+  unit-testable with hand-built fixtures, no DB required.
+  - **Required level** per scope skill: `max(role-required level, max
+    dependent min_level in scope)`, exactly per §13.3.
+  - **Tier gate** (`_level_met`, ARCHITECTURE_CONTRACTS.md §3): mastery ≥
+    `LEVEL_MASTERY_THRESHOLD[level]` and `tier_max` ≥
+    `LEVEL_TIER_REQUIRED[level]`, plus L3's `n_obs ≥ 3` — new constants in
+    `backend/app/core/thresholds.py`.
+  - **BLOCKED overlay**: a hard prerequisite in `WEAK`/`MISSING` blocks;
+    `UNVERIFIED` does not (design §13.2). The overlaid status replaces the
+    raw diagnosis on `SkillGapEntry.status`; the raw diagnosis survives on
+    `.gap_type` for provenance.
+  - **Priority/ordering**: `weight * (1 + log(1 + unmet_dependents))` per
+    §13.3, computed for root gaps and blocked skills; `ordering_layer` from
+    `SkillGraphService.topological_layers` over the non-`MET` subgraph.
+  - **Audit flags** (design §12.4): `claimed_without_evidence` (E0-only,
+    role weight ≥ important) and `stale_or_weak_evidence` (E1 claim needed
+    at level ≥ 2) are role-scope-restricted; `claim_evidence_mismatch` (a
+    PART_OF parent claimed while only some children have evidence — design's
+    "Full Stack claimed, evidence only for React" example) deliberately
+    scans **all** claimed skills, not just those in the role's scope,
+    because a PART_OF parent (e.g. `skill.math_for_ml`) is usually an
+    umbrella node with no `PREREQUISITE_OF` edges of its own and therefore
+    never appears in any role's derived subgraph — restricting the parent
+    search to scope would silently never fire this rule. Children are still
+    restricted to scope so the flag only names gaps relevant to the current
+    role. A stale/removed `skill_id` in a learner's evidence is skipped
+    (`UnknownSkillError` caught), never crashes the report.
+  - **Learning objectives** (design §13.5): one per *root gap* (actionable
+    now — not blocked). `objective_type="probe"` for `UNVERIFIED` gaps
+    (**verify-before-teach**, the phase brief's explicit requirement) vs.
+    `"lesson"` for `WEAK`/`MISSING`. `prerequisite_objective_ids` links an
+    objective to any direct hard prerequisite that is *also* a root gap
+    (e.g. two chained `UNVERIFIED` skills, neither blocking the other).
+    `est_minutes_low/high` are deliberately left `None` — design §13.5
+    sources them "from candidate resources at this level band," which is
+    the Resource Retriever/Ranker's job (Phase 6, not this phase's scope;
+    design §14.1 explicitly avoids mixing retrieval planes).
+  - `objective_id_for(role_id, skill_id)` is a deterministic
+    `obj.<role_id>.<skill_id>` string (no `uuid4`) — see "Architectural
+    Decisions" for why gap results aren't persisted.
+- **`SkillGraphService` additions** (`backend/app/graph/queries.py`):
+  `hard_prerequisite_out_edges` (`(to_skill_id, min_level)` pairs, needed for
+  §13.3's required-level formula) and `part_of_children` (needed for the
+  `claim_evidence_mismatch` audit).
+- **Startup wiring** (`backend/app/main.py`, `backend/app/api/deps.py`): the
+  NetworkX graph is now loaded once at process startup and cached on
+  `app.state.skill_graph_service` (best-effort, not fail-fast — an
+  empty/unseeded catalog is a normal pre-`seed_catalog.py` state).
+  `get_skill_graph_service` reads that cache and falls back to a fresh
+  per-request load when it's absent — same tradeoff Phase 2's
+  `SkillNormalizer` already made, and the only option in the test suite
+  today, since the ASGI transport fixture never drives the lifespan.
+- **API route** (`backend/app/api/v1/gap.py`, design §27):
+  `GET /api/learners/me/gaps` (optional `?role=` override; defaults to the
+  learner's `target_role_id`). A bare deterministic-service call — no
+  LangGraph run, matching design §27's table (empty "Orchestrator" column
+  for this endpoint). Returns `role_id`, `graph_version`, `gaps[]`
+  (`SkillGap`, full role-subgraph coverage including `MET` entries),
+  `strengths[]`, `audit_flags[]`, `objectives[]` (`LearningObjective`),
+  `layers[]` (topological ordering layers, non-`MET` skills only), and
+  `prerequisite_edges[]` (hard `PREREQUISITE_OF` edges within scope) — the
+  last two specifically for the Phase 5 brief's "expose enough API output
+  for the frontend to visualize the gap graph later" requirement.
+- **Schemas**: `SkillGap`/`LearningObjective` in `backend/app/schemas/common.py`
+  got their real design §25.2 field lists this phase (previously
+  `{id fields..., data: dict}` placeholders). `backend/app/schemas/gap.py`
+  adds the response-only supporting types (`Strength`, `AuditFlag`,
+  `GapGraphEdge`, `GapReport`) — not core §25.2 schema names, same latitude
+  Phase 2/3 already used for `RunClaimsSummary`/`GraphMeta`.
+- **No persistence added**: gap results are computed fresh on every call, not
+  written to new tables — see "Architectural Decisions" for the reasoning
+  and how this reads against design §10.6's read/write matrix.
+- **Tests**: 41 new — `tests/test_gap_engine.py` (29: every status, the
+  BLOCKED overlay and its `UNVERIFIED`-doesn't-block exception, scope
+  coverage, strengths, evidence-ID attribution, layering, all three audit
+  flags including a real-data replica of the "Full Stack" example via
+  `skill.math_for_ml`, learning-objective generation including
+  verify-before-teach and the objective-prerequisite chain, unknown-role and
+  unknown-skill-id handling — most against the real curated dataset via
+  `catalog_session`/`graph_service`, a few against a small hand-built
+  `tiny_graph_service` fixture built directly with `GraphLoader.build` where
+  the real data's incidental complexity — e.g. `skill.backpropagation`
+  actually has three hard prerequisites, not one — would make a
+  single-variable assertion fragile), `tests/test_gap_api.py` (8, full
+  HTTP-layer flow via the existing `app_client` fixture: role-from-profile
+  default, the `?role=` override and its "role not supported" rejection, the
+  "no profile yet" 404, response shape, and a real intake→confirm→gaps
+  round trip), plus 4 in `tests/test_graph_queries.py` for the two new
+  `SkillGraphService` methods (`hard_prerequisite_out_edges`,
+  `part_of_children`). **201 tests total, all passing** (160 from Phase
+  1-3, 41 new).
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
 - `pyproject.toml`, `alembic.ini`, `pytest.ini`, `Dockerfile`, `.dockerignore`
-- `app/__init__.py`, `app/main.py`, `app/config.py`, `app/logging_config.py`
+- `app/__init__.py`, `app/main.py` (extended, Phase 4: startup Skill Graph
+  cache on `app.state`), `app/config.py`, `app/logging_config.py`
 - `app/core/__init__.py`, `app/core/errors.py`
-- `app/schemas/__init__.py`, `app/schemas/envelope.py`, `app/schemas/common.py`
+- `app/schemas/__init__.py`, `app/schemas/envelope.py`,
+  `app/schemas/common.py` (extended, Phase 4: real `SkillGap`/
+  `LearningObjective` field lists), `app/schemas/gap.py` (new, Phase 4)
 - `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`,
   `app/db/models.py` (extended, Phase 3 and Phase 2 — see below)
 - `app/db/migrations/env.py`, `app/db/migrations/script.py.mako`,
@@ -419,9 +537,11 @@ naming convention):
   `app/repositories/user_repository.py` (extended, Phase 2: `get_or_create`),
   `app/repositories/catalog_repository.py` (Phase 3),
   `app/repositories/profiling_repository.py` (new, Phase 2)
-- `app/graph/__init__.py`, `app/graph/loader.py`, `app/graph/queries.py`,
-  `app/graph/validation.py` (Phase 3)
+- `app/graph/__init__.py`, `app/graph/loader.py`,
+  `app/graph/queries.py` (extended, Phase 4: `hard_prerequisite_out_edges`,
+  `part_of_children`), `app/graph/validation.py` (Phase 3)
 - `app/catalog/__init__.py`, `app/catalog/ingest.py` (Phase 3)
+- `app/gap/__init__.py`, `app/gap/engine.py` (new package, Phase 4)
 - `app/profiling/__init__.py`, `app/profiling/document_parser.py`,
   `app/profiling/pii.py`, `app/profiling/chunker.py`,
   `app/profiling/injection.py`, `app/profiling/claim_extraction.py`,
@@ -430,13 +550,17 @@ naming convention):
   `app/profiling/onboarding.py`, `app/profiling/storage.py` (all new
   package, Phase 2)
 - `app/core/__init__.py`, `app/core/errors.py`,
-  `app/core/thresholds.py` (new, Phase 2 — tunable numeric defaults)
+  `app/core/thresholds.py` (new, Phase 2 — tunable numeric defaults;
+  extended, Phase 4: `LEVEL_MASTERY_THRESHOLD`/`LEVEL_TIER_REQUIRED`/
+  `LEVEL_MIN_N_OBS`)
 - `app/schemas/profiling.py` (new, Phase 2)
 - `app/sse/__init__.py`, `app/sse/trace.py`
 - `app/api/__init__.py`, `app/api/deps.py` (extended, Phase 2:
-  `get_current_learner_id`)
-- `app/api/v1/__init__.py`, `app/api/v1/router.py`, `app/api/v1/health.py`,
-  `app/api/v1/runs.py`, `app/api/v1/learners.py` (new, Phase 2)
+  `get_current_learner_id`; extended, Phase 4: `get_skill_graph_service`)
+- `app/api/v1/__init__.py`,
+  `app/api/v1/router.py` (extended, Phase 4: registers `gap_router`),
+  `app/api/v1/health.py`, `app/api/v1/runs.py`,
+  `app/api/v1/learners.py` (new, Phase 2), `app/api/v1/gap.py` (new, Phase 4)
 - `scripts/seed_catalog.py` (Phase 3 — CLI catalog ingestion entrypoint)
 - `tests/__init__.py`, `tests/conftest.py` (extended: `catalog_session`
   fixture (Phase 3), `app_client` fixture + storage-tmp-dir redirect
@@ -444,13 +568,15 @@ naming convention):
   `tests/test_db_connection.py` (extended, Phase 2: `get_or_create`
   regression test), `tests/test_langgraph_init.py`,
   `tests/test_graph_validation.py`, `tests/test_catalog_ingest.py`,
-  `tests/test_graph_loader.py`, `tests/test_graph_queries.py`,
-  `tests/test_embedding_gateway.py` (Phase 3);
+  `tests/test_graph_loader.py`,
+  `tests/test_graph_queries.py` (extended, Phase 4: `hard_prerequisite_out_edges`/
+  `part_of_children`), `tests/test_embedding_gateway.py` (Phase 3);
   `tests/test_document_parser.py`, `tests/test_pii.py`,
   `tests/test_injection.py`, `tests/test_evidence_verifier.py`,
   `tests/test_claim_extraction.py`, `tests/test_skill_normalizer.py`,
   `tests/test_profiler_agent.py`, `tests/test_github_client.py`,
-  `tests/test_learners_api.py`, `tests/test_commit.py` (all new, Phase 2)
+  `tests/test_learners_api.py`, `tests/test_commit.py` (all new, Phase 2);
+  `tests/test_gap_engine.py`, `tests/test_gap_api.py` (all new, Phase 4)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -522,7 +648,11 @@ already exists from Phase 3, `PracticeTask`, `Assessment`,
 `LearningActivity`, `StruggleSignal`, `WeeklyPlan`, `PlanItem`,
 `PlanRevision`, `ReflectionRecord`, `DecisionRecord`, `AgentRun`,
 `AgentStep`, ...) exists yet — each is created by the migration the owning
-phase adds.
+phase adds. **Phase 4 (Gap Engine) added no migration**: `SkillGap`/
+`LearningObjective` results are computed on demand from existing tables
+(`learner_skill_states`, `evidence`) plus the in-memory graph, not persisted
+— see ARCHITECTURE_CONTRACTS.md §4's "Decided (Phase 4)" note and
+"Architectural Decisions" below.
 
 ### Domain Knowledge Pack
 
@@ -577,17 +707,18 @@ Current state: **validates with 0 errors and 0 warnings.**
 
 ### API Status
 
-Six endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
+Seven endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
 (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
-`POST /api/learners/me/claims/confirm`. The rest of design §27's table
-(target-role change, gaps, plans, practice, chat, dispute, progress,
-decisions, demo seed) is not implemented yet — each needs the Gap
-Engine/Planner/Assessor/Reflection this phase explicitly excluded.
+`POST /api/learners/me/claims/confirm`, `GET /api/learners/me/gaps` (new,
+Phase 4 — optional `?role=` override). The rest of design §27's table
+(target-role change, plans, practice, chat, dispute, progress, decisions,
+demo seed) is not implemented yet — each needs the Planner/Assessor/
+Reflection later phases explicitly exclude.
 `SkillGraphService`/`CatalogRepository` (Phase 3) are still internal
-services with no direct HTTP surface of their own; the intake route reads
-`CatalogRepository.get_role` for role validation, but nothing exposes
-`/skills/{id}` or similar yet.
+services with no direct HTTP surface of their own beyond `/gaps`; the intake
+route reads `CatalogRepository.get_role` for role validation, but nothing
+exposes `/skills/{id}` or similar yet.
 
 ### Agent Status
 
@@ -598,11 +729,14 @@ Only one LangGraph business graph exists for real: G1 Onboarding
 (`build_onboarding_graph`); G2/G3/G4 remain placeholders naming their owning
 phase (5, 8, 9). No agent other than the Profiler has tool access, and the
 Profiler's tools (`parse_document`'s underlying parsing, `github_repo_summary`)
-have no side effects, per ARCHITECTURE_CONTRACTS.md §13.
+have no side effects, per ARCHITECTURE_CONTRACTS.md §13. The Gap Engine
+(Phase 4) is **not** an LLM agent — it is one of the deterministic services
+ARCHITECTURE_CONTRACTS.md §2 explicitly excludes from that list; no LLM call
+exists anywhere in `app/gap/`.
 
 ### Tests Status
 
-Backend: **160 tests, all passing** (`backend/tests/`) — run with
+Backend: **201 tests, all passing** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
@@ -611,7 +745,10 @@ subgraph/path-explanation queries, embedding gateway determinism) plus
 Phase 2's 106 (document parsing, PII/injection, evidence verification,
 claim extraction, skill normalization, the Profiler Agent, the GitHub tool,
 the full learners API, evidence commit — see the Phase 2 "Tests" bullet
-under "Completed Work" above for the exact breakdown). All run against
+under "Completed Work" above for the exact breakdown) plus Phase 4's 41
+(Gap Engine statuses/BLOCKED overlay/audit flags/learning objectives, the
+`/gaps` API route, two new `SkillGraphService` methods — see the Phase 4
+"Tests" bullet under "Completed Work" above). All run against
 SQLite (`tests/conftest.py`'s existing dialect-portability convention); the
 Postgres-only catalog paths
 (`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
@@ -655,15 +792,14 @@ one.
 - Docker Desktop must be running before `docker compose up`; if its engine
   is stopped, compose fails at the daemon connection (not a config issue —
   `docker compose config` validates independent of the daemon).
-- The Skill Graph is not yet loaded at app startup (`app/main.py`'s
-  `lifespan`) — Phase 3 built the loader, Phase 2's `onboarding.py` builds a
-  fresh `SkillNormalizer`/`DeterministicClaimExtractor` from the catalog on
-  every document-upload request instead of reusing a startup-loaded
-  singleton (acceptable at 158 skills / SQLite-in-memory-pool speed, but a
-  real per-request cost at Postgres scale). Wire a shared, startup-loaded
-  graph/catalog cache in alongside Phase 4's first real caller (the Gap
-  Engine will need the same NetworkX graph) rather than loading it
-  speculatively now, and have Phase 2's services reuse it too.
+- **(Resolved, Phase 4)** The Skill Graph is now loaded at app startup
+  (`app/main.py`'s `lifespan`, cached on `app.state.skill_graph_service`) —
+  see "Completed Work" above. Phase 2's `onboarding.py` still builds a fresh
+  `SkillNormalizer`/`DeterministicClaimExtractor` from the catalog on every
+  document-upload request rather than reusing the startup-loaded graph
+  (acceptable at 158 skills / SQLite-in-memory-pool speed, real per-request
+  cost at Postgres scale) — that migration to the shared cache is still
+  open, now that the cache itself exists.
 - `CatalogRepository.search_resources_by_text`/`search_resources_by_vector`
   raise `NotImplementedError` under SQLite (Postgres-only SQL/operators) —
   by design, but it means the automated test suite cannot exercise them; they
@@ -692,6 +828,29 @@ one.
   indefinitely. No garbage-collection job exists yet; not a correctness bug
   (claims are learner-scoped and harmless at rest) but worth a TTL/cleanup
   pass before a long-lived deployment.
+- **(Phase 4)** With this project's evidence-tier priors (E0-E2 Beta counts,
+  ARCHITECTURE_CONTRACTS.md §3), the mastery *estimate* (`alpha/(alpha+beta)`)
+  caps at 0.4 for E1/E2 — below every level's mastery threshold (L1 ≥ 0.50).
+  So pre-assessment evidence (everything this project can produce today,
+  since the Mastery Updater is Phase 7) lands `WEAK` at best, never `MET`,
+  even a strong E2 artifact like a verified GitHub repo. This is a faithful
+  implementation of the tier-gate contract as numerically specified, not a
+  Gap Engine bug — see ARCHITECTURE_CONTRACTS.md §3's note and
+  "Architectural Decisions" below for the full reasoning. It does mean
+  design §13.4's worked example (Python `MET` from GitHub evidence alone)
+  won't reproduce exactly until Phase 7 lands or the priors are retuned.
+- **(Phase 4)** `LearningObjective.est_minutes_low/high` are always `None` —
+  deferred to the Resource Retriever/Ranker (Phase 6, design §14.3/§15),
+  not duplicated here (design §14.1 explicitly avoids mixing retrieval
+  planes). `acceptance_criteria` also omits design §13.5's
+  `no_open_misconceptions_for(skill)` clause — no per-learner misconception
+  status table exists yet (design's `Learner -HAS_MISCONCEPTION-> Misconception`
+  overlay isn't built; only the curated, global `Misconception` node is).
+  Add both once their owning phase/table exists.
+- **(Phase 4)** `POST /api/learners/me/skills/{skill_id}/dispute` (design
+  §12.4: disputing an audit flag) is not implemented — audit flags are
+  emitted every call, never suppressed or remembered as disputed. A later
+  phase should add the dispute table/endpoint if this matters before a demo.
 
 ### Architectural Decisions
 
@@ -762,6 +921,33 @@ one.
   source can get E2 tier automatically (`is_github_source=True` flows
   straight into the existing tier-assignment rule) instead of needing a
   parallel tier-assignment implementation.
+- **(Phase 4)** Gap results are computed on demand, not persisted (no new
+  migration this phase) — see ARCHITECTURE_CONTRACTS.md §4's "Decided
+  (Phase 4)" for the full reasoning against design §10.6's read/write
+  matrix. `objective_id_for(role_id, skill_id)` is a deterministic string,
+  not a `uuid4`, specifically so `LearningObjective` IDs stay stable and
+  referenceable across calls without a table backing them.
+- **(Phase 4)** `analyze_gaps` is a pure function over `SkillGraphService`
+  plus two small record types (`LearnerSkillRecord`, `EvidenceRecord`), not
+  a class or a service that reads the DB itself — the API route
+  (`app/api/v1/gap.py`) does the ORM-row-to-record conversion. This mirrors
+  `app/graph/queries.py`'s existing shape and is what makes the whole
+  algorithm unit-testable with hand-built fixtures and no DB/session at all.
+- **(Phase 4)** `claim_evidence_mismatch` (design §12.4) deliberately scans
+  every claimed skill graph-wide for a `PART_OF` parent, rather than
+  restricting the parent search to the current role's scope like the other
+  two audit rules do. A `PART_OF` parent (e.g. `skill.math_for_ml`,
+  `skill.backend_fundamentals`) is normally an umbrella node with no
+  `PREREQUISITE_OF` edges of its own, so it is typically *not* a
+  hard-ancestor of any role-required skill and therefore never appears in
+  any role's derived subgraph — scoping the parent search would silently
+  make this rule never fire. Children are still scope-restricted so the
+  flag only names gaps relevant to the current role.
+- **(Phase 4)** `SkillGapEntry.status` is the user-facing status (`BLOCKED`
+  overlays the raw diagnosis, per design §13.2); the raw diagnosis survives
+  on `.gap_type` (lowercase: `met`/`weak`/`unverified`/`missing`). This
+  keeps `BLOCKED`'s "why" inspectable (`blocked_by[]` plus `gap_type`)
+  without needing a second lookup.
 
 ### Contract Changes
 
@@ -787,54 +973,66 @@ own §5/§9 additions:
   accepts one file (or one `github_url`) per call, not the batched
   `file(s)` design §27's table shows — see "Known Issues".
 
+`docs/ARCHITECTURE_CONTRACTS.md` §4, §5, §6, and §7 updated this phase
+(Phase 4, Gap Engine):
+- §4: pointed to `backend/app/gap/engine.py` as the implementation and
+  recorded the "computed on demand, not persisted" decision.
+- §5: recorded the two new `SkillGraphService` methods and the startup
+  lifespan wiring (previously an open item from Phase 3).
+- §6: noted `SkillGap`/`LearningObjective` now have real field lists.
+- §3 (tier gate): recorded where the level thresholds now live
+  (`backend/app/core/thresholds.py`) and the mastery-priors-cap-at-WEAK
+  nuance (see "Known Issues").
+
 ### Next Phase
 
-**Phase 4 — Gap analysis** (design §39.1, §13): the deterministic Gap Engine
-(`analyze_gaps(role, learner, graph)`, design §13.3) that compares the
-target-role subgraph (`SkillGraphService.role_subgraph`, implemented Phase 3)
-against a learner's evidence/mastery (`LearnerSkillState`, `Evidence`,
-implemented Phase 2 — real learner data can now flow into it, not just the
-seeded demo state) to produce `SkillGap[]`
-(MET/WEAK/UNVERIFIED/MISSING/BLOCKED), `strengths[]`, `audit_flags[]`, and
-`LearningObjective[]`. This is also where the NetworkX graph should get
-wired into `app/main.py`'s startup lifespan for the first time, replacing
-Phase 2's per-request catalog reads with a shared loaded graph (see "Known
-Issues" above).
+**Phase 5 — Planner** (design §39.1, §16-§19): the Planner Agent (draft/patch
+modes) plus the deterministic Plan Validator (V1-V10, ARCHITECTURE_CONTRACTS.md
+§10) and Fallback Planner, consuming the Gap Engine's `LearningObjective[]`
+(Phase 4, implemented — `GET /api/learners/me/gaps`) and the Resource
+Retriever/Ranker's `ResourceRecommendation[]` (Phase 6 — likely needs to land
+first or alongside, since the Planner needs real candidates to schedule, not
+just objectives) to produce a `WeeklyPlan`/`PlanItem[]`.
 
-Still open on **Phase 3** itself (does not block Phase 4, but should happen
-before this graph is trusted in a real demo): a human review pass over the
-curated content (§11.5) — every edge/resource/misconception/item still shows
+Still open on **Phase 3**: a human review pass over the curated content
+(§11.5) — every edge/resource/misconception/item still shows
 `reviewed_by: "edupath-phase3-curation"`, a placeholder — and a live
 HEAD-request link-validation sweep over the 140 resource URLs (`link_status`
 is currently a spot-check, not a full crawl).
 
-Also still open on **Phase 2**: a Postgres-backed LLM Gateway replay cache
-(now overdue — the Profiler is a real agent call); wiring a shared,
-startup-loaded catalog/graph cache instead of Phase 2's per-request
-`SkillNormalizer`/`DeterministicClaimExtractor` construction; true
-multi-file document upload (currently one file per call).
+Still open on **Phase 2**: a Postgres-backed LLM Gateway replay cache (now
+overdue — the Profiler is a real agent call); wiring Phase 2's per-request
+`SkillNormalizer`/`DeterministicClaimExtractor` construction onto the
+startup-loaded graph cache Phase 4 introduced; true multi-file document
+upload (currently one file per call).
+
+Still open on **Phase 4**: `LearningObjective.est_minutes_low/high` (needs
+Phase 6's Resource Retriever); the `no_open_misconceptions_for(skill)`
+acceptance-criteria clause (needs a per-learner misconception status table,
+not built yet); the skill-dispute endpoint (design §12.4,
+`POST /api/learners/me/skills/{skill_id}/dispute`).
 
 ### Exact Next Task
 
-1. For Phase 4 code: implement the Gap Engine as a deterministic service
-   (`app/gap/`, per ARCHITECTURE_CONTRACTS.md §12's package-naming
-   convention) implementing design §13.3's `analyze_gaps` algorithm on top of
-   `SkillGraphService.role_subgraph`/`hard_ancestors`/`topological_layers`
-   (Phase 3) and `ProfilingRepository.list_skill_states_for_learner`/
-   `list_evidence_for_learner` (Phase 2, both already implemented); add
-   `GET /api/learners/me/gaps` (or similar, per design §27); wire
-   `GraphLoader` into `app/main.py`'s lifespan so the NetworkX graph is
-   loaded once at startup rather than per-request, and have
-   `app/profiling/onboarding.py` reuse that shared instance too.
-2. Test Phase 4 against real learner data created via Phase 2's intake +
-   document-upload + confirm flow (no longer only the seeded demo learner
-   state) — e.g. run the exact sequence `test_learners_api.py` exercises,
-   then feed the resulting `LearnerSkillState` rows into `analyze_gaps`.
-3. Before trusting this graph in a live demo: run the human review pass and
+1. For Phase 5/6 code: decide whether the Resource Retriever/Ranker (Phase
+   6, design §14.3/§15 — eligibility filter, hybrid retrieval, ranking
+   formula, MMR diversification) lands before or alongside the Planner,
+   since a `WeeklyPlan` needs real `ResourceRecommendation[]` to schedule,
+   not just `LearningObjective[]`. The design doc orders these 5 then 6, but
+   a Planner with no resources to place has nothing to validate against V1
+   (time budget)/V4 (difficulty band).
+2. Implement the Planner Agent (`app/agents/planner.py`, currently a
+   placeholder) in draft/patch modes per design §16-§17, plus the
+   deterministic Plan Validator (`app/planning/` per the package-naming
+   convention) enforcing V1-V10 and the always-succeeds Fallback Planner
+   (ARCHITECTURE_CONTRACTS.md §10).
+3. Test against real Gap Engine output from Phase 2's intake + document
+   flow (`GET /api/learners/me/gaps`), not just the seeded demo state.
+4. Before trusting the graph in a live demo: run the human review pass and
    live link-validation sweep noted above (Phase 3 remaining work).
-4. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
+5. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
    now overdue since the Profiler is a real agent call) before adding more
-   agents on top of the same gap.
+   agents (Planner) on top of the same gap.
 
 ### Commands To Verify Current State
 

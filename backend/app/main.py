@@ -26,6 +26,29 @@ async def lifespan(app: FastAPI):
     # Fail fast at startup if the orchestration framework doesn't compile
     # (design §30: graph load failure should fail fast, not degrade silently).
     build_bootstrap_graph()
+
+    # Best-effort: load the curated Skill Graph once at startup and cache it
+    # on app.state (ARCHITECTURE_CONTRACTS.md §5 "loaded... at process
+    # startup"; IMPLEMENTATION_STATE.md's "Known Issues" flagged this as
+    # owed to the Gap Engine's first real caller). Not fail-fast, unlike the
+    # orchestration graph above: an empty/not-yet-seeded catalog is a normal
+    # pre-`seed_catalog.py` state (e.g. a fresh dev DB), not a startup bug --
+    # `app.api.deps.get_skill_graph_service` falls back to a per-request load
+    # whenever this cache is absent.
+    app.state.skill_graph_service = None
+    try:
+        from app.db.session import SessionLocal
+        from app.graph.loader import GraphLoader
+        from app.graph.queries import SkillGraphService
+        from app.repositories.catalog_repository import CatalogRepository
+
+        async with SessionLocal() as session:
+            skill_graph = await GraphLoader(CatalogRepository(session)).load()
+        app.state.skill_graph_service = SkillGraphService(skill_graph)
+        logger.info("edupath.startup.skill_graph_loaded", graph_version=skill_graph.graph_version)
+    except Exception:  # noqa: BLE001 -- degrade, never block startup on this
+        logger.warning("edupath.startup.skill_graph_load_failed", exc_info=True)
+
     logger.info("edupath.startup", env=settings.env, demo_mode=settings.demo_mode)
     yield
     logger.info("edupath.shutdown")

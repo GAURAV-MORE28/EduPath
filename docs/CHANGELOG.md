@@ -8,6 +8,80 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 4 | 2026-09-19] Skill-Gap Engine
+
+- Added `backend/app/gap/engine.py` (design §12 naming convention,
+  `gap/` package): `analyze_gaps(role_id, skill_records, evidence_records,
+  graph)` — design §13.3's algorithm implemented close to verbatim, as a
+  **pure function** (no DB/session, no gateway/agent import in the module —
+  ARCHITECTURE_CONTRACTS.md §4: "100% deterministic... no LLM in the
+  decision path"). Computes required level per scope skill, the tier-gated
+  status (`MET`/`WEAK`/`UNVERIFIED`/`MISSING`), the `BLOCKED` overlay
+  (`WEAK`/`MISSING` prerequisites block, `UNVERIFIED` does not — design
+  §13.2), priority (`weight * (1 + log(1 + unmet_dependents))`) and
+  topological ordering layers, the three design §12.4 audit flags
+  (`claimed_without_evidence`, `stale_or_weak_evidence`,
+  `claim_evidence_mismatch` — the last replicating the design's "Full Stack
+  claimed, evidence only for React" example via real `PART_OF` umbrella
+  skills), and `LearningObjective[]` (design §13.5) — `UNVERIFIED` gaps
+  become `objective_type="probe"` (**verify-before-teach**, the phase
+  brief's explicit requirement), never a beginner lesson.
+- New level-threshold constants in `backend/app/core/thresholds.py`
+  (`LEVEL_MASTERY_THRESHOLD`, `LEVEL_TIER_REQUIRED`, `LEVEL_MIN_N_OBS`) —
+  ARCHITECTURE_CONTRACTS.md §3's tier gate, kept in one place per §14.
+- Two new `SkillGraphService` methods (`backend/app/graph/queries.py`):
+  `hard_prerequisite_out_edges` (min_level-aware, needed for §13.3's
+  required-level formula) and `part_of_children` (needed for the
+  claim-evidence-mismatch audit).
+- Wired the NetworkX Skill Graph into `app/main.py`'s startup lifespan for
+  the first time (cached on `app.state.skill_graph_service`, best-effort —
+  an unseeded catalog degrades, doesn't fail startup); `app/api/deps.py`'s
+  new `get_skill_graph_service` dependency reads that cache and falls back
+  to a fresh per-request load when it's absent.
+- Added `GET /api/learners/me/gaps` (`backend/app/api/v1/gap.py`, design
+  §27): optional `?role=` override, defaults to the learner's
+  `target_role_id`. A bare deterministic-service call, no LangGraph run.
+  Returns full role-subgraph coverage (`gaps[]`, including `MET` entries),
+  `strengths[]`, `audit_flags[]`, `objectives[]`, `layers[]`, and
+  `prerequisite_edges[]` — the last two specifically so a frontend can
+  render the gap graph.
+- `SkillGap`/`LearningObjective` (`backend/app/schemas/common.py`) got their
+  real design §25.2 field lists this phase, replacing the Phase 1
+  `{id fields..., data: dict}` placeholders. New
+  `backend/app/schemas/gap.py` for the response-only supporting types
+  (`Strength`, `AuditFlag`, `GapGraphEdge`, `GapReport`).
+- **Decided:** gap results are computed on demand, not persisted — no new
+  migration this phase. See `docs/ARCHITECTURE_CONTRACTS.md` §4's "Decided
+  (Phase 4)" entry for the reasoning against design §10.6's read/write
+  matrix, and `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural
+  Decisions" for the rest of this phase's judgment calls (notably: this
+  project's evidence-tier priors cap the mastery estimate at 0.4, below
+  every level's `MET` threshold, so pre-assessment evidence lands `WEAK`
+  at best until Phase 7's Mastery Updater exists — a faithful consequence
+  of the tier-gate contract's fixed numbers, not a Gap Engine defect).
+- 41 new backend tests: `tests/test_gap_engine.py` (29, mostly against the
+  real curated dataset via `catalog_session`/`graph_service`, a few against
+  a small hand-built `tiny_graph_service` fixture — built directly via
+  `GraphLoader.build`, no DB — where the real data's incidental complexity,
+  e.g. `skill.backpropagation` having three hard prerequisites rather than
+  one, would make a single-variable assertion fragile), `tests/test_gap_api.py`
+  (8, full HTTP-layer flow via the existing `app_client` fixture), plus 4 in
+  `tests/test_graph_queries.py` for the two new `SkillGraphService` methods.
+  **201 tests total, all passing** (160 from Phase 1-3, 41 new).
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §3 (tier-gate implementation
+  pointer + the mastery-priors nuance), §4 (Gap Engine implementation
+  pointer + the no-persistence decision), §5 (two new graph-query methods;
+  startup lifespan wiring, resolving a Phase 3 open item), and §6
+  (`SkillGap`/`LearningObjective` now have real field lists).
+- **Not implemented this phase (out of scope, per design's phase
+  ordering):** planning, assessment, reflection. Also not implemented:
+  `LearningObjective.est_minutes_low/high` (needs Phase 6's Resource
+  Retriever), the `no_open_misconceptions_for(skill)` acceptance-criteria
+  clause (needs a per-learner misconception status table), and the
+  skill-dispute endpoint (design §12.4).
+
+---
+
 ## [Phase 2 | 2026-09-19] Learner Profiling + Evidence Pipeline
 
 - Added `backend/app/profiling/` (design §12 naming convention): document

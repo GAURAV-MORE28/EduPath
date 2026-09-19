@@ -144,6 +144,36 @@ async def test_resources_targeting_chain_rule(graph_service: SkillGraphService) 
 
 
 @pytest.mark.asyncio
+async def test_hard_prerequisite_out_edges_include_min_level(graph_service: SkillGraphService) -> None:
+    # skill.chain_rule -[hard]-> skill.backpropagation (design §13.4's demo edge).
+    out_edges = graph_service.hard_prerequisite_out_edges("skill.chain_rule")
+    targets = {to for to, _ in out_edges}
+    assert "skill.backpropagation" in targets
+    assert all(isinstance(min_level, int) for _, min_level in out_edges)
+
+
+@pytest.mark.asyncio
+async def test_hard_prerequisite_out_edges_excludes_soft_and_other_types(graph_service: SkillGraphService) -> None:
+    hard_targets = {to for to, _ in graph_service.hard_prerequisite_out_edges("skill.python")}
+    all_dependents = set(graph_service.direct_dependents("skill.python", include_soft=True))
+    assert hard_targets <= all_dependents
+    # skill.python -> skill.python_venv_packaging is SOFT in the curated pack.
+    assert "skill.python_venv_packaging" not in hard_targets
+
+
+@pytest.mark.asyncio
+async def test_part_of_children_of_math_for_ml_umbrella(graph_service: SkillGraphService) -> None:
+    children = graph_service.part_of_children("skill.math_for_ml")
+    assert "skill.chain_rule" in children
+    assert "skill.derivatives" in children
+
+
+@pytest.mark.asyncio
+async def test_part_of_children_empty_for_a_leaf_skill(graph_service: SkillGraphService) -> None:
+    assert graph_service.part_of_children("skill.chain_rule") == []
+
+
+@pytest.mark.asyncio
 async def test_misconceptions_for_skill_and_remediation(graph_service: SkillGraphService) -> None:
     miscs = graph_service.misconceptions_for_skill("skill.backpropagation")
     assert "misc.chain_rule_sum" in miscs

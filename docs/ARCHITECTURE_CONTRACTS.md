@@ -65,6 +65,18 @@ empirical constants (see design doc's header note). Do not present them as deriv
 - L3 (Proficient) ≥ 0.85 mastery, min tier E3, `n_obs ≥ 3`
 
 A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`.
+**Implemented (Phase 4):** `backend/app/core/thresholds.py`'s
+`LEVEL_MASTERY_THRESHOLD`/`LEVEL_TIER_REQUIRED`/`LEVEL_MIN_N_OBS`, consumed
+by the Gap Engine's `_level_met` (`backend/app/gap/engine.py`). Note: this
+project's evidence-tier priors (this section, above) cap the Beta-count
+mastery *estimate* at 0.4 (E1/E2's `alpha/(alpha+beta)`) until real assessed
+observations exist — so in practice, pre-assessment E1/E2 evidence lands
+`WEAK` under this gate, not `MET`, even for a strong artifact like a GitHub
+repo. `MET` from evidence alone (design §13.4's worked example) requires the
+Mastery Updater (Phase 7) to accumulate real assessed `alpha`/`beta`; this is
+an intentional consequence of this section's fixed priors combined with
+§13.4 being an aspirational full-system illustration, not a Phase 4 defect —
+see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
 
 ## 4. Skill-gap statuses
 
@@ -75,6 +87,27 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   does **not** block (it gets probed first).
 - Gap analysis is 100% deterministic (Gap Engine). No LLM in the decision path — an
   LLM may only narrate the result afterward.
+- **Implemented (Phase 4):** `backend/app/gap/engine.py`'s `analyze_gaps` —
+  design §13.3's algorithm verbatim (required-level computation, the tier
+  gate, the BLOCKED overlay, priority/topological layering), plus §12.4's
+  three audit-flag types and §13.5's `LearningObjective` generation. A pure
+  function over `SkillGraphService` (Phase 3) and two small
+  framework-independent record types (no DB/gateway import in the module) —
+  see that file's docstring. Exposed via `GET /api/learners/me/gaps`
+  (`backend/app/api/v1/gap.py`), a bare deterministic-service call per design
+  §27's table (no LangGraph run, matching that table's empty "Orchestrator"
+  column for this endpoint).
+- **Decided (Phase 4):** Gap analysis results (`SkillGap[]`/`LearningObjective[]`)
+  are **computed on demand, not persisted** — no new Postgres tables were
+  added this phase. Design §10.6's read/write matrix lists Gap Engine as
+  writing these, but §12.1 already establishes the same "derived view, not
+  stored, recomputed on demand" pattern for the target-role subgraph itself;
+  this phase extends that pattern rather than introducing new tables, since
+  recomputation is cheap (a NetworkX traversal over an in-memory graph) and
+  `LearningObjective.objective_id` is a deterministic `obj.<role_id>.<skill_id>`
+  string (`objective_id_for`), stable across calls without a table backing
+  it. Revisit if a later phase (Planner) needs to reference a specific gap
+  run's output after the underlying evidence has since changed.
 
 ## 5. Knowledge graph conventions
 
@@ -111,9 +144,17 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   from those tables (all nine closed-set edge types materialized regardless of
   which table an edge's data lives in); `backend/app/graph/queries.py`
   (`SkillGraphService`) provides ancestor/descendant, topological-order,
-  role-subgraph and prerequisite-path-explanation queries. Not yet wired into
-  `app/main.py`'s startup lifespan (no API routes read the graph yet) — that
-  integration is Phase 4's (Gap Engine) to add alongside its first real caller.
+  role-subgraph and prerequisite-path-explanation queries; also (Phase 4)
+  `hard_prerequisite_out_edges` (min_level-aware) and `part_of_children`, both
+  added for the Gap Engine below.
+- **Wired into `app/main.py`'s startup lifespan (Phase 4, Gap Engine):** the
+  graph is loaded once at process startup and cached on
+  `app.state.skill_graph_service`. Best-effort, not fail-fast (unlike the
+  LangGraph bootstrap check) — an empty/not-yet-seeded catalog is a normal
+  pre-`seed_catalog.py` state, not a startup bug.
+  `app/api/deps.py`'s `get_skill_graph_service` dependency reads that cache
+  and falls back to a fresh per-request load when it's absent (e.g. the test
+  suite's ASGI transport never drives the lifespan at all).
 
 ## 6. Agent I/O contract
 
@@ -128,7 +169,8 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
 - Core schema names (see design §25.2 for full field lists): `LearnerState`,
   `SkillState`, `SkillGap`, `LearningObjective`, `ResourceRecommendation`,
   `WeeklyPlan`, `PlanItem`, `AssessmentResult`, `StruggleSignal`, `ReflectionResult`,
-  `ReplanRequest`, `ProgressReport`.
+  `ReplanRequest`, `ProgressReport`. **`SkillGap`/`LearningObjective` implemented
+  (Phase 4):** `backend/app/schemas/common.py`, real §25.2 field lists.
 
 ## 7. IDs
 

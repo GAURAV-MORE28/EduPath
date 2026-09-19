@@ -10,11 +10,14 @@ this only establishes the boundary so later routers cannot accidentally take
 """
 from __future__ import annotations
 
-from fastapi import Cookie, Depends, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, Request, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
 from app.db.session import get_session
+from app.graph.loader import GraphLoader
+from app.graph.queries import SkillGraphService
+from app.repositories.catalog_repository import CatalogRepository
 from app.repositories.profiling_repository import ProfilingRepository
 
 
@@ -49,3 +52,27 @@ async def get_current_learner_id(
             status_code=status.HTTP_404_NOT_FOUND, detail="No learner profile for this user yet — complete intake first"
         )
     return profile.learner_id
+
+
+async def get_skill_graph_service(
+    request: Request,
+    db_session: AsyncSession = Depends(get_session),
+) -> SkillGraphService:
+    """The Gap Engine's read-only view of the curated Skill Graph (Phase 3).
+
+    Prefers the singleton loaded once at process startup (`app/main.py`'s
+    lifespan, per ARCHITECTURE_CONTRACTS.md §5: "loaded from Postgres into
+    NetworkX at process startup" -- and IMPLEMENTATION_STATE.md's "Known
+    Issues": wiring this in is Phase 4's job, alongside its first real
+    caller). Falls back to a fresh per-request load when the cache isn't
+    populated -- startup didn't reach it yet, the catalog wasn't seeded when
+    the process started, or (as today) the test suite's `app_client` fixture
+    never drives the ASGI lifespan at all. This mirrors the same
+    per-request-build tradeoff Phase 2's `SkillNormalizer` already made
+    (acceptable at 158-skill / SQLite-in-memory-pool scale).
+    """
+    cached = getattr(request.app.state, "skill_graph_service", None)
+    if cached is not None:
+        return cached
+    skill_graph = await GraphLoader(CatalogRepository(db_session)).load()
+    return SkillGraphService(skill_graph)

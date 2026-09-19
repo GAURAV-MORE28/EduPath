@@ -4,6 +4,10 @@ Phase 1 only needs these to exist as typed placeholders so the orchestration
 skeleton, gateway, and API layer have something concrete to import. Full field
 lists are defined when each owning phase (2, 4, 5, 7, 8, 9) is implemented —
 do not add business fields here ahead of that work.
+
+`SkillGap` and `LearningObjective` got their real §25.2 field lists this
+phase (Gap Engine, `app/gap/engine.py`) — see `app/schemas/gap.py` for the
+full gap-report response shape built on top of them.
 """
 from __future__ import annotations
 
@@ -24,15 +28,41 @@ class SkillState(BaseModel):
 
 
 class SkillGap(BaseModel):
+    """design §25.2. Produced by the Gap Engine (`app/gap/engine.py`'s
+    `SkillGapEntry`, mapped 1:1 by `app/api/v1/gap.py`). `status` is the
+    user-facing status (`BLOCKED` overlays the raw diagnosis); `gap_type` is
+    that raw diagnosis (`met`/`weak`/`unverified`/`missing`) underneath it.
+    """
+
     skill_id: str
+    label: str
     status: str  # MET | WEAK | UNVERIFIED | MISSING | BLOCKED
-    data: dict[str, Any] = {}
+    gap_type: str
+    required_level: int
+    current_level: int
+    blocked_by: list[str] = []
+    root_of: list[str] = []
+    priority: float = 0.0
+    ordering_layer: int = -1
+    evidence_ids: list[str] = []
+    audit_flags: list[str] = []
 
 
 class LearningObjective(BaseModel):
+    """design §25.2/§13.5. `objective_type="probe"` is how the Gap Engine
+    implements verify-before-teach for `UNVERIFIED` gaps (Phase 5 brief)."""
+
     objective_id: str
     skill_id: str
-    data: dict[str, Any] = {}
+    from_status: str
+    objective_type: str  # "probe" | "lesson"
+    target_level: int
+    priority: float
+    prerequisite_objective_ids: list[str] = []
+    acceptance_criteria: dict[str, Any] = {}
+    est_minutes_low: int | None = None
+    est_minutes_high: int | None = None
+    reason_ref: str = ""
 
 
 class ResourceRecommendation(BaseModel):

@@ -31,3 +31,18 @@ def max_tier(tiers: list[str]) -> str:
 MASTERY_BAND_LEARNING_MAX = 0.55
 MASTERY_BAND_DEVELOPING_MAX = 0.75
 MASTERY_BAND_PROFICIENT_MIN_N_OBS = 3
+
+
+# design §10.4 "Level mapping (for role requirements)" / ARCHITECTURE_CONTRACTS.md
+# §3 "Tier gate for MET" — the Gap Engine's tier-gate thresholds (Phase 4/§13).
+# L1 Foundational, L2 Working, L3 Proficient. Keyed by the integer level, since
+# `RoleRequirement.required_level` and `SkillEdge.min_level` are plain ints (1-3).
+LEVEL_MASTERY_THRESHOLD: dict[int, float] = {1: 0.50, 2: 0.70, 3: 0.85}
+
+# Minimum evidence tier required at each level ("L2: E2 or E3" is expressed via
+# `tier_at_least`, since TIER_ORDER already orders E2 below E3).
+LEVEL_TIER_REQUIRED: dict[int, str] = {1: "E1", 2: "E2", 3: "E3"}
+
+# Only L3 (Proficient) requires a minimum observation count under the tier gate;
+# L1/L2 have no such requirement (ARCHITECTURE_CONTRACTS.md §3).
+LEVEL_MIN_N_OBS: dict[int, int] = {3: 3}
