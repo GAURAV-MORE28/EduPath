@@ -131,6 +131,33 @@ class CatalogRepository:
         result = await self.session.execute(select(Role).where(Role.role_id == role_id))
         return result.scalar_one_or_none()
 
+    async def get_resources_by_ids(self, resource_ids: list[str]) -> list[Resource]:
+        """Resolve a set of `resource_id`s back to full `Resource` rows —
+        used by the Planner (Phase 5) to get duration/title/etc. for
+        resources the Ranker (Phase 6) already selected and scored (the
+        Ranker's own output, `ResourceRecommendation`, deliberately carries
+        no resource metadata beyond the ID -- see `app/retrieval/ranker.py`).
+        Returns fewer rows than requested only if an ID is stale (a
+        re-ingested catalog dropped it), never raises.
+        """
+        if not resource_ids:
+            return []
+        result = await self.session.execute(select(Resource).where(Resource.resource_id.in_(resource_ids)))
+        return list(result.scalars().all())
+
+    async def get_practice_items_for_skill(self, skill_id: str, purpose: str | None = None) -> list[PracticeItem]:
+        """Curated `PracticeItem`s that `ASSESSES` `skill_id` (design §11.3),
+        optionally filtered to one `purpose` (`probe` for verify-before-teach,
+        `practice` for V7 practice pairing, design §13.5/§17.2). The item
+        bank is an *initial* one (data/README.md: 95 items / 23 skills) --
+        callers must handle an empty result, never invent a practice item.
+        """
+        stmt = select(PracticeItem).where(PracticeItem.skill_id == skill_id)
+        if purpose is not None:
+            stmt = stmt.where(PracticeItem.purpose == purpose)
+        result = await self.session.execute(stmt)
+        return list(result.scalars().all())
+
     async def get_resources_targeting_skill(self, skill_id: str) -> list[tuple[Resource, ResourceSkill]]:
         """`(Resource, ResourceSkill)` pairs for every `TARGETS` edge into
         `skill_id` — the Resource Retriever's (Phase 6) raw candidate pool

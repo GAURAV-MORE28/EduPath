@@ -8,6 +8,117 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 5 | 2026-09-19] Personalized Learning Planner
+
+- Added `backend/app/planning/` (design §16-§17; ARCHITECTURE_CONTRACTS.md
+  §10, new §16 — already named in §12's package-naming convention list):
+  - `candidates.py`: `build_candidate_sets()` — async orchestration turning
+    the Gap Engine's `LearningObjective[]` (Phase 4) into one
+    `ObjectiveCandidateSet` per objective, via the Resource
+    Retriever/Ranker (Phase 6, `ResourceRetrievalService.recommend_for_skill`)
+    for `"lesson"` objectives and curated `PracticeItem`s (new
+    `CatalogRepository.get_practice_items_for_skill(skill_id, purpose=...)`)
+    for both. New `CatalogRepository.get_resources_by_ids` re-attaches
+    resource metadata the Ranker's own output doesn't carry.
+  - `prompting.py`: Planner Agent prompt/parse. `parse_planner_response`
+    rejects any resource_id/practice_item_id/objective_id not present in
+    the candidate set as a parse error — an invented ID is treated exactly
+    like malformed JSON (retry-then-degrade), never silently accepted.
+  - `validator.py`: `validate_plan()` — a **pure function** (no DB/gateway
+    import) implementing design §17.2's V1-V7, V9, V10, plus two additive
+    checks from the phase brief (`V_no_unjustified_duplicates`, hard;
+    `V_required_objective_coverage`, soft — deliberately soft, since a
+    genuinely impossible candidate set can make full coverage unreachable
+    for any planner). V8 has no `StruggleSignal` source yet and is a no-op.
+  - `fallback.py`: `build_fallback_plan()` — design §16.4's greedy,
+    priority-then-topological-layer walk, pure and templated (no LLM). Its
+    own output is re-validated against `validate_plan()` directly in tests
+    to prove ARCHITECTURE_CONTRACTS.md §10's "always produces a valid plan"
+    contract, not just asserted on item counts.
+  - `service.py`: `create_plan()` (draft mode) and `patch_existing_plan()`
+    (patch mode, design §16/§20 — a capability for Reflection, Phase 8, to
+    call later; this phase does not decide *when* a patch is warranted).
+    Both run the G2 graph then persist a new `PlanRevision`/`PlanItem` set.
+- Implemented the real Planner Agent (`backend/app/agents/planner.py`):
+  two modes (`"draft"`/`"patch"`), LLM proposal retried up to 2x on
+  schema/ID-validation failure (ARCHITECTURE_CONTRACTS.md §11). Unlike the
+  Profiler Agent, this agent does **not** embed its own fallback — on
+  gateway unavailability it returns `degraded=True` with an empty item
+  list, and the **G2 graph** (not the agent) routes to the separate
+  `fallback_plan` node, matching design §9.4's table.
+- Implemented the real G2 Planning LangGraph
+  (`backend/app/orchestration/graphs.py`'s `build_planning_graph`,
+  replacing the Phase 1 placeholder): `build_objectives (Gap Engine) ->
+  retrieve_candidates (Retriever/Ranker) -> plan_draft (Planner) ->
+  validate_plan (Validator) -> [loop to plan_draft, attempt <= 2] ->
+  fallback_plan`. Deliberately excludes design's `critique` node
+  (Reflection mode a, Phase 8, not implemented) and does not write to
+  Postgres itself — persistence is `app/planning/service.py`'s job outside
+  the graph, mirroring Phase 2's `PendingClaim` hand-off.
+- Added Postgres tables (`backend/app/db/models.py`, migration
+  `0004_planner`): `WeeklyPlan`, `PlanRevision`, `PlanItem` (design §28),
+  with one field-shape addition: `PlanItem.practice_item_ids` (JSON list)
+  instead of design's single `practice_ref?` — no `PracticeSet` generation
+  service exists yet (Assessor, Phase 7 in this project's numbering).
+- Added API routes (`backend/app/api/v1/plans.py`, design §27):
+  `POST /api/learners/me/plans` (`{week_index?, dry_run?, hours?}`) and
+  `GET /api/learners/me/plans/current`. `learner_id`/`role_id`/
+  `weekly_hours`/`preferences` always resolved from the session/profile,
+  never from the request body. `patch_existing_plan` is deliberately **not**
+  exposed via HTTP this phase — design §27's patch/override surface
+  belongs to Reflection (Phase 8), which decides *when* a patch is
+  warranted.
+- `WeeklyPlan`/`PlanItem` (`backend/app/schemas/common.py`) got their real
+  design §25.2 field lists this phase, replacing the Phase 1
+  `{id fields..., data: dict}` placeholders; new `PlanItemReason` sub-model
+  (design §16.6: reasons are ID-attached deterministically, only `text` is
+  LLM-phrased/display-only). New `backend/app/schemas/planning.py` for the
+  request-only `CreatePlanRequest`.
+- New `backend/app/core/thresholds.py` constants: `WEEKLY_BUDGET_SLACK`,
+  `OVERLOAD_BUDGET_FACTOR`/`OVERLOAD_CONCURRENCY_REDUCTION`,
+  `NEW_SKILL_CONCURRENCY_CAP`/`_NOVICE`, `SESSION_CHUNK_MAX_MINUTES`,
+  `PROBE_ITEM_*`, `PRACTICE_ITEM_*`, `PLANNER_MAX_DRAFT_ATTEMPTS`.
+- **Bug found and fixed via the integration test suite** (not caught by the
+  hand-built-fixture unit tests, since those never round-trip through a
+  real session): `_persist_plan` (`app/planning/service.py`) never passed
+  `item_id=item.item_id` when constructing each `PlanItemRow`, so every
+  persisted row got a *different* auto-generated UUID than the one the
+  API's immediate response carried — `GET .../plans/current` would then
+  return item IDs that didn't match what `POST` had just returned. Fixed;
+  re-verified against a real Postgres 16 + pgvector container too.
+- Verified against a real Postgres 16 + pgvector container this session:
+  migration `0004_planner` upgrade/downgrade/re-upgrade all ran clean, and
+  a full intake → create-plan → get-current-plan round trip through the
+  actual FastAPI app returned a real catalog `resource_id`
+  (`res.fcc_command_line`) in a fallback-resolved plan.
+- 42 new backend tests: `tests/test_plan_validator.py` (17, hand-built
+  fixtures — every hard/soft rule individually, the slack/overload math),
+  `tests/test_fallback_planner.py` (8, including re-validating the
+  fallback's own output for the "impossible candidate set"/"insufficient
+  time"/"new-skill-cap" cases), `tests/test_planner_agent.py` (9, mirroring
+  `test_profiler_agent.py`'s `ScriptedLLMGateway` pattern, including an
+  invented-resource_id-is-rejected-like-invalid-JSON test and two
+  patch-mode tests), `tests/test_planning_integration.py` (2, real curated
+  dataset via `catalog_session`: a full Gap-Engine-through-Fallback-Planner
+  run, and a real-session `create_plan` -> `patch_existing_plan` round
+  trip), `tests/test_plans_api.py` (6, full HTTP-layer flow via
+  `app_client`). **286 tests total, all passing** (244 from Phase 1-4/6,
+  42 new).
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §2, §6, §9, §10, and a new §16
+  covering every Phase 5 decision in full.
+- **Not implemented this phase (out of scope, per design's phase
+  ordering):** assessment, reflection. Also not implemented:
+  `LearningObjective.est_minutes_low/high` wiring (both the Gap Engine and
+  Resource Retriever are finally in scope together at the Planner, but
+  nothing writes the field back yet); a per-learner misconception status
+  table (`no_open_misconceptions_for(skill)` still omitted from acceptance
+  criteria); `POST /api/plans/{id}/override`/`/revert`,
+  `GET /api/plans/{id}/revisions`; a `LearningActivity` table (so
+  `PlanItem.status` is always `"planned"`, never transitioned); V8/V9's
+  real data sources (Struggle Classifier, Phase 8/9).
+
+---
+
 ## [Phase 6 | 2026-09-19] Hybrid Resource Retrieval + Ranking
 
 - Added `backend/app/retrieval/` (design §14.3/§15; ARCHITECTURE_CONTRACTS.md

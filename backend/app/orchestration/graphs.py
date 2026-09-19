@@ -15,13 +15,23 @@ from typing import Any
 
 from langgraph.graph import END, StateGraph
 
+from app.agents.planner import PlannerAgent
 from app.agents.profiler import ProfilerAgent
+from app.core.thresholds import DEFAULT_SESSION_CAP_MINUTES, NEW_SKILL_CONCURRENCY_CAP, PLANNER_MAX_DRAFT_ATTEMPTS
+from app.gap.engine import GapAnalysisResult, analyze_gaps
 from app.gateway.vlm_gateway import VLMGateway, VLMPageReadRequest
+from app.graph.queries import SkillGraphService
 from app.orchestration.state import RunState
+from app.planning.candidates import ObjectiveCandidateSet, build_candidate_sets
+from app.planning.fallback import FALLBACK_OVERALL_REASON, build_fallback_plan
+from app.planning.validator import validate_plan
 from app.profiling.document_parser import extract_text
 from app.profiling.evidence_verifier import EvidenceVerifier
 from app.profiling.pii import scrub_pii
 from app.profiling.skill_normalizer import SkillNormalizer
+from app.repositories.catalog_repository import CatalogRepository
+from app.retrieval.service import ResourceRetrievalService
+from app.schemas.common import PlanItem, PlanItemReason
 from app.schemas.profiling import ExtractedClaim, VerifiedClaim
 
 
@@ -185,9 +195,167 @@ async def _vlm_fallback(doc_type: str, content: bytes, document_id: str, vlm_gat
     return "" if response.degraded else response.text
 
 
-def build_planning_graph():
-    """G2 Planning — placeholder. Implemented in Phase 5."""
-    raise NotImplementedError("G2 Planning graph is implemented in Phase 5 (Planner).")
+def _drafts_to_plan_items(raw_items: list[dict]) -> list[PlanItem]:
+    return [
+        PlanItem(
+            item_id=r["item_id"],
+            type=r["type"],
+            objective_id=r["objective_id"],
+            skill_id=r["skill_id"],
+            resource_id=r.get("resource_id"),
+            practice_item_ids=list(r.get("practice_item_ids") or []),
+            est_minutes=r["est_minutes"],
+            difficulty=r["difficulty"],
+            day_slot=r["day_slot"],
+            depends_on=list(r.get("depends_on") or []),
+            reason=PlanItemReason(text=r.get("reason_text", "")),
+        )
+        for r in raw_items
+    ]
+
+
+def build_planning_graph(
+    *,
+    graph_service: SkillGraphService,
+    planner_agent: PlannerAgent,
+    catalog: CatalogRepository,
+    retrieval_service: ResourceRetrievalService,
+):
+    """G2 Planning (design §9.4): `build_objectives (Gap Engine) ->
+    retrieve_candidates (Retriever/Ranker) -> plan_draft (Planner) ->
+    validate_plan (Validator) -> [loop to plan_draft, attempt <=
+    PLANNER_MAX_DRAFT_ATTEMPTS] -> fallback_plan (if still failing/LLM
+    degraded)`.
+
+    Does **not** include design's `critique` node (Reflection mode a,
+    plan-critique) or a DB-writing `commit_plan` node: Reflection is Phase 8
+    (not implemented), and this graph -- like G1 Onboarding before it --
+    stops at a finalized-in-memory result; the actual `WeeklyPlan`/
+    `PlanRevision`/`PlanItem` persistence is orchestration glue outside the
+    graph (`app/planning/service.py`), the same split Phase 2's
+    `app/profiling/onboarding.py` already uses for `PendingClaim` writes.
+
+    Expects `state["data"]` to already contain: `role_id`, `skill_records`
+    (`list[LearnerSkillRecord]`), `evidence_records` (`list[EvidenceRecord]`,
+    both Phase 4's plain record types), `hours_budget_minutes`, and
+    optionally `mode` (`"draft"` default, or `"patch"`), `existing_items`,
+    `operators`, `modality_order`, `language`, `session_cap_minutes`,
+    `new_skill_cap`. Terminates with `status="completed"` and
+    `state["data"]["final_items"]`/`final_overall_reason`/`final_degraded"`
+    populated either way (LLM-validated draft, or the always-valid Fallback
+    Planner) -- ARCHITECTURE_CONTRACTS.md §10: "a demo/run can never fail to
+    produce a plan."
+    """
+
+    async def build_objectives_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        result: GapAnalysisResult = analyze_gaps(d["role_id"], d["skill_records"], d["evidence_records"], graph_service)
+        d["gap_result"] = result
+        return {"data": d, "status": "running"}
+
+    async def retrieve_candidates_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        candidate_sets: dict[str, ObjectiveCandidateSet] = await build_candidate_sets(
+            gap_result=d["gap_result"],
+            retrieval_service=retrieval_service,
+            catalog=catalog,
+            modality_order=d.get("modality_order"),
+            language=d.get("language", ""),
+            session_cap_minutes=d.get("session_cap_minutes", DEFAULT_SESSION_CAP_MINUTES),
+        )
+        d["candidate_sets"] = candidate_sets
+        return {"data": d}
+
+    async def plan_draft_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        counters = dict(state.get("counters") or {})
+        counters["planner_attempts"] = counters.get("planner_attempts", 0) + 1
+
+        result = await planner_agent.run(
+            state["run_id"],
+            {
+                "candidate_sets": d["candidate_sets"],
+                "hours_budget_minutes": d["hours_budget_minutes"],
+                "mode": d.get("mode", "draft"),
+                "existing_items": d.get("existing_items"),
+                "operators": d.get("operators"),
+                "validation_feedback": d.get("last_violation_messages"),
+            },
+        )
+        d["draft_plan_items_raw"] = result["plan_items"]
+        d["draft_overall_reason"] = result["overall_reason"]
+        d["draft_degraded"] = result["degraded"]
+        return {"data": d, "counters": counters}
+
+    async def validate_plan_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        items = _drafts_to_plan_items(d["draft_plan_items_raw"])
+        gap_result: GapAnalysisResult = d["gap_result"]
+        gaps_by_skill = {g.skill_id: g for g in gap_result.gaps}
+        hard_prereqs_by_skill = {
+            s: graph_service.direct_prerequisites(s, include_soft=False) for s in gaps_by_skill
+        }
+        result = validate_plan(
+            items,
+            candidate_sets=d["candidate_sets"],
+            gaps_by_skill=gaps_by_skill,
+            hard_prereqs_by_skill=hard_prereqs_by_skill,
+            hours_budget_minutes=d["hours_budget_minutes"],
+            new_skill_cap=d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
+        )
+        d["validation"] = result
+        d["last_violation_messages"] = [v.message for v in result.hard_violations]
+
+        status = "running"
+        if result.passed and not d["draft_degraded"]:
+            d["final_items"] = items
+            d["final_overall_reason"] = d["draft_overall_reason"]
+            d["final_degraded"] = False
+            status = "completed"
+        return {"data": d, "status": status}
+
+    def route_after_validate(state: RunState) -> str:
+        d = state["data"]
+        if d["draft_degraded"]:
+            return "fallback_plan"  # LLM unavailable -- deterministic, won't change on retry
+        if d["validation"].passed:
+            return "end"
+        if state["counters"].get("planner_attempts", 0) < PLANNER_MAX_DRAFT_ATTEMPTS:
+            return "plan_draft"
+        return "fallback_plan"
+
+    async def fallback_plan_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        gap_result: GapAnalysisResult = d["gap_result"]
+        gaps_by_skill = {g.skill_id: g for g in gap_result.gaps}
+        items = build_fallback_plan(
+            d["candidate_sets"],
+            gaps_by_skill=gaps_by_skill,
+            hours_budget_minutes=d["hours_budget_minutes"],
+            new_skill_cap=d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
+        )
+        d["final_items"] = items
+        d["final_overall_reason"] = FALLBACK_OVERALL_REASON
+        d["final_degraded"] = True
+        return {"data": d, "status": "completed"}
+
+    graph = StateGraph(RunState)
+    graph.add_node("build_objectives", build_objectives_node)
+    graph.add_node("retrieve_candidates", retrieve_candidates_node)
+    graph.add_node("plan_draft", plan_draft_node)
+    graph.add_node("validate_plan", validate_plan_node)
+    graph.add_node("fallback_plan", fallback_plan_node)
+    graph.set_entry_point("build_objectives")
+    graph.add_edge("build_objectives", "retrieve_candidates")
+    graph.add_edge("retrieve_candidates", "plan_draft")
+    graph.add_edge("plan_draft", "validate_plan")
+    graph.add_conditional_edges(
+        "validate_plan",
+        route_after_validate,
+        {"plan_draft": "plan_draft", "fallback_plan": "fallback_plan", "end": END},
+    )
+    graph.add_edge("fallback_plan", END)
+    return graph.compile()
 
 
 def build_evidence_response_graph():

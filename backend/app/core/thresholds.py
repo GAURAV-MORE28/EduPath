@@ -78,3 +78,34 @@ RRF_K = 60
 # Default active-time budget per session when the learner hasn't set
 # `IntakePreferences.session_length_min` (design §15.3's "fits session cap").
 DEFAULT_SESSION_CAP_MINUTES = 45
+
+
+# design §16-§17: Planner (Phase 5) — Plan Validator (V1-V10) and Fallback
+# Planner tunable defaults. Hand-set, not calibrated (ARCHITECTURE_CONTRACTS.md
+# §14) -- adjust against design §32's evaluation set once one exists.
+
+# V1 time budget: `hours_budget_minutes = weekly_hours * 60 * WEEKLY_BUDGET_SLACK`.
+WEEKLY_BUDGET_SLACK = 0.9
+# V9 post-overload headroom: budget * OVERLOAD_BUDGET_FACTOR, cap - 1, "for the next 2 weeks".
+OVERLOAD_BUDGET_FACTOR = 0.8
+OVERLOAD_CONCURRENCY_REDUCTION = 1
+
+# V5 new-skill concurrency cap: "default 3; 2 for novices or after overload".
+NEW_SKILL_CONCURRENCY_CAP = 3
+NEW_SKILL_CONCURRENCY_CAP_NOVICE = 2
+
+# V6 session chunking: "single contiguous item <= 60 min".
+SESSION_CHUNK_MAX_MINUTES = 60
+
+# design §16.4 fallback planner / §18.1 verify-before-teach probes: "2-3 quick
+# MCQs" per probe objective, budgeted a few minutes each.
+PROBE_ITEM_COUNT = 3
+PROBE_ITEM_MINUTES_PER_ITEM = 3
+# Practice pairing (V7) minutes budgeted per practice item the fallback planner attaches.
+PRACTICE_ITEM_MINUTES_PER_ITEM = 5
+PRACTICE_ITEMS_PER_LESSON = 2
+
+# design §9.4: "fail -> plan_draft with violation list (attempt <= 2)" -- the
+# graph-level rule-validation retry loop (distinct from PlannerAgent's own
+# internal schema-validation retry, ARCHITECTURE_CONTRACTS.md §6/§11).
+PLANNER_MAX_DRAFT_ATTEMPTS = 2

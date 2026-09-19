@@ -357,3 +357,78 @@ class GraphMeta(Base):
     resource_count: Mapped[int] = mapped_column(Integer)
     misconception_count: Mapped[int] = mapped_column(Integer)
     item_count: Mapped[int] = mapped_column(Integer)
+
+
+# ---------------------------------------------------------------------------
+# Phase 5 — Planner (design §16, §25.2, §28; ARCHITECTURE_CONTRACTS.md §10/§16)
+# ---------------------------------------------------------------------------
+
+
+class WeeklyPlan(Base):
+    """design §28. One row per (learner, week); `current_revision_id` points
+    at the `PlanRevision` whose `PlanItem`s are the ones actually in effect
+    -- `PlanItem.revision_id` scopes every item to the revision it belongs
+    to, so superseded revisions' items are never mistaken for current ones
+    (design §16.1's rolling-horizon model: future weeks are *regenerated*,
+    not edited in place)."""
+
+    __tablename__ = "weekly_plans"
+
+    plan_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    week_index: Mapped[int] = mapped_column(Integer)
+    hours_budget: Mapped[float] = mapped_column(Float)
+    status: Mapped[str] = mapped_column(String(16), default="draft")  # draft / committed
+    current_revision_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class PlanRevision(Base):
+    """design §28. `cause_type` is `initial` (first `create_plan` draft this
+    phase produces) or `patch` (`patch_existing_plan`, design §16/§20 -- the
+    operator-driven edit Reflection, Phase 8, will later trigger); other
+    design §20.5 cause types (`user_override`, `weekly_rollover`, ...) are
+    not produced by this phase, only accepted as a value the column can hold
+    later without another migration. `operators`/`diff` are `[]`/`{}` for an
+    `initial` revision (design §20.5's closed operator set is Reflection's
+    vocabulary, Phase 8 -- Phase 5 stores whatever operators/diff a
+    `patch_existing_plan` caller supplies, but does not itself decide when
+    patching is warranted)."""
+
+    __tablename__ = "plan_revisions"
+
+    revision_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    plan_id: Mapped[str] = mapped_column(String(36), ForeignKey("weekly_plans.plan_id"), index=True)
+    revision_no: Mapped[int] = mapped_column(Integer)
+    parent_revision_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    cause_type: Mapped[str] = mapped_column(String(24))  # initial / patch / user_override / weekly_rollover / ...
+    cause_ref: Mapped[str] = mapped_column(String(256), default="")
+    operators: Mapped[list] = mapped_column(JSON, default=list)
+    diff: Mapped[dict] = mapped_column(JSON, default=dict)
+    degraded: Mapped[bool] = mapped_column(Boolean, default=False)  # fallback planner was used
+    overall_reason: Mapped[str] = mapped_column(Text, default="")  # display-only
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    reverted_by: Mapped[str | None] = mapped_column(String(36), nullable=True)
+
+
+class PlanItem(Base):
+    """design §28. `practice_item_ids` is an addition beyond §28's single
+    `practice_ref?` -- see `app/schemas/common.py`'s `PlanItem` docstring for
+    why (no `PracticeSet` generation service exists yet, Phase 7/Assessor)."""
+
+    __tablename__ = "plan_items"
+
+    item_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    plan_id: Mapped[str] = mapped_column(String(36), ForeignKey("weekly_plans.plan_id"), index=True)
+    revision_id: Mapped[str] = mapped_column(String(36), ForeignKey("plan_revisions.revision_id"), index=True)
+    type: Mapped[str] = mapped_column(String(16))  # resource / practice / project / probe / review
+    objective_id: Mapped[str] = mapped_column(String(256))
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    resource_id: Mapped[str | None] = mapped_column(String(128), ForeignKey("resources.resource_id"), nullable=True)
+    practice_item_ids: Mapped[list] = mapped_column(JSON, default=list)
+    est_minutes: Mapped[int] = mapped_column(Integer)
+    difficulty: Mapped[int] = mapped_column(Integer)
+    day_slot: Mapped[int] = mapped_column(Integer)
+    depends_on: Mapped[list] = mapped_column(JSON, default=list)
+    reason: Mapped[dict] = mapped_column(JSON, default=dict)
+    status: Mapped[str] = mapped_column(String(16), default="planned")  # planned / done / skipped

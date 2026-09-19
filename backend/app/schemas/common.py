@@ -5,9 +5,10 @@ skeleton, gateway, and API layer have something concrete to import. Full field
 lists are defined when each owning phase (2, 4, 5, 7, 8, 9) is implemented —
 do not add business fields here ahead of that work.
 
-`SkillGap` and `LearningObjective` got their real §25.2 field lists this
-phase (Gap Engine, `app/gap/engine.py`) — see `app/schemas/gap.py` for the
-full gap-report response shape built on top of them.
+`SkillGap` and `LearningObjective` got their real §25.2 field lists in Phase
+4 (Gap Engine, `app/gap/engine.py`) — see `app/schemas/gap.py` for the full
+gap-report response shape built on top of them. `WeeklyPlan`/`PlanItem` got
+theirs in Phase 5 (Planner, `app/planning/`).
 """
 from __future__ import annotations
 
@@ -81,17 +82,52 @@ class ResourceRecommendation(BaseModel):
     provenance: dict[str, Any] = {}
 
 
-class WeeklyPlan(BaseModel):
-    plan_id: str
-    learner_id: str
-    week_index: int
-    items: list["PlanItem"] = []
+class PlanItemReason(BaseModel):
+    """design §16.6: "Every PlanItem.reason is composed from IDs... The LLM
+    is asked only to *phrase* these; the IDs are attached deterministically."
+    `text` is the only display-only (LLM-authored) field; everything else is
+    ID-attached by the deterministic planning pipeline."""
+
+    evidence_ids: list[str] = []
+    graph_path: list[str] | None = None
+    decision_id: str | None = None
+    text: str = ""  # display-only
 
 
 class PlanItem(BaseModel):
+    """design §25.2/§28. `practice_item_ids` is an addition beyond §25.2's
+    single `practice_set_id?` — no `PracticeSet` generation service exists
+    yet (design §18, Assessor, Phase 7 in this project's numbering), so this
+    stores the underlying curated `PracticeItem` IDs directly rather than a
+    set this project cannot yet build (same "addition beyond the conceptual
+    list" latitude Phase 3 used for `GraphMeta`)."""
+
     item_id: str
+    type: str  # resource | practice | project | probe | review
+    objective_id: str
     skill_id: str
-    data: dict[str, Any] = {}
+    resource_id: str | None = None
+    practice_item_ids: list[str] = []
+    est_minutes: int
+    difficulty: int
+    day_slot: int
+    depends_on: list[str] = []
+    reason: PlanItemReason = PlanItemReason()
+    status: str = "planned"  # planned | done | skipped
+
+
+class WeeklyPlan(BaseModel):
+    """design §25.2/§28."""
+
+    plan_id: str
+    learner_id: str
+    week_index: int
+    hours_budget: float
+    revision_no: int = 1
+    status: str = "draft"  # draft | committed
+    degraded: bool = False
+    items: list[PlanItem] = []
+    overall_reason: str = ""  # display-only
 
 
 class AssessmentResult(BaseModel):
@@ -123,6 +159,3 @@ class ReplanRequest(BaseModel):
 class ProgressReport(BaseModel):
     learner_id: str
     data: dict[str, Any] = {}
-
-
-WeeklyPlan.model_rebuild()

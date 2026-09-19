@@ -29,7 +29,7 @@
 | Agent | Mode(s) | Can mutate persisted state directly? | Implemented |
 |---|---|---|---|
 | **Profiler** | single | No — emits `ExtractedClaims` only | ✅ Phase 2 (`backend/app/agents/profiler.py`) |
-| **Planner** | draft / patch | No — writes only via validated commit nodes | ❌ |
+| **Planner** | draft / patch | No — writes only via validated commit nodes | ✅ Phase 5 (`backend/app/agents/planner.py`) |
 | **Assessor** | generation (strong) / grading & validation (small) | No | ❌ |
 | **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ❌ |
 | **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ❌ |
@@ -44,7 +44,11 @@ file and justifying the addition against design §8.1's role-by-role table.
 not counted among the 5 agents. **Implemented (Phase 2):**
 `backend/app/profiling/skill_normalizer.py`. **Resource Retriever/Ranker
 implemented (Phase 6):** `backend/app/retrieval/ranker.py`'s `recommend()` —
-no LLM call anywhere in the package (see §15 below).
+no LLM call anywhere in the package (see §15 below). **Plan Validator and
+Fallback Planner implemented (Phase 5):** `backend/app/planning/validator.py`'s
+`validate_plan()` and `backend/app/planning/fallback.py`'s
+`build_fallback_plan()` — both pure functions, no LLM call anywhere in either
+module (see §16 below).
 
 ## 3. Evidence tiers (never conflate these)
 
@@ -175,6 +179,9 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   (Phase 4):** `backend/app/schemas/common.py`, real §25.2 field lists.
   **`ResourceRecommendation` implemented (Phase 6):** same file — no API
   route consumes it yet (see §15 below), but the schema itself is real.
+  **`WeeklyPlan`/`PlanItem` implemented (Phase 5):** same file, real §25.2
+  field lists — `PlanItem.practice_item_ids` is an addition beyond §25.2's
+  single `practice_set_id?` (see §16 below for why).
 
 ## 7. IDs
 
@@ -269,6 +276,12 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   `search_resources_by_text`/`search_resources_by_vector` above) and
   `update_link_statuses` (bulk `link_status`/`last_verified_at` write for
   the link-validation job, design §15.2). See §15 below.
+- **Addition (Phase 5):** `WeeklyPlan`, `PlanRevision`, `PlanItem` (migration
+  `0004_planner`) match design §28's table list, with one addition:
+  `PlanItem.practice_item_ids` (JSON list) instead of design's single
+  `practice_ref?` — no `PracticeSet` generation service exists yet (design
+  §18, Assessor, Phase 7 in this project's numbering), so this stores the
+  underlying curated `PracticeItem` IDs directly. See §16 below.
 
 ## 10. Validation rules (Plan Validator V1–V10)
 
@@ -281,6 +294,14 @@ contiguous), V7 practice pairing, V8 struggle follow-up, V10 guidance fading.
 
 A **Fallback Planner** must always exist and must always satisfy the hard rules
 (ignoring soft rules if necessary) — a demo/run can never fail to produce a plan.
+
+**Implemented (Phase 5):** `backend/app/planning/validator.py`'s
+`validate_plan()` (V1-V10, plus `V_no_unjustified_duplicates` and
+`V_required_objective_coverage` — additive checks from the phase brief, not
+literally named in design §17.2, folded in as soft where a genuinely
+impossible candidate set could otherwise make 100% coverage unreachable) and
+`backend/app/planning/fallback.py`'s `build_fallback_plan()` (design §16.4).
+See §16 below for the full set of Phase 5 decisions.
 
 ## 11. Error / failure conventions
 
@@ -403,3 +424,76 @@ A **Fallback Planner** must always exist and must always satisfy the hard rules
   no `LearningActivity`/`Assessment` table exists yet to source this from
   (Phase 7/8). The algorithm is complete and tested now; a real caller
   supplies real history once one of those phases writes it.
+
+## 16. Planning conventions (Phase 5, design §16-§17)
+
+- **Package:** `backend/app/planning/` — already named in §12's convention
+  list. `candidates.py` (async orchestration: Gap Engine `LearningObjective[]`
+  plus Resource Retriever/Ranker output, assembled per objective into an
+  `ObjectiveCandidateSet`), `prompting.py` (Planner Agent prompt/parse),
+  `validator.py` (pure — V1-V10 plus two additive checks), `fallback.py`
+  (pure — the always-valid Fallback Planner), `service.py` (async
+  orchestration: builds services, runs the G2 graph, persists
+  `WeeklyPlan`/`PlanRevision`/`PlanItem`). Same pure/impure split
+  `app/gap/engine.py` and `app/retrieval/ranker.py` already established.
+- **G2 Planning graph** (`backend/app/orchestration/graphs.py`'s
+  `build_planning_graph`): `build_objectives (Gap Engine) -> retrieve_candidates
+  (Retriever/Ranker) -> plan_draft (Planner) -> validate_plan (Validator) ->
+  [loop to plan_draft, attempt <= PLANNER_MAX_DRAFT_ATTEMPTS (2)] ->
+  fallback_plan`. **Does not include design's `critique` node** (Reflection
+  mode a, plan critique) — Reflection is Phase 8, not implemented. The graph
+  ends with a finalized in-memory item list; the actual `commit_plan`
+  Postgres write happens outside the graph (`app/planning/service.py`), the
+  same split Phase 2's `PendingClaim` write already uses (no
+  Postgres-backed LangGraph checkpointer exists to hold in-flight state
+  across a DB-writing node — see §9's Phase 2 entry).
+- **Two Planner Agent modes** (design §8.2): `"draft"` (`create_plan`) and
+  `"patch"` (`patch_existing_plan`, design §16/§20). Patch mode is built as a
+  **capability** this phase, for Reflection (Phase 8) to call later — this
+  phase does not itself decide *when* a patch is warranted, only provides
+  the mechanism (same "mechanism now, policy later" split Phase 4 used for
+  `LearningObjective` generation ahead of a Planner to consume it).
+- **Decided: candidate-ID-only enforcement happens at parse time, not just
+  at validation time.** `app/planning/prompting.py`'s `parse_planner_response`
+  rejects any resource_id/practice_item_id/objective_id not present in the
+  candidate set as a parse error (same retry-then-degrade path as malformed
+  JSON) — this section's own "an LLM never emits a raw URL or invents an ID"
+  (§7) is enforced before a draft ever reaches the deterministic Plan
+  Validator, not only there.
+- **Decided: the Planner Agent does not embed its own fallback.** Unlike the
+  Profiler Agent (which owns a `DeterministicClaimExtractor` fallback
+  internally), `PlannerAgent.run()` returns `degraded=True` with an empty
+  item list when the gateway is unavailable or retries are exhausted; the
+  **G2 graph**, not the agent, routes to the separate `fallback_plan` node.
+  This matches design §9.4's table listing `plan_draft` and `fallback_plan`
+  as distinct nodes.
+- **`practice_item_ids` instead of `practice_set_id`:** no `PracticeSet`
+  generation service exists yet (design §18, Assessor — Phase 7 in this
+  project's numbering), so `PlanItem` stores the underlying curated
+  `PracticeItem` IDs directly (`app/db/models.py`'s
+  `PlanItem.practice_item_ids`, `app/schemas/common.py`'s
+  `PlanItem.practice_item_ids`) rather than referencing a set this project
+  cannot yet build.
+- **Additive validator rules** (`V_no_unjustified_duplicates`,
+  `V_required_objective_coverage`): from the Phase 5 brief's "no duplicated
+  work without justification" / "required objective coverage", not literally
+  named in design §17.2. The duplicate check is **hard** (no two items share
+  the same `(skill_id, resource_id)` pair unless `type == "review"`); the
+  coverage check is **soft** — a genuinely impossible candidate set (the
+  required "impossible candidate set" test case) can make 100% objective
+  coverage unreachable for *any* planner, LLM or fallback, and blocking
+  commit on it would violate this section's "a demo/run can never fail to
+  produce a plan."
+- **V8 (struggle follow-up) and V9 (post-overload headroom) accept
+  caller-supplied signals rather than querying live data:** no
+  `StruggleSignal`/overload-detection source exists yet (Struggle Classifier,
+  Phase 8/9) — `effective_budget_minutes`/`effective_new_skill_cap`
+  (`app/planning/validator.py`) accept an `overload_active` flag, same
+  "mechanism now, real source later" pattern `app/retrieval/ranker.py` used
+  for `learner_history` ahead of a `LearningActivity` table.
+- **No API route for `patch_existing_plan`.** Design §27's endpoint table's
+  patch/override surface (`POST /api/plans/{id}/override`) belongs to
+  Reflection (Phase 8), which decides *when* a patch is warranted. This
+  phase exposes only `POST /api/learners/me/plans` and
+  `GET /api/learners/me/plans/current` (design §27); `patch_existing_plan`
+  is tested directly at the service layer.
