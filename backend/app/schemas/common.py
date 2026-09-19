@@ -178,9 +178,28 @@ class StruggleSignal(BaseModel):
 
 
 class ReflectionResult(BaseModel):
+    """design §25.2/§20.4. Produced by the Reflection Agent (or the
+    deterministic policy that stands in for it, `app/reflection/deterministic.py`,
+    while `LLM_PROVIDER=none`), and re-checked by the Reflection Validator
+    (`app/reflection/validator.py`) before anything is applied -- see
+    `app/reflection/service.py`."""
+
     reflection_id: str
     learner_id: str
+    root_cause_class: str
+    root_cause_skill_id: str
+    misconception_id: str | None = None
+    evidence_ids: list[str] = []
+    hypothesis: str = ""  # display only
+    confidence: str = "low"  # low | medium | high
+    path_decision: str = "keep"  # keep | patch | rebuild_from
     operators: list[dict[str, Any]] = []
+    critique: str = ""
+    learner_explanation_draft: str = ""
+    validated: bool = False
+    degraded: bool = False  # a deterministic policy, not the LLM agent, produced this
+    rounds: int = 0
+    plan_revision_id: str | None = None
 
 
 class ReplanRequest(BaseModel):

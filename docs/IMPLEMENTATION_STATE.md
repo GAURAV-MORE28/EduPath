@@ -47,6 +47,19 @@ verification probe → resolved/persistent — that applies
 than routing through the Planner Agent or the full Reflection Agent, which
 remains out of scope). `POST /api/learners/me/practice` /
 `POST /api/practice/{set_id}/submit`.
+**Phase 9 — Reflection & Re-planning. Implemented** (design's "Phase 8", the
+core differentiator: a real `ReflectionAgent` bounded to a closed six-operator
+set — `INSERT_REMEDIATION`/`DEFER`/`REMOVE_DUPLICATE`/`REPLACE_RESOURCE`/
+`ADD_PROBE`/`SPLIT_ACTIVITY` — a deterministic `ReflectionValidator` checking
+root-cause/evidence/operator/plan validity, a deterministic root-cause +
+operator policy that stands in for the LLM while `LLM_PROVIDER=none`, and a
+layered fallback ladder ending in `app/assessment/resolution.py`'s original
+narrower recipe, so a struggle submission can never leave the plan
+half-applied. Writes `PlanRevision` + `ReflectionRecord` + `DecisionRecord`;
+adds one-click Revert. `POST /api/practice/{set_id}/submit`'s response now
+carries a `ReflectionOutcome` in place of Phase 8's narrower
+`RemediationOutcome`; `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
+is new.
 
 ### Overall Project Status
 
@@ -129,7 +142,7 @@ never presented as measured quantities.
 | 5 — Planner | ✅ Implemented (Planner Agent draft/patch modes, deterministic Plan Validator V1-V10+, always-valid Fallback Planner, G2 Planning graph, `POST/GET /api/learners/me/plans*`). See "Completed Work" below. |
 | 6 — Resource retrieval | ✅ Implemented (hybrid retrieval, deterministic ranking, MMR, link validation job). Landed ahead of Phase 5 at the operator's direction. See "Completed Work" below. |
 | 7 — Practice + assessment | ✅ Implemented (Assessor Agent, MCQ + short-answer grading, Mastery Updater, Struggle Classifier, scoped-down deterministic resolution loop). Landed as this project's "Phase 8" per the operator's own numbering — see "Completed Work" below. |
-| 8 — Reflection / re-planning (core differentiator) | ❌ Not started (the full LLM Reflection Agent / closed operator set / Reflection Validator; this project's Phase 8 implemented only design §20.8's narrower deterministic resolution loop — see above) |
+| 8 — Reflection / re-planning (core differentiator) | ✅ Implemented (real `ReflectionAgent` bounded to a closed operator set, deterministic `ReflectionValidator`, deterministic root-cause/operator policy, layered fallback, `PlanRevision`/`ReflectionRecord`/`DecisionRecord`, one-click Revert). Landed as this project's "Phase 9" per the operator's own numbering — see "Completed Work" below. |
 | 9 — Tutor | ❌ Not started |
 | 10 — Observability / evaluation / polish | ❌ Not started |
 
@@ -1007,6 +1020,134 @@ already named in §12's convention list):
   round trip, seen-item exclusion behavior before/after a submission).
   **375 tests total, all passing** (286 from Phase 1-6, 89 new).
 
+**Phase 9 — Reflection & Re-planning** (design §20, §21, §25.2, §28; this
+project's own numbering — design calls this "Phase 8", the core
+differentiator; package `backend/app/reflection/`):
+
+- **Closed operator set** (`backend/app/reflection/operators.py`): the Phase
+  9 brief's own six-operator vocabulary — `INSERT_REMEDIATION`, `DEFER`,
+  `REMOVE_DUPLICATE`, `REPLACE_RESOURCE`, `ADD_PROBE`, `SPLIT_ACTIVITY` —
+  deliberately used verbatim instead of design §20.5's seven-operator set
+  (`SWAP_RESOURCE`/`ADD_PRACTICE`/`REDUCE_LOAD`/`REORDER`), which the brief
+  explicitly supersedes for this phase. `apply_operators()` is a **pure
+  function** over `app.schemas.common.PlanItem` (no DB/gateway import) so its
+  output re-validates directly against the existing Plan Validator
+  (`app/planning/validator.py::validate_plan`) — untouched items are always
+  carried forward unchanged (design §20.7), nothing is silently dropped
+  except via an explicit `REMOVE_DUPLICATE`.
+- **Evidence bundle** (`backend/app/reflection/evidence.py`): `EvidenceBundle`
+  — struggling skill, the triggering `StruggleSignalEntry`, all of this
+  submission's signals (so a co-occurring `missing_prerequisite` signal is
+  visible even when `repeated_misconception` is the trigger — the wow
+  scenario's combo), misconception linkage, hard-ancestor gap statuses, the
+  current plan's items, and the learner's own assessment-item-ID universe
+  (design §20.6 check 2's "evidence belongs to this learner").
+- **Deterministic root-cause + operator policy** (`backend/app/reflection/deterministic.py`):
+  what actually runs end to end in this environment, since `LLM_PROVIDER=none`
+  is this project's permanent default (every prior phase's agent degrades
+  the same way) — root cause is read straight off the struggle signal
+  (`missing_prerequisite`'s named prerequisite) or the curated graph (a
+  confirmed misconception's `ROOTED_IN` skill), never inferred by an LLM
+  (ARCHITECTURE_CONTRACTS.md §7), across all four of design §20.2's trigger
+  classes (`repeated_misconception`/`missing_prerequisite`/
+  `excessive_difficulty`/`cognitive_overload`, this project's names for
+  design's misconception_confirmed/prerequisite_gap/difficulty_mismatch/
+  overload).
+- **Reflection Agent** (`backend/app/agents/reflection.py`, real
+  implementation replacing the Phase 1 placeholder): strong-tier LLM,
+  strict JSON parsing against a pre-resolved candidate ID set
+  (`backend/app/reflection/prompting.py`, mirrors
+  `app/planning/prompting.py`'s pattern) — it may never invent a skill/
+  resource/practice-item ID, only choose among IDs the deterministic
+  root-cause step already resolved. Retries up to `REFLECTION_MAX_ROUNDS`
+  (2) with the validator's rejection reasons fed back, then degrades —
+  exercised in tests via a scripted stub gateway (this project's real state
+  never has a provider configured).
+- **Reflection Validator** (`backend/app/reflection/validator.py`):
+  deterministic, design §20.6's five checks in order — root cause exists and
+  is the struggling skill or a hard-prerequisite ancestor; every
+  `evidence_ids` entry belongs to this learner and overlaps the triggering
+  signal's own evidence; `root_cause_class` agrees with the classifier's
+  class (on conflict, the classifier wins — a mismatch is rejected, not
+  silently overridden); every operator is from the closed set with
+  structurally valid parameters; and, after applying the operators, the
+  existing Plan Validator reports no hard violations. A permissive
+  candidate-set shim makes V2 (referential integrity, a Planner-candidate-set
+  concept that doesn't apply to a graph/catalog-ID-anchored patch) a no-op
+  here while every other V-rule stays fully enforced.
+- **Orchestration** (`backend/app/reflection/service.py::run_reflection`):
+  cooldown check (misconception-specific via `LearnerMisconception.last_remediated_at`,
+  or a new `ReflectionRepository.last_reflection_at_for_skill` for
+  non-misconception triggers) → evidence bundle → agent round loop → on
+  agent failure/degrade, the deterministic policy → on *that* failing hard
+  validation (defensive), a last-resort minimal patch (`app/assessment/resolution.py`'s
+  original `INSERT_REMEDIATION`+`ADD_PROBE`-only recipe, now demoted to this
+  role) → commit `PlanRevision`+`PlanItem`s (carrying every prior item
+  forward under a **fresh** `item_id`, since it's a global primary key, not
+  scoped per revision — the same reason `resolution.py`'s own carry-forward
+  already did this) + `ReflectionRecord` + `DecisionRecord` (graph path,
+  rules fired, `graph_version`) + misconception status transition. If even
+  the last-resort patch fails hard validation, the plan is left **unchanged**
+  and a `ReflectionRecord(validated=False)` records the attempt with
+  `needs_attention=True` — design §20.7's explicit failure behavior, never a
+  half-applied plan. `app/assessment/resolution.py` itself is untouched;
+  its probe-result/cooldown helpers are still the ones used directly.
+  `app/assessment/service.py::submit_practice_set`'s routing now calls this
+  instead of `resolution.start_remediation` directly, for all four of design
+  §20.2's trigger classes (previously: `repeated_misconception`-confirmed
+  only).
+- **Postgres schema** (`backend/app/db/models.py`, migration
+  `0006_reflection`): `ReflectionRecord`, `DecisionRecord` (design §28).
+- **Schemas**: `ReflectionResult` (`backend/app/schemas/common.py`) got its
+  real design §25.2/§20.4 field list this phase (previously
+  `{reflection_id, learner_id, operators}`); `backend/app/schemas/assessment.py`'s
+  `RemediationOut` is replaced by the richer `ReflectionOut` (root cause,
+  operators, `needs_attention`, `degraded`, `rounds`, explanation) —
+  `SubmitPracticeResponse.reflection` replaces `.remediation`.
+- **API**: `POST /api/practice/{set_id}/submit` now returns `reflection`
+  instead of `remediation`. New:
+  `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
+  (design §20.7's one-click Revert — `app/reflection/service.py::revert_to_previous_revision`;
+  only the plan's *current* revision may be reverted, restoring its parent
+  revision's content as a new revision and marking the reverted one's
+  `PlanRevision.reverted_by`). `patch_existing_plan` (Phase 5) is still not
+  exposed via HTTP — Reflection applies its own operator pipeline directly
+  rather than routing through it (see "Architectural Decisions").
+- **G3 Evidence-Response**: still not a LangGraph — `build_evidence_response_graph()`
+  (`app/orchestration/graphs.py`) remains a documented placeholder;
+  `app/assessment/service.py` (record_evidence through route) and
+  `app/reflection/service.py` (reflect through commit) implement the whole
+  pipeline as plain async orchestration instead, for the same reason Phase 8
+  already gave: each step needs a DB write the next step's read depends on,
+  and no Postgres-backed LangGraph checkpointer exists to pause a graph
+  mid-run for that.
+- **Tests**: 31 new — `tests/test_reflection_operators.py` (14: every
+  operator individually against hand-built `PlanItem` fixtures, including
+  DEFER's day-slot cap and never-moves-a-done-item rules, and a full
+  multi-operator sequence), `tests/test_reflection_validator.py` (11, a
+  small hand-built graph fixture mirroring `test_resolution.py`'s: every one
+  of the five checks individually, including root-cause-is-self vs.
+  ancestor, evidence ownership/overlap, classifier-wins-on-conflict, and the
+  resulting-plan-must-validate check), `tests/test_reflection_agent.py` (4,
+  mirroring `test_planner_agent.py`'s `ScriptedLLMGateway` pattern:
+  degrade-to-None, a valid draft, an invented root-cause skill_id rejected
+  and retried, retry exhaustion), `tests/test_reflection_service.py` (2,
+  against the real curated dataset via `catalog_session` — **the Phase 9
+  wow scenario end to end**: a scripted chain_rule/backpropagation
+  misconception + prerequisite-block submission → `repeated_misconception`
+  confirmed + `missing_prerequisite` both detected → root cause
+  `skill.chain_rule` → operators exactly matching
+  `data/dataset/demo/demo_scenario.json`'s `expected_reflection_operators`
+  (`INSERT_REMEDIATION`/`DEFER`/`ADD_PROBE`) → a validated `PlanRevision`
+  that defers the existing `skill.backpropagation` item and inserts a real
+  curated chain_rule remediation resource + resolution-check probe →
+  `ReflectionRecord`/`DecisionRecord` written with the real graph path; plus
+  a cooldown test. `tests/test_assessment_integration.py`'s misconception
+  test was updated in place for the `reflection`-field rename (root cause ==
+  struggling skill there, so no `DEFER` — an intentional, asserted
+  contrast with the wow scenario's cross-skill case).
+  **406 tests total, all passing** (375 from Phase 1-8, 31 new).
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -1020,19 +1161,23 @@ already named in §12's convention list):
   `ResourceRecommendation` field list; extended, Phase 5: real
   `WeeklyPlan`/`PlanItem` field lists, new `PlanItemReason`; extended,
   Phase 8: real `AssessmentResult`/`StruggleSignal` field lists, new
-  `AssessmentItemResult`), `app/schemas/gap.py` (new, Phase 4),
+  `AssessmentItemResult`; extended, Phase 9: real `ReflectionResult` field
+  list), `app/schemas/gap.py` (new, Phase 4),
   `app/schemas/planning.py` (new, Phase 5: `CreatePlanRequest`),
-  `app/schemas/assessment.py` (new, Phase 8)
+  `app/schemas/assessment.py` (new, Phase 8; extended, Phase 9:
+  `RemediationOut` replaced by `ReflectionOut`)
 - `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`,
   `app/db/models.py` (extended, Phase 3 and Phase 2 — see below; extended,
   Phase 5: `WeeklyPlan`, `PlanRevision`, `PlanItem`; extended, Phase 8:
-  `PracticeSession`, `Assessment`, `StruggleSignal`, `LearnerMisconception`)
+  `PracticeSession`, `Assessment`, `StruggleSignal`, `LearnerMisconception`;
+  extended, Phase 9: `ReflectionRecord`, `DecisionRecord`)
 - `app/db/migrations/env.py`, `app/db/migrations/script.py.mako`,
   `app/db/migrations/versions/0001_foundation.py`,
   `app/db/migrations/versions/0002_skill_graph_catalog.py` (Phase 3),
   `app/db/migrations/versions/0003_learner_profiling.py` (Phase 2),
   `app/db/migrations/versions/0004_planner.py` (Phase 5),
-  `app/db/migrations/versions/0005_assessment.py` (new, Phase 8)
+  `app/db/migrations/versions/0005_assessment.py` (Phase 8),
+  `app/db/migrations/versions/0006_reflection.py` (new, Phase 9)
 - `app/gateway/__init__.py`, `app/gateway/llm_gateway.py`,
   `app/gateway/embedding_gateway.py` (Phase 3),
   `app/gateway/vlm_gateway.py` (new, Phase 2),
@@ -1040,12 +1185,14 @@ already named in §12's convention list):
 - `app/orchestration/__init__.py`, `app/orchestration/state.py`,
   `app/orchestration/graphs.py` (extended, Phase 2: real
   `build_onboarding_graph`; extended, Phase 5: real `build_planning_graph`,
-  replacing the placeholder)
+  replacing the placeholder; extended, Phase 9: `build_evidence_response_graph`'s
+  docstring rewritten to explain it stays a placeholder by design)
 - `app/agents/__init__.py`, `app/agents/base.py`,
   `app/agents/profiler.py` (extended, Phase 2: real `ProfilerAgent`),
   `app/agents/planner.py` (extended, Phase 5: real `PlannerAgent`),
   `app/agents/assessor.py` (extended, Phase 8: real `AssessorAgent`),
-  `app/agents/reflection.py`, `app/agents/tutor.py`
+  `app/agents/reflection.py` (extended, Phase 9: real `ReflectionAgent`,
+  mode (b) only), `app/agents/tutor.py`
 - `app/services/__init__.py`
 - `app/repositories/__init__.py`,
   `app/repositories/user_repository.py` (extended, Phase 2: `get_or_create`),
@@ -1055,8 +1202,11 @@ already named in §12's convention list):
   `get_practice_item`, `get_practice_items_by_ids`, `create_practice_item`,
   `get_misconception`, `get_misconceptions_for_skill`),
   `app/repositories/profiling_repository.py` (new, Phase 2),
-  `app/repositories/planning_repository.py` (new, Phase 5),
-  `app/repositories/assessment_repository.py` (new, Phase 8)
+  `app/repositories/planning_repository.py` (new, Phase 5; extended, Phase
+  9: `mark_reverted`),
+  `app/repositories/assessment_repository.py` (new, Phase 8; extended,
+  Phase 9: `all_assessment_item_ids_for_learner`),
+  `app/repositories/reflection_repository.py` (new, Phase 9)
 - `app/graph/__init__.py`, `app/graph/loader.py`,
   `app/graph/queries.py` (extended, Phase 4: `hard_prerequisite_out_edges`,
   `part_of_children`), `app/graph/validation.py` (Phase 3)
@@ -1074,8 +1224,17 @@ already named in §12's convention list):
 - `app/assessment/__init__.py`, `app/assessment/mastery.py`,
   `app/assessment/struggle.py`, `app/assessment/grading.py`,
   `app/assessment/prompting.py`, `app/assessment/item_bank.py`,
-  `app/assessment/resolution.py`, `app/assessment/service.py` (new
-  package, Phase 8)
+  `app/assessment/resolution.py` (new package, Phase 8; unchanged, Phase 9
+  — now Reflection's last-resort fallback, see `app/reflection/service.py`),
+  `app/assessment/service.py` (extended, Phase 9: routes through
+  `app/reflection/service.py::run_reflection` instead of calling
+  `resolution.start_remediation` directly; `SubmitOutcome.remediation`
+  renamed `.reflection`)
+- `app/reflection/__init__.py`, `app/reflection/operators.py`,
+  `app/reflection/evidence.py`, `app/reflection/deterministic.py`,
+  `app/reflection/draft.py`, `app/reflection/prompting.py`,
+  `app/reflection/validator.py`, `app/reflection/service.py` (new package,
+  Phase 9)
 - `app/profiling/__init__.py`, `app/profiling/document_parser.py`,
   `app/profiling/pii.py`, `app/profiling/chunker.py`,
   `app/profiling/injection.py`, `app/profiling/claim_extraction.py`,
@@ -1096,7 +1255,9 @@ already named in §12's convention list):
   `LOW_SCORE_*`/`REPEATED_MISCONCEPTION_*`/`MISSING_PREREQUISITE_*`/
   `EXCESSIVE_DIFFICULTY_*`/`DIFFICULTY_LABEL_TO_LEVEL`/`OVERLOAD_*`/
   `INSUFFICIENT_PRACTICE_MAX_N_OBS`, `STRUGGLE_REVISION_COOLDOWN_HOURS`,
-  `MAX_REMEDIATION_CYCLES`)
+  `MAX_REMEDIATION_CYCLES`; extended, Phase 9: `REFLECTION_MAX_ROUNDS`,
+  `REFLECTION_REVISION_COOLDOWN_HOURS`, `REFLECTION_DEFER_DAYS`,
+  `PLAN_WEEK_MAX_DAY_SLOT`)
 - `app/schemas/profiling.py` (new, Phase 2)
 - `app/sse/__init__.py`, `app/sse/trace.py`
 - `app/api/__init__.py`, `app/api/deps.py` (extended, Phase 2:
@@ -1107,7 +1268,9 @@ already named in §12's convention list):
   `practice_router`),
   `app/api/v1/health.py`, `app/api/v1/runs.py`,
   `app/api/v1/learners.py` (new, Phase 2), `app/api/v1/gap.py` (new, Phase 4),
-  `app/api/v1/plans.py` (new, Phase 5), `app/api/v1/practice.py` (new, Phase 8)
+  `app/api/v1/plans.py` (new, Phase 5; extended, Phase 9: revert route),
+  `app/api/v1/practice.py` (new, Phase 8; extended, Phase 9:
+  `remediation` -> `reflection` response field)
 - `scripts/seed_catalog.py` (Phase 3 — CLI catalog ingestion entrypoint),
   `scripts/validate_links.py` (new, Phase 6 — CLI link-validation entrypoint)
 - `tests/__init__.py`, `tests/conftest.py` (extended: `catalog_session`
@@ -1133,8 +1296,13 @@ already named in §12's convention list):
   `tests/test_plans_api.py` (all new, Phase 5);
   `tests/test_mastery.py`, `tests/test_struggle_classifier.py`,
   `tests/test_grading.py`, `tests/test_assessor_agent.py`,
-  `tests/test_resolution.py`, `tests/test_assessment_integration.py`,
-  `tests/test_practice_api.py` (all new, Phase 8)
+  `tests/test_resolution.py`,
+  `tests/test_assessment_integration.py` (extended, Phase 9: the
+  misconception test's `.remediation` assertions updated to `.reflection`),
+  `tests/test_practice_api.py` (all new, Phase 8);
+  `tests/test_reflection_operators.py`, `tests/test_reflection_validator.py`,
+  `tests/test_reflection_agent.py`, `tests/test_reflection_service.py` (all
+  new, Phase 9)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -1281,24 +1449,28 @@ Current state: **validates with 0 errors and 0 warnings.**
 
 ### API Status
 
-Eleven endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
+Twelve endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
 (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
 `POST /api/learners/me/claims/confirm`, `GET /api/learners/me/gaps` (Phase
 4 — optional `?role=` override), `POST /api/learners/me/plans` (Phase 5 —
 `{week_index?, dry_run?, hours?}`), `GET /api/learners/me/plans/current`
 (Phase 5), `POST /api/learners/me/practice` (Phase 8 — `{skill_id,
-purpose?}`), `POST /api/practice/{set_id}/submit` (Phase 8). The rest of
-design §27's table (target-role change, plan override/revert/revisions,
-chat, dispute, progress, decisions, demo seed) is not implemented yet —
-each needs the Reflection/Tutor later phases explicitly exclude.
-`POST /api/plans/{id}/override` in particular is Reflection's (design's
-own Phase 8, not this project's) surface for `patch_existing_plan`, which
-Phase 5 implements as a service-layer capability
-(`app/planning/service.py`) without an HTTP route of its own yet — Phase 8
-(this project's numbering) did not add that route either, since its
-deterministic remediation path calls `PlanningRepository` directly rather
-than `patch_existing_plan` (see ARCHITECTURE_CONTRACTS.md §17).
+purpose?}`), `POST /api/practice/{set_id}/submit` (Phase 8, response field
+renamed `remediation` -> `reflection` in Phase 9),
+`POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
+(new, Phase 9 — design §20.7's one-click Revert; only the plan's current
+revision may be reverted). The rest of design §27's table (target-role
+change, plan override, revisions listing, chat, dispute, progress,
+decisions, demo seed) is not implemented yet.
+`POST /api/plans/{id}/override` in particular is design's own surface for
+`patch_existing_plan`, which Phase 5 implements as a service-layer
+capability (`app/planning/service.py`) without an HTTP route of its own —
+Reflection (Phase 9) does not add that route either, since it applies its
+own operator pipeline directly rather than calling `patch_existing_plan`
+(see ARCHITECTURE_CONTRACTS.md §18). `GET /api/plans/{id}/revisions` (a
+plain listing) is also still unimplemented, even though Revert itself now
+exists.
 `SkillGraphService`/`CatalogRepository` (Phase 3) are still internal
 services with no direct HTTP surface of their own beyond `/gaps`/`/plans`/
 `/practice`; the intake route reads `CatalogRepository.get_role` for role
@@ -1310,43 +1482,52 @@ dependency of `/plans` (Phase 5, its first intended caller).
 
 ### Agent Status
 
-Three of the five LLM agents are now real: the Profiler Agent (A1,
+Four of the five LLM agents are now real: the Profiler Agent (A1,
 `app/agents/profiler.py`, Phase 2), the Planner Agent (A2,
-`app/agents/planner.py`, Phase 5 — draft/patch modes), and the Assessor
+`app/agents/planner.py`, Phase 5 — draft/patch modes), the Assessor
 Agent (A3, `app/agents/assessor.py`, Phase 8 — item generation + blind-solver
-validation, see "Completed Work" above). The other two (Reflection, Tutor)
-remain placeholder classes raising `NotImplementedError`. Two LangGraph
-business graphs exist for real: G1 Onboarding (`build_onboarding_graph`)
-and G2 Planning (`build_planning_graph`, Phase 5 — `build_objectives ->
+validation), and the Reflection Agent (A4, `app/agents/reflection.py`, Phase
+9 — mode (b) evidence reflection only; mode (a) plan-critique is not
+implemented, see "Known Issues" below). Only the Tutor (A5) remains a
+placeholder class raising `NotImplementedError`. Two LangGraph business
+graphs exist for real: G1 Onboarding (`build_onboarding_graph`) and G2
+Planning (`build_planning_graph`, Phase 5 — `build_objectives ->
 retrieve_candidates -> plan_draft -> validate_plan -> [retry <= 2] ->
-fallback_plan`, no `critique` node since Reflection is out of scope);
-**G3 Evidence-Response is implemented only as plain async orchestration**
-(`app/assessment/service.py`'s `submit_practice_set`), not as an explicit
-LangGraph `StateGraph` the way G1/G2 are — its node sequence
-(`record_evidence -> grade -> update_mastery -> detect_struggle -> route`)
-is short, entirely sequential (no branching/retry loop the way G2's
-`plan_draft`/`validate_plan` cycle needs), and `route` only ever triggers
-one deterministic path, so a full graph object would add ceremony without
-buying anything G1/G2 actually needed a graph for (checkpointed multi-step
-retry). Revisit if Reflection (design's Phase 8) later needs `route` to
-branch into more real paths — see "Known Issues" below. G4 remains a
-placeholder naming its owning phase (9). No agent other than the Profiler,
-Planner, and Assessor has tool access; none has any *side-effect* tool
-exposed to it — the Assessor generates candidate items and validates them,
-it never calls `commit_*` itself, per ARCHITECTURE_CONTRACTS.md §13. The
-Gap Engine (Phase 4), the Resource Retriever/Ranker (Phase 6), the Plan
-Validator and Fallback Planner (Phase 5), and the Mastery Updater,
-Struggle Classifier, and misconception resolution state machine (Phase 8)
-are **not** LLM agents — all seven are deterministic services
-ARCHITECTURE_CONTRACTS.md §2 explicitly excludes from that list; no LLM
-call exists anywhere in `app/gap/`, `app/retrieval/`,
+fallback_plan`, no `critique` node since Reflection mode (a) is out of
+scope); **G3 Evidence-Response is implemented only as plain async
+orchestration**, split across `app/assessment/service.py`'s
+`submit_practice_set` (`record_evidence -> grade -> update_mastery ->
+detect_struggle -> route`) and `app/reflection/service.py`'s
+`run_reflection` (`reflect -> validate_reflection -> [retry <= 2] ->
+deterministic patch -> commit`), not as an explicit LangGraph `StateGraph`
+the way G1/G2 are — each step needs a DB write the next step's read depends
+on (a materialized probe session before `ADD_PROBE` can reference real item
+IDs; mastery written before struggle classification reads it), and no
+Postgres-backed LangGraph checkpointer exists to pause a graph mid-run for
+that (see "Known Issues"). G4 remains a placeholder naming its owning phase
+(this project's Phase 10, design's Phase 9 — Tutor). No agent other than the
+Profiler, Planner, Assessor, and Reflection has tool access; none has any
+*side-effect* tool exposed to it — the Reflection Agent chooses among a
+pre-resolved candidate ID set (root-cause skill, remediation resources,
+probe items) and never calls `commit_*`/writes anything itself, per
+ARCHITECTURE_CONTRACTS.md §13; the actual `PlanRevision`/`ReflectionRecord`/
+`DecisionRecord` writes happen in `app/reflection/service.py` after the
+deterministic Reflection Validator approves. The Gap Engine (Phase 4), the
+Resource Retriever/Ranker (Phase 6), the Plan Validator and Fallback Planner
+(Phase 5), the Mastery Updater, Struggle Classifier, and misconception
+resolution state machine (Phase 8), and the Reflection Validator +
+deterministic root-cause/operator policy (Phase 9) are **not** LLM agents —
+all nine are deterministic services ARCHITECTURE_CONTRACTS.md §2 explicitly
+excludes from that list; no LLM call exists anywhere in `app/gap/`,
+`app/retrieval/`,
 `app/planning/validator.py`, `app/planning/fallback.py`,
-`app/assessment/mastery.py`, `app/assessment/struggle.py`, or
-`app/assessment/resolution.py`.
+`app/assessment/mastery.py`, `app/assessment/struggle.py`,
+`app/assessment/resolution.py`, `app/reflection/validator.py`,
+`app/reflection/operators.py`, or `app/reflection/deterministic.py`.
 
 ### Tests Status
 
-Backend: **375 tests, all passing** (`backend/tests/`) — run with
+Backend: **406 tests, all passing** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
@@ -1374,7 +1555,11 @@ blind-solver-validation + invented-tag-rejection behavior, the
 misconception resolution state machine, a real-catalog confirmed-
 misconception-to-real-remediation-resources round trip, and the
 `/practice` API routes — see the Phase 8 "Tests" bullet under "Completed
-Work" above). All run against SQLite (`tests/conftest.py`'s existing
+Work" above) plus Phase 9's 31 (every closed-set operator individually, the
+Reflection Validator's five checks, the Reflection Agent's degrade/valid-
+draft/invented-ID-retry behavior, and the real-catalog chain_rule ->
+backpropagation wow scenario end to end — see the Phase 9 "Tests" bullet
+under "Completed Work" above). All run against SQLite (`tests/conftest.py`'s existing
 dialect-portability convention); the Postgres-only catalog paths
 (`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
 the generated `search_vector` column), the full learner-profiling flow, the
@@ -1400,6 +1585,29 @@ one.
   which current Starlette flags as deprecated in favor of
   `HTTP_422_UNPROCESSABLE_CONTENT` (cosmetic warning only, not a failure;
   harmless to fix in a later pass).
+- **(Phase 9) `skill.chain_rule` has no curated `purpose="resolution-check"`
+  practice items** (only `skill.backpropagation.6` does) — a data gap, not a
+  Reflection bug. `app/assessment/item_bank.py::assemble_practice_set`'s
+  `resolution-check` branch has no generation fallback (by design, same
+  posture as the rest of that module), so a resolution-check probe scheduled
+  on `skill.chain_rule` specifically carries zero `practice_item_ids` in
+  this environment; `tests/test_reflection_service.py`'s wow-scenario test
+  documents this rather than asserting around it. Fix by either curating a
+  `resolution-check` item for `skill.chain_rule` or having `ADD_PROBE` fall
+  back to `purpose="prereq-block"`/`"practice"` items when none exist.
+- **(Phase 9) `DEFER` with no matching items is a no-op, not an error** —
+  deliberate (a struggling skill may not yet have a scheduled item this
+  week; "push out whatever is there" is vacuously satisfied by nothing being
+  there), but means a caller cannot distinguish "successfully deferred
+  zero items" from "the skill_id was a typo" from the return value alone;
+  `ApplyResult.diff["deferred"]` being empty is the only signal.
+- **(Phase 9) design §20.8's "deferred items reinstated" on resolution is
+  not implemented** — `resolution.record_probe_result` still only
+  transitions `LearnerMisconception.status`; nothing tracks which plan
+  item(s) a given reflection deferred so a later `resolved` status could
+  pull them back to an earlier `day_slot`. Would need either a new column
+  linking a deferred `PlanItem`/objective back to its `ReflectionRecord`, or
+  a lookup through `PlanRevision.diff`'s `"deferred"` list.
 - The session/auth boundary (`app/api/deps.py`) is a placeholder: a bare
   cookie value with a dev-mode fallback (`session=None` → `"dev-user"` only
   when `env=dev`). There is no real login/signup flow. This is intentional
@@ -1874,29 +2082,35 @@ phase (Phase 8, Assessment/Mastery/Struggle Detection):
   short-answer grading's degrade-to-ungraded behavior, and the deterministic
   (not Planner-Agent-routed) remediation-application decision.
 
+`docs/ARCHITECTURE_CONTRACTS.md` §2, §12, §17, and a new §18 added this
+phase (Phase 9, Reflection & Re-planning):
+- §2: recorded the Reflection Agent (A4) mode (b) and the Reflection
+  Validator as now implemented; mode (a) (plan critique) remains open.
+- §12: `reflection/` recorded as a package-naming addition (alongside
+  Phase 3's `catalog/`, Phase 6's `retrieval/`).
+- §17: updated the Phase 8 scope-decision bullet to note it is superseded —
+  `resolution.py` itself is unchanged, but is no longer the primary path;
+  it is now Reflection's last-resort fallback.
+- New §18 (this file's own numbering, not design's §18): the full set of
+  Phase 9 decisions — the project-specific closed operator set vs. design
+  §20.5's, deterministic (never LLM) root-cause identification, why
+  Reflection bypasses `patch_existing_plan` rather than calling it, the
+  fresh-`item_id`-on-carry-forward rule, the four-rung fallback ladder, the
+  generalized trigger set, and the new Revert endpoint.
+
 ### Next Phase
 
-**Reflection & Re-planning** (design §39.1's Phase 8, §20 — the one this
-project's own numbering skipped past): the LLM Reflection Agent (mode a:
-plan critique after `validate_plan` passes but before commit, design
-§16.3 point 7; mode b: evidence-triggered, consuming this project's Phase
-8 `StruggleSignal`/`LearnerMisconception` output), the closed operator set
-(`INSERT_REMEDIATION`/`DEFER`/`SWAP_RESOURCE`/`ADD_PRACTICE`/`ADD_PROBE`/
-`REDUCE_LOAD`/`REORDER`), and the Reflection Validator (root_cause_skill_id
-is the failed skill or a graph ancestor; evidence_ids belong to this
-learner; operators are from the closed set; the Plan Validator passes after
-applying them; on conflict the deterministic Struggle Classifier's class
-wins over the LLM's). This is also the natural place to: wire the Struggle
-Classifier's `cognitive_overload` signals into the Plan Validator's V9
-`overload_active` flag and `patch_existing_plan`'s budget (both already
-accept the flag, Phase 5 — nothing sets it from real data yet); decide how
-`Reflection`'s cooldown (design §19.4, 24h per learner+skill) interacts
-with this project's existing `STRUGGLE_REVISION_COOLDOWN_HOURS` (Phase 8
-already applies a cooldown to *remediation* specifically — Reflection's is
-broader, "at most one reflection-triggered revision... per (learner,
-skill)"); and route `missing_prerequisite`/`excessive_difficulty`/
-`cognitive_overload` (medium/high confidence) into a real reflection
-trigger the way Phase 8 only ever did for `repeated_misconception`.
+**Tutor** (design §39.1's Phase 9, this project's Phase 10): a read-only
+conversational agent (design §8.2, the fifth and last LLM agent) that
+answers "why did my plan change?" (now genuinely answerable — Phase 9 wrote
+real `PlanRevision`/`ReflectionRecord`/`DecisionRecord` chains with graph
+paths and evidence refs), "why do I need skill X for my role?" (via
+`SkillGraphService.explain_skill_path`, already implemented, Phase 3), and
+general graph/progress questions grounded in the learner's own structured
+state — never inventing a fact, never mutating the plan directly (it may
+only propose an override the user confirms, per ARCHITECTURE_CONTRACTS.md
+§2). The G4 Tutor graph (`app/orchestration/graphs.py::build_tutor_graph`)
+is still a placeholder.
 
 Still open on **Phase 3**: a human review pass over the curated content
 (§11.5) — every edge/resource/misconception/item still shows
@@ -1928,66 +2142,76 @@ per the phase brief); `learner_history`/`ResourceUsageRecord` is now
 sourceable in principle (`assessments` exists, Phase 8) but nothing builds
 it from that table yet.
 
-Still open on **Phase 5**: `POST /api/plans/{id}/override`/`/revert` and
-`GET /api/plans/{id}/revisions` (design §27) are not implemented —
+Still open on **Phase 5**: `POST /api/plans/{id}/override` and
+`GET /api/plans/{id}/revisions` (design §27) are still not implemented —
 `patch_existing_plan` exists as a service-layer capability with no HTTP
-route yet, since deciding *when* to call it is Reflection's job; no
-CI/nightly job runs the deterministic Plan Validator's soft-violation
-rates as an evaluation metric (design §17.3, needs design §32's evaluation
-harness).
+caller (Reflection, Phase 9, bypasses it — see ARCHITECTURE_CONTRACTS.md
+§18); the one-click Revert half of design §27's row *is* now implemented,
+just under a different path
+(`POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`,
+Phase 9) than design's table shows. No CI/nightly job runs the
+deterministic Plan Validator's soft-violation rates as an evaluation metric
+(design §17.3, needs design §32's evaluation harness).
 
-Still open on **Phase 8**: the full Reflection Agent (see above — Phase 8
-implemented only design §20.8's narrower deterministic resolution loop, a
-single hard-coded trigger, no LLM root-cause synthesis, no closed operator
-set beyond the two this phase hard-codes); `missing_prerequisite`'s direct-
-probe evidence source is unwired (a real prior assessment on the
-prerequisite skill exists in the data but nothing queries it, see "Known
-Issues"); no `LearningActivity` table yet, so overload's
-`planned_vs_actual_ratio`/`completion_rate` stay caller-supplied; `Assessment`
-generation coverage is still the Phase 3 initial bank (95 items / 23
-skills) — build it out for whichever skills a demo leans on most, now that
-generate-if-short can fill real gaps with a real provider configured; a
-`CatalogRepository.replace_all()` re-ingestion story that tolerates real
-learner-scoped FK rows (see "Known Issues") — needed before this project
-can safely re-seed a catalog against a database with real users on it.
+Still open on **Phase 8**: `missing_prerequisite`'s direct-probe evidence
+source is unwired (a real prior assessment on the prerequisite skill exists
+in the data but nothing queries it, see "Known Issues"); no
+`LearningActivity` table yet, so overload's `planned_vs_actual_ratio`/
+`completion_rate` stay caller-supplied; `Assessment` generation coverage is
+still the Phase 3 initial bank (95 items / 23 skills — notably,
+`skill.chain_rule` has no `purpose="resolution-check"` items, so Phase 9's
+wow-scenario probe carries zero practice items in this environment, see
+"Known Issues"); a `CatalogRepository.replace_all()` re-ingestion story that
+tolerates real learner-scoped FK rows (see "Known Issues") — needed before
+this project can safely re-seed a catalog against a database with real
+users on it.
+
+Still open on **Phase 9**: Reflection Agent mode (a) (plan critique, design
+§16.3 point 7 — soft pedagogical review after `validate_plan` passes but
+before commit, in the G2 graph) is not implemented, only mode (b)
+(evidence-triggered); design §20.8's automatic "deferred items reinstated"
+step on misconception resolution is not implemented — `record_probe_result`
+still only flips `LearnerMisconception.status`, nothing pulls a
+previously-`DEFER`red item back to an earlier day_slot when its probe
+passes; `cognitive_overload` triggers a bare `DEFER`, not yet wired into the
+Plan Validator's V9 `overload_active` flag for the *next* `create_plan`
+call (both already accept the flag, Phase 5 — this phase's Reflection path
+doesn't set it either); no CI/nightly job evaluates reflection quality
+(design §32's "false-positive reflection rate" metric needs an evaluation
+harness that doesn't exist yet); high-impact-change user confirmation
+(design §20.7: "dropping a role-critical skill... requires user
+confirmation") is not implemented — every approved patch commits
+immediately.
 
 ### Exact Next Task
 
-1. Implement the Reflection Agent (`app/agents/reflection.py`, currently a
-   placeholder) per design §20.1/§20.4: mode (a) plan critique (called from
-   the G2 graph after `validate_plan` passes, before commit — design
-   §16.3 point 7, not built by Phase 5) and mode (b) evidence-triggered,
-   consuming Phase 8's `StruggleSignal`/`LearnerMisconception` rows as its
-   evidence bundle (design §20.3).
-2. Implement the closed operator set (design §20.5) as deterministic
-   functions on a plan, and the Reflection Validator (design §20.6):
-   `root_cause_skill_id` is the failed skill or a graph ancestor; evidence
-   IDs belong to the learner; operators are from the closed set; the Plan
-   Validator (Phase 5) passes after applying them; on a class conflict the
-   deterministic Struggle Classifier (Phase 8) wins, logged.
-3. Wire `route` (currently `app/assessment/service.py`'s single
-   hard-coded `repeated_misconception` -> remediation path) into real
-   reflection triggers for `missing_prerequisite`/`excessive_difficulty`/
-   `cognitive_overload` at medium/high confidence (design §19.3), calling
-   the new Reflection Agent instead of (or alongside) Phase 8's
-   deterministic resolution path.
-4. Wire `cognitive_overload` into the Plan Validator's V9 `overload_active`
-   flag and a `create_plan`/`patch_existing_plan` call's effective budget
-   (both already accept the flag, Phase 5 — nothing sets it from real
-   Struggle Classifier output yet).
-5. Add `POST /api/plans/{id}/override`, `POST /api/plans/{id}/revert`,
-   `GET /api/plans/{id}/revisions` (design §27) — the first real HTTP
-   surface for `patch_existing_plan` and for design §20.7's one-click
-   revert / "needs attention" failure banner.
-6. Wire `no_open_misconceptions_for(skill)` into
-   `LearningObjective.acceptance_criteria` (Gap Engine, Phase 4) now that
-   `LearnerMisconception` (Phase 8) exists to source it from.
-7. Before trusting the graph in a live demo: run the human review pass
+1. Implement the Tutor Agent (`app/agents/tutor.py`, currently a
+   placeholder) per design §8.2: read-only, grounded in structured learner
+   state (never free-form graph/DB access) — `SkillGraphService.explain_skill_path`
+   (Phase 3, already implemented) for "why do I need X," and the
+   `PlanRevision`/`ReflectionRecord`/`DecisionRecord` chain (Phase 9, now
+   real) for "why did my plan change."
+2. Build the G4 Tutor graph (`app/orchestration/graphs.py::build_tutor_graph`,
+   currently `NotImplementedError`) and its read-only tool surface (design
+   §14's `skill_lookup`/`explain_skill_path`/`get_learner_state`/`get_gaps`/
+   `get_current_plan`/`get_plan_revisions`/`get_evidence`/`get_progress`/
+   `get_decision` — all read-only, `learner_id` from the session per
+   ARCHITECTURE_CONTRACTS.md §7, never an LLM argument).
+3. Add the chat endpoint (design §27) and, if the Tutor proposes a plan
+   override, route it through the same Reflection Validator +
+   `apply_operators()` pipeline (Phase 9) rather than a new commit path —
+   "may only propose an override the user confirms" per
+   ARCHITECTURE_CONTRACTS.md §2.
+4. Wire Reflection's `cognitive_overload` path into the Plan Validator's V9
+   `overload_active` flag for the *next* `create_plan` call, and implement
+   design §20.8's "deferred items reinstated" step on misconception
+   resolution (see "Known Issues").
+5. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
+   now overdue with four real agent calls) before adding the fifth (Tutor)
+   on top of the same gap.
+6. Before trusting the graph in a live demo: run the human review pass
    (Phase 3) and the live link-validation sweep (`scripts/validate_links.py`,
-   Phase 6) noted above.
-8. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
-   now overdue with three real agent calls) before adding a fourth
-   (Reflection) on top of the same gap.
+   Phase 6).
 
 ### Commands To Verify Current State
 

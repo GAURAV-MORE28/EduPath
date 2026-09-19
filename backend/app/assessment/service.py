@@ -1,10 +1,12 @@
 """Async orchestration for the Practice & Assessment Engine -- design §9.5's
-G3 Evidence-Response, scoped to this phase: `record_evidence -> grade ->
-update_mastery -> detect_struggle -> route (-> deterministic remediation)`.
-The full `reflect` node (Reflection Agent, LLM-driven root-cause synthesis)
-is out of scope; `route` here only ever triggers the deterministic
-remediation path in `app/assessment/resolution.py` for a *confirmed*
-`repeated_misconception` signal specifically (see that module's docstring).
+G3 Evidence-Response: `record_evidence -> grade -> update_mastery ->
+detect_struggle -> route -> reflect -> root cause -> plan patch ->
+validation -> revision -> resolution probe` (this project's Phase 9, design's
+"Phase 8" -- see `app/reflection/service.py`, which owns everything from
+`route` onward). `app/assessment/resolution.py`'s misconception
+probe-result/cooldown state-machine helpers are still used directly here and
+from `app/reflection/service.py`; its own plan-patching recipe now only
+serves as `app/reflection/service.py`'s last-resort deterministic fallback.
 
 Mirrors `app/profiling/onboarding.py`/`app/planning/service.py`'s split
 between "pure algorithm" (`mastery.py`, `struggle.py`) and "DB/gateway
@@ -22,19 +24,15 @@ from app.assessment import resolution
 from app.assessment.grading import grade_mcq
 from app.assessment.item_bank import assemble_practice_set
 from app.assessment.mastery import compute_band, compute_confidence, update_mastery
-from app.assessment.struggle import (
-    REPEATED_MISCONCEPTION,
-    ItemOutcome,
-    StruggleContext,
-    StruggleSignalEntry,
-    classify_struggle,
-)
-from app.core.thresholds import REPEATED_MISCONCEPTION_WINDOW_DAYS
+from app.assessment.struggle import ItemOutcome, StruggleContext, StruggleSignalEntry, classify_struggle
+from app.core.thresholds import REPEATED_MISCONCEPTION_WINDOW_DAYS, WEEKLY_BUDGET_SLACK
 from app.db.models import Assessment, Evidence, LearnerSkillState, PracticeSession
 from app.db.models import StruggleSignal as StruggleSignalRow
-from app.gap.engine import EvidenceRecord, LearnerSkillRecord, analyze_gaps, current_level_for
+from app.gap.engine import EvidenceRecord, GapAnalysisResult, LearnerSkillRecord, analyze_gaps, current_level_for
 from app.gateway.llm_gateway import LLMGateway
 from app.graph.queries import SkillGraphService
+from app.reflection import service as reflection_service
+from app.reflection.service import ReflectionOutcome
 from app.repositories.assessment_repository import AssessmentRepository
 from app.repositories.catalog_repository import CatalogRepository
 from app.repositories.planning_repository import PlanningRepository
@@ -60,7 +58,7 @@ class SubmitOutcome:
     score: float
     items: list[dict] = field(default_factory=list)  # design §25.2's AssessmentResult.items[] shape, as dicts
     signals: list[StruggleSignalEntry] = field(default_factory=list)
-    remediation: resolution.RemediationOutcome | None = None
+    reflection: ReflectionOutcome | None = None
     submitted_at: str = ""
 
 
@@ -257,6 +255,7 @@ async def submit_practice_set(
     target_record = mastery_by_skill.get(practice_session.skill_id)
     hard_prereqs = graph.direct_prerequisites(practice_session.skill_id, include_soft=False)
     gap_statuses: dict[str, str] = {}
+    gap_result: GapAnalysisResult | None = None
     profile = await profiling_repo.get_learner_profile(learner_id)
     if profile is not None:
         skill_records, evidence_records = await _build_records(profiling_repo, learner_id)
@@ -264,7 +263,7 @@ async def submit_practice_set(
             gap_result = analyze_gaps(profile.target_role_id, skill_records, evidence_records, graph)
             gap_statuses = {g.skill_id: g.status for g in gap_result.gaps}
         except Exception:  # noqa: BLE001 -- role not supported / out of scope, not fatal
-            gap_statuses = {}
+            gap_result, gap_statuses = None, {}
     hard_prerequisite_status = {p: gap_statuses[p] for p in hard_prereqs if p in gap_statuses}
 
     misconception_root_skill: dict[str, str] = {}
@@ -310,24 +309,13 @@ async def submit_practice_set(
         )
         s.signal_id = row.signal_id
 
-    # -- route: deterministic remediation for a confirmed repeated misconception (design §19.3/§20.8) --
-    remediation_outcome: resolution.RemediationOutcome | None = None
-    for s in signals:
-        if s.signal_class == REPEATED_MISCONCEPTION and s.confidence == "high" and s.counts.get("status") == "confirmed":
-            misconception_id = s.counts["misconception_id"]
-            lm = await resolution.upsert_signal_status(
-                assessment_repo, learner_id=learner_id, misconception_id=misconception_id, status="confirmed", evidence_ids=s.evidence_ids
-            )
-            probe_session = await create_practice_session(
-                session=session, graph=graph, llm_gateway=llm_gateway, learner_id=learner_id, skill_id=practice_session.skill_id,
-                purpose="resolution-check", misconception_id=misconception_id,
-            )
-            remediation_outcome = await resolution.start_remediation(
-                repo=assessment_repo, planning_repo=planning_repo, graph=graph, learner_id=learner_id,
-                misconception_id=misconception_id, skill_id=practice_session.skill_id, probe_item_ids=probe_session.item_ids,
-                evidence_ids=s.evidence_ids,
-            )
-            break  # design §19.4: only one triggered revision per submission
+    # -- route: struggle -> Reflection -> root cause -> plan patch -> validation
+    # -> revision -> resolution probe (design §19.3/§20, this project's Phase 9) --
+    weekly_hours_budget_minutes = (profile.weekly_hours * 60 * WEEKLY_BUDGET_SLACK) if profile is not None else 0.0
+    reflection_outcome = await reflection_service.run_reflection(
+        session=session, graph=graph, llm_gateway=llm_gateway, learner_id=learner_id, signals=signals,
+        gap_result=gap_result, weekly_hours_budget_minutes=weekly_hours_budget_minutes,
+    )
 
     return SubmitOutcome(
         assessment_id=assessment.assessment_id,
@@ -336,7 +324,7 @@ async def submit_practice_set(
         score=score,
         items=item_results,
         signals=signals,
-        remediation=remediation_outcome,
+        reflection=reflection_outcome if reflection_outcome.triggered else None,
         submitted_at=assessment.submitted_at.isoformat() if assessment.submitted_at else "",
     )
 

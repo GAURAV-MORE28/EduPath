@@ -522,3 +522,56 @@ class LearnerMisconception(Base):
     first_seen: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     last_remediated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     resolved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+# ---------------------------------------------------------------------------
+# Phase 9 -- Reflection & Re-planning (design §20, §25.2, §28; this project's
+# own numbering -- design calls this "Phase 8")
+# ---------------------------------------------------------------------------
+
+
+class ReflectionRecord(Base):
+    """design §28's `ReflectionRecord(reflection_id, learner_id, signal_id,
+    result JSONB, validated bool, rounds)`. `result` is the full
+    `ReflectionResult` payload (root cause, operators, hypothesis, etc.) that
+    was actually applied (or, when `validated=False`, the last attempted one)
+    -- the append-only audit trail behind "why did my plan change?" (design
+    §21's episodic memory table)."""
+
+    __tablename__ = "reflection_records"
+
+    reflection_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    signal_id: Mapped[str] = mapped_column(String(36), ForeignKey("struggle_signals.signal_id"), index=True)
+    result: Mapped[dict] = mapped_column(JSON, default=dict)
+    validated: Mapped[bool] = mapped_column(Boolean, default=False)
+    rounds: Mapped[int] = mapped_column(Integer, default=0)
+    degraded: Mapped[bool] = mapped_column(Boolean, default=False)  # deterministic patch, not the LLM agent, decided this
+    plan_revision_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("plan_revisions.revision_id"), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class DecisionRecord(Base):
+    """design §28's `DecisionRecord(decision_id, learner_id, type, inputs,
+    evidence_ids[], graph_paths, rules_fired, scores, llm_run_id?,
+    graph_version, output_ref, created_at)` -- the general-purpose
+    "why did the system decide X" audit row design §21 lists as episodic
+    memory. This phase writes one per applied reflection/revision; other
+    decision types (gap analysis, planning) do not retroactively adopt this
+    table -- out of scope, see IMPLEMENTATION_STATE.md.
+    """
+
+    __tablename__ = "decision_records"
+
+    decision_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    type: Mapped[str] = mapped_column(String(32))  # "reflection" this phase; other types reserved for later phases
+    inputs: Mapped[dict] = mapped_column(JSON, default=dict)
+    evidence_ids: Mapped[list] = mapped_column(JSON, default=list)
+    graph_paths: Mapped[list] = mapped_column(JSON, default=list)  # list[list[skill_id]]
+    rules_fired: Mapped[list] = mapped_column(JSON, default=list)
+    scores: Mapped[dict] = mapped_column(JSON, default=dict)
+    llm_run_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    graph_version: Mapped[str] = mapped_column(String(64), default="")
+    output_ref: Mapped[str] = mapped_column(String(36), default="")  # the resulting PlanRevision.revision_id
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

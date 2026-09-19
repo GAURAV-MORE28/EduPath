@@ -359,8 +359,27 @@ def build_planning_graph(
 
 
 def build_evidence_response_graph():
-    """G3 Evidence-Response — placeholder. Implemented in Phase 8."""
-    raise NotImplementedError("G3 Evidence-Response graph is implemented in Phase 8 (Reflection / re-planning).")
+    """G3 Evidence-Response -- design §9.5 describes this as one LangGraph
+    (`record_evidence -> grade -> update_mastery -> detect_struggle -> route
+    -> reflect -> validate_reflection -> patch -> commit`). This project
+    built that whole pipeline instead as plain async orchestration across
+    two modules -- `app/assessment/service.py` (record_evidence through
+    route) and `app/reflection/service.py` (reflect through commit) -- the
+    same choice Phase 8 already made for the first half of this pipeline,
+    for the same reason: each step needs a DB write interleaved with the
+    next step's read (mastery update before struggle classification can read
+    it; a materialized probe session before `ADD_PROBE` can reference real
+    item IDs), and no Postgres-backed LangGraph checkpointer exists to pause
+    a graph mid-run for that (see IMPLEMENTATION_STATE.md "Known Issues").
+    `app/reflection/service.py::run_reflection`'s own bounded
+    agent-round-then-deterministic-fallback ladder plays the role design's
+    `reflect -> validate_reflection -> [retry] -> deterministic patch` nodes
+    would have. This function stays a placeholder -- no code path calls it.
+    """
+    raise NotImplementedError(
+        "G3 Evidence-Response is implemented as plain async orchestration, not a LangGraph -- "
+        "see app/assessment/service.py::submit_practice_set and app/reflection/service.py::run_reflection."
+    )
 
 
 def build_tutor_graph():

@@ -45,6 +45,16 @@ class AssessmentRepository:
         )
         return list(result.scalars().all())
 
+    async def all_assessment_item_ids_for_learner(self, learner_id: str) -> frozenset[str]:
+        """Every `item_id` this learner has ever been assessed on, across
+        every skill/purpose -- the "belongs to this learner" universe design
+        §20.6 check 2's Reflection Validator checks `evidence_ids` against."""
+        result = await self.session.execute(select(Assessment).where(Assessment.learner_id == learner_id))
+        item_ids: set[str] = set()
+        for assessment in result.scalars().all():
+            item_ids.update(entry["item_id"] for entry in assessment.items)
+        return frozenset(item_ids)
+
     # -- StruggleSignal ---------------------------------------------------------
 
     async def create_signal(self, signal: StruggleSignal) -> StruggleSignal:

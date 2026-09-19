@@ -52,6 +52,16 @@ class PlanningRepository:
         result = await self.session.execute(select(PlanRevision).where(PlanRevision.revision_id == revision_id))
         return result.scalar_one_or_none()
 
+    async def mark_reverted(self, revision_id: str, *, reverted_by_revision_id: str) -> None:
+        """design §28's `PlanRevision.reverted_by?` -- design §20.7's
+        one-click Revert: set on the revision whose content a *newer*
+        revision (`reverted_by_revision_id`) just restored the plan away
+        from, so history stays linear (a new revision, never an edit to an
+        old one) and it's visible which revisions are no longer "live"."""
+        revision = await self.get_revision(revision_id)
+        if revision is not None:
+            revision.reverted_by = reverted_by_revision_id
+
     # -- PlanItem -----------------------------------------------------------
 
     async def create_items(self, items: list[PlanItem]) -> None:

@@ -61,23 +61,29 @@ class SubmitPracticeRequest(BaseModel):
     new_skills_active: int = 0
 
 
-class RemediationOut(BaseModel):
-    """Summary of the deterministic remediation path (design §20.8), when a
-    `repeated_misconception` signal at `confirmed` status fired this
-    submission."""
+class ReflectionOut(BaseModel):
+    """Summary of the Reflection pipeline (design §20), when a
+    design-§20.2-triggering signal fired this submission: struggle ->
+    root cause -> plan patch -> validation -> revision -> resolution probe
+    (`app/reflection/service.py`)."""
 
-    misconception_id: str
-    status: str  # remediating | persistent (start_remediation never returns "resolved" -- only a probe result does)
-    started: bool
-    skip_reason: str | None = None
+    root_cause_skill_id: str | None = None
+    root_cause_class: str | None = None
+    misconception_id: str | None = None
+    misconception_status: str | None = None  # confirmed | remediating | resolved | persistent
     remediation_resource_ids: list[str] = []
+    operators: list[dict] = []
     plan_revision_id: str | None = None
+    degraded: bool = False  # a deterministic policy, not the LLM Reflection Agent, decided this
+    needs_attention: bool = False  # both the deterministic and last-resort patches failed validation
+    rounds: int = 0
+    explanation: str = ""  # learner-facing "why did my plan change"
 
 
 class SubmitPracticeResponse(BaseModel):
     """design §27: "AssessmentResult, signals, optional PlanRevision
-    summary" -- `remediation.plan_revision_id` is that optional summary."""
+    summary" -- `reflection.plan_revision_id` is that optional summary."""
 
     result: AssessmentResult
     signals: list[StruggleSignal] = []
-    remediation: RemediationOut | None = None
+    reflection: ReflectionOut | None = None

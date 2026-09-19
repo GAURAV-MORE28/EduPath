@@ -31,7 +31,7 @@
 | **Profiler** | single | No — emits `ExtractedClaims` only | ✅ Phase 2 (`backend/app/agents/profiler.py`) |
 | **Planner** | draft / patch | No — writes only via validated commit nodes | ✅ Phase 5 (`backend/app/agents/planner.py`) |
 | **Assessor** | generation (strong) / grading & validation (small) | No | ✅ Phase 8 (`backend/app/agents/assessor.py`) |
-| **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ❌ |
+| **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ✅ Phase 9, mode (b) only (`backend/app/agents/reflection.py`); mode (a) plan critique ❌ |
 | **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ❌ |
 
 Everything else (Gap Engine, Skill Normalizer\*, Skill Graph Service, Resource
@@ -53,9 +53,14 @@ implemented (Phase 8):** `backend/app/assessment/mastery.py`'s
 `update_mastery()` and `backend/app/assessment/struggle.py`'s
 `classify_struggle()` — both pure functions, no LLM call in either module
 (see §17 below). The misconception resolution state machine
-(`backend/app/assessment/resolution.py`) is likewise deterministic — it is
-**not** the Reflection Agent (§20's full LLM-driven root-cause synthesis
-remains out of scope; see §17).
+(`backend/app/assessment/resolution.py`) is likewise deterministic; it now
+serves as the Reflection pipeline's last-resort guaranteed-safe patch
+(Phase 9, see §17/§18) rather than being called directly from
+`app/assessment/service.py`'s routing. **Reflection Agent mode (b) and the
+Reflection Validator implemented (Phase 9):**
+`backend/app/agents/reflection.py`, `backend/app/reflection/validator.py`
+(deterministic, no LLM call) — see §18 below. Mode (a) (plan critique) is
+still out of scope.
 
 ## 3. Evidence tiers (never conflate these)
 
@@ -535,20 +540,22 @@ design §10.4, §18, §19, §20.8)
   `resolution.py` (deterministic misconception state machine),
   `service.py` (async orchestration — mirrors `app/planning/service.py`'s
   split).
-- **Scope decision (the Phase 8 brief's explicit framing):** the full
-  Reflection Agent (design §20 — LLM-driven root-cause synthesis over the
-  closed `INSERT_REMEDIATION`/`DEFER`/`SWAP_RESOURCE`/`ADD_PRACTICE`/
-  `ADD_PROBE`/`REDUCE_LOAD`/`REORDER` operator set, `ReflectionResult`, the
-  Reflection Validator, the `plan_draft`/`validate_plan` re-check loop) is
+- **Scope decision (the Phase 8 brief's explicit framing, superseded by
+  Phase 9 — see §18 below):** the full Reflection Agent (design §20 —
+  LLM-driven root-cause synthesis, a closed operator set, `ReflectionResult`,
+  the Reflection Validator, a retry-then-deterministic-patch loop) was
   **not** implemented this phase. `backend/app/assessment/resolution.py`
-  implements only design §20.8's narrower "misconception detected ->
+  implemented only design §20.8's narrower "misconception detected ->
   remediation -> verification probe -> resolved/persistent" loop, with
   exactly one hard-coded trigger (a `repeated_misconception` signal at
   `confirmed` status) rather than an LLM choosing when/how to intervene.
-  `INSERT_REMEDIATION` and `ADD_PROBE` are applied directly and
+  `INSERT_REMEDIATION` and `ADD_PROBE` were applied directly and
   deterministically via `PlanningRepository` — both already are
   "deterministic function[s] on the plan" per design §20.5's own framing,
-  so no LLM round-trip is needed once the trigger has fired.
+  so no LLM round-trip was needed once the trigger fired. **Phase 9 now
+  implements the fuller pipeline** (§18); `resolution.py` itself is
+  unchanged and its narrower recipe now serves as Reflection's last-resort
+  guaranteed-safe fallback rather than the primary path.
 - **Mastery is always surfaced as an estimate, never asserted as fact**
   (design §10.4, the Phase 8 brief's explicit instruction):
   `app/assessment/mastery.py`'s `MasteryOutcome` always carries `band` and
@@ -644,3 +651,92 @@ design §10.4, §18, §19, §20.8)
   automatically inside `submit_practice_set` whenever the submitted
   `PracticeSession.purpose == "resolution-check"` — there is no separate
   endpoint a caller invokes to "mark a misconception resolved."
+
+## 18. Reflection & Re-planning conventions (Phase 9, design §20, §21)
+
+- **Package:** `backend/app/reflection/` — an addition beyond §12's naming
+  list, same latitude `catalog/`/`retrieval/`/`gap/` already used.
+  `operators.py` (pure), `evidence.py` (pure assembly), `deterministic.py`
+  (pure root-cause + operator policy), `draft.py` (the shared
+  `ReflectionDraft` shape), `prompting.py` (Reflection Agent prompt/parse),
+  `validator.py` (deterministic Reflection Validator), `service.py` (async
+  orchestration — mirrors `app/assessment/service.py`'s split).
+- **Closed operator set is this project's own, not design §20.5's
+  verbatim list.** The Phase 9 brief specifies exactly six operators —
+  `INSERT_REMEDIATION`, `DEFER`, `REMOVE_DUPLICATE`, `REPLACE_RESOURCE`,
+  `ADD_PROBE`, `SPLIT_ACTIVITY` — used here instead of design §20.5's seven
+  (`SWAP_RESOURCE`/`ADD_PRACTICE`/`REDUCE_LOAD`/`REORDER`). `REPLACE_RESOURCE`
+  ≈ `SWAP_RESOURCE`; `REMOVE_DUPLICATE`/`SPLIT_ACTIVITY` have no design
+  §20.5 equivalent (they cover the Plan Validator's own V_DUP/V6 concerns);
+  `ADD_PRACTICE`/`REDUCE_LOAD`/`REORDER` are not implemented — `DEFER` and
+  `SPLIT_ACTIVITY` cover their load-reduction/chunking intent in this
+  project. `apply_operators()` (`app/reflection/operators.py`) is the single
+  place every operator's semantics live, deliberately a pure function (no
+  DB/gateway import) re-validated by the existing Plan Validator.
+- **Root-cause identification is deterministic, never delegated to the
+  LLM.** `app/reflection/deterministic.py::deterministic_root_cause` reads
+  it straight off the struggle signal (a `missing_prerequisite` signal's
+  named prerequisite) or the curated graph (a confirmed misconception's
+  `ROOTED_IN` skill via `SkillGraphService`) — consistent with §7's "an LLM
+  never invents an ID" and design §20.6 point 3's "on conflict the
+  classifier wins." The Reflection Agent (when a provider exists) is handed
+  this pre-resolved root cause plus pre-resolved candidate resource/probe
+  IDs and chooses/refines *operators* and narrative fields only; the
+  Reflection Validator still independently re-checks that whatever
+  `root_cause_skill_id` comes back really is the struggling skill or one of
+  its hard-prerequisite ancestors.
+- **Reflection does not route through `patch_existing_plan` (Phase 5).**
+  `patch_existing_plan`'s G2-graph patch mode recomputes objectives/candidates
+  fresh and, when the LLM is unavailable (this project's permanent state),
+  falls through to `fallback_plan`, which **regenerates a plan from scratch**
+  rather than surgically patching the existing one — incompatible with
+  design §20.7's "revisions apply to future items only." Reflection instead
+  applies its own `apply_operators()` pipeline directly to the current
+  revision's items, the same direct-`PlanningRepository`-write approach
+  `app/assessment/resolution.py` (Phase 8) already used, generalized to the
+  full closed operator set. `patch_existing_plan` remains unused by any
+  caller; it is not removed, only bypassed.
+- **Fresh `item_id` on every persisted revision, including carried-forward
+  items.** `plan_items.item_id` is a global primary key, not scoped per
+  revision (`PlanItem.revision_id` is what scopes an item to "the revision
+  it belongs to," per Phase 5's own schema note) — so re-inserting a prior
+  item under a new `revision_id` with its *old* `item_id` violates the
+  primary key. `app/reflection/service.py::_schema_to_row` never carries
+  `item_id` forward, matching `app/assessment/resolution.py`'s
+  `_apply_remediation_to_plan`, which already did this for the same reason.
+- **Layered fallback, never a half-applied plan (design §20.7).** Order:
+  (1) the Reflection Agent, retried up to `REFLECTION_MAX_ROUNDS` (2) with
+  the Validator's rejection reasons fed back; (2) on agent
+  degrade/exhaustion, the deterministic root-cause+operator policy; (3) on
+  *that* failing hard validation (defensive — the deterministic policy is
+  expected to already produce a valid patch), a last-resort minimal patch
+  (`INSERT_REMEDIATION`+`ADD_PROBE` only, no `DEFER` — `resolution.py`'s
+  original recipe, demoted to this role); (4) if even that fails, the plan
+  is left **unchanged** and a `ReflectionRecord(validated=False,
+  ...)`/`needs_attention=True` records the attempt. No partial application
+  at any stage — `apply_operators()` either fully succeeds or the caller
+  discards its result and tries the next rung.
+- **Trigger set generalized beyond Phase 8's single hard-coded trigger.**
+  `app/reflection/service.py::pick_trigger` triggers on any of design
+  §20.2's four classes (`repeated_misconception`-confirmed,
+  `missing_prerequisite`, `excessive_difficulty`, `cognitive_overload`, at
+  the Struggle Classifier's own medium/high-confidence + action-precedence
+  rules) rather than only a confirmed misconception.
+- **Addition:** `ReflectionRecord`, `DecisionRecord` (migration
+  `0006_reflection`) join design §28's table list, with real field lists
+  from day one (§28's own shapes, not `{id fields..., data: dict}`
+  placeholders).
+- **Addition:** `PlanningRepository.mark_reverted`,
+  `ReflectionRepository` (new), `AssessmentRepository.all_assessment_item_ids_for_learner`.
+- **One-click Revert is new HTTP surface** (design §20.7):
+  `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert` —
+  only the plan's *current* revision may be reverted (reverting a
+  superseded one would silently discard whatever came after it); it creates
+  a new revision restoring its parent's content and sets the reverted
+  revision's `PlanRevision.reverted_by`.
+- **G3 Evidence-Response is still not a LangGraph** — see §17's existing
+  framing; `app/reflection/service.py::run_reflection` plays the role
+  design's `reflect -> validate_reflection -> [retry] -> patch -> commit`
+  nodes would have, as plain async orchestration for the same reason Phase
+  8 already gave (interleaved DB writes/reads, no Postgres-backed LangGraph
+  checkpointer).

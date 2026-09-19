@@ -8,6 +8,48 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 9 | 2026-09-20] Reflection & Re-planning
+
+- Added `backend/app/reflection/` (design §20, §21; ARCHITECTURE_CONTRACTS.md
+  new §18 — this project's own numbering; design calls this "Phase 8," the
+  core differentiator):
+  - `operators.py`: the Phase 9 brief's own closed six-operator set —
+    `INSERT_REMEDIATION`/`DEFER`/`REMOVE_DUPLICATE`/`REPLACE_RESOURCE`/
+    `ADD_PROBE`/`SPLIT_ACTIVITY` — with `apply_operators()`, a **pure
+    function** over `PlanItem`s re-validated directly by the existing Plan
+    Validator.
+  - `evidence.py`: `EvidenceBundle` — pure assembly of the struggle signal,
+    misconception linkage, hard-ancestor gap statuses, current plan items,
+    and the learner's own evidence-ownership universe.
+  - `deterministic.py`: root cause identified deterministically (never by
+    an LLM) off the struggle signal or the curated graph's `ROOTED_IN`
+    edge, across all four design-§20.2 trigger classes.
+  - `agents/reflection.py` (real, replacing the Phase 1 placeholder) +
+    `prompting.py`: strong-tier LLM, strict ID-validated JSON parsing,
+    retried up to `REFLECTION_MAX_ROUNDS` then degrades.
+  - `validator.py`: the deterministic Reflection Validator — root
+    cause exists and is self/ancestor; evidence belongs to the learner and
+    supports the signal; class agrees with the classifier (classifier wins
+    on conflict); operators are closed-set/valid; the patched plan still
+    passes the Plan Validator's hard rules.
+  - `service.py`: orchestration — cooldown -> agent round loop ->
+    deterministic policy -> `resolution.py`'s narrower recipe as a final
+    guaranteed-safe fallback -> commit `PlanRevision`+`ReflectionRecord`+
+    `DecisionRecord`, or leave the plan unchanged with `needs_attention=True`
+    if every rung fails. `app/assessment/resolution.py` itself is
+    unchanged. Reflection does **not** route through `patch_existing_plan`
+    (Phase 5) — see ARCHITECTURE_CONTRACTS.md §18 for why.
+- Migration `0006_reflection`: `ReflectionRecord`, `DecisionRecord`.
+- `SubmitPracticeResponse.remediation` (Phase 8's `RemediationOut`) replaced
+  by `.reflection` (`ReflectionOut`) — richer: root cause, operators,
+  `needs_attention`, `degraded`, `rounds`, explanation.
+- New endpoint: `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
+  (design §20.7's one-click Revert).
+- Tests: 31 new (operators, validator, agent, and the real-curated-dataset
+  chain_rule -> backpropagation wow scenario end to end, matching
+  `data/dataset/demo/demo_scenario.json`'s `expected_reflection_operators`).
+  **406 tests total, all passing.**
+
 ## [Phase 8 | 2026-09-20] Assessment, Mastery, and Struggle Detection
 
 - Added `backend/app/assessment/` (design §10.4, §18, §19, §20.8;

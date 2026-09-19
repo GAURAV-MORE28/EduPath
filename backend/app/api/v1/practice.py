@@ -16,7 +16,6 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_learner_id, get_skill_graph_service
-from app.assessment.resolution import RemediationOutcome
 from app.assessment.service import SubmittedAnswer, UnknownPracticeSessionError, create_practice_session, submit_practice_set
 from app.db.session import get_session
 from app.gateway.llm_gateway import LLMGateway
@@ -26,7 +25,7 @@ from app.schemas.assessment import (
     CreatePracticeSetRequest,
     PracticeItemOut,
     PracticeSetOut,
-    RemediationOut,
+    ReflectionOut,
     SubmitPracticeRequest,
     SubmitPracticeResponse,
 )
@@ -104,16 +103,21 @@ async def submit_practice_set_route(
 
     await session.commit()
 
-    remediation_out: RemediationOut | None = None
-    if outcome.remediation is not None:
-        r: RemediationOutcome = outcome.remediation
-        remediation_out = RemediationOut(
-            misconception_id=r.learner_misconception.misconception_id,
-            status=r.learner_misconception.status,
-            started=r.started,
-            skip_reason=r.skip_reason,
+    reflection_out: ReflectionOut | None = None
+    if outcome.reflection is not None:
+        r = outcome.reflection
+        reflection_out = ReflectionOut(
+            root_cause_skill_id=r.root_cause_skill_id,
+            root_cause_class=r.root_cause_class,
+            misconception_id=r.misconception_id,
+            misconception_status=r.misconception_status,
             remediation_resource_ids=r.remediation_resource_ids,
+            operators=r.operators,
             plan_revision_id=r.plan_revision_id,
+            degraded=r.degraded,
+            needs_attention=r.needs_attention,
+            rounds=r.rounds,
+            explanation=r.explanation,
         )
 
     return SubmitPracticeResponse(
@@ -139,5 +143,5 @@ async def submit_practice_set_route(
             )
             for s in outcome.signals
         ],
-        remediation=remediation_out,
+        reflection=reflection_out,
     )

@@ -7,11 +7,12 @@ ARCHITECTURE_CONTRACTS.md §8 -- goes through the G2 Planning LangGraph run
 CRUD write.
 
 `patch_existing_plan` (design §16/§20) is deliberately **not** exposed here
--- design §27's endpoint table has no row for it at this phase (the
-override/patch surface, `POST /api/plans/{id}/override`, belongs to
-Reflection, Phase 8, which decides *when* a patch is warranted); this phase
-only builds the capability (`app/planning/service.py`) for that phase to
-call.
+-- design §27's endpoint table has no row for it (Reflection,
+`app/reflection/service.py`, decides *when* a patch is warranted and applies
+its own operator pipeline directly, not via `patch_existing_plan`; see that
+module's docstring). This phase (Phase 9) *does* add the one-click Revert
+surface design §20.7 calls for, since that is genuinely a learner-initiated
+action, not something Reflection itself decides.
 """
 from __future__ import annotations
 
@@ -24,6 +25,7 @@ from app.gateway.embedding_gateway import get_embedding_gateway
 from app.gateway.llm_gateway import LLMGateway
 from app.graph.queries import SkillGraphService, UnknownRoleError
 from app.planning.service import create_plan
+from app.reflection.service import UnknownRevisionError, revert_to_previous_revision
 from app.repositories.planning_repository import PlanningRepository
 from app.repositories.profiling_repository import ProfilingRepository
 from app.schemas.common import PlanItem, PlanItemReason
@@ -114,3 +116,22 @@ async def get_current_plan_route(
         items=items,
         overall_reason=revision.overall_reason if revision else "",
     )
+
+
+@router.post("/me/plans/{plan_id}/revisions/{revision_id}/revert", response_model=WeeklyPlanOut)
+async def revert_plan_revision_route(
+    plan_id: str,
+    revision_id: str,
+    learner_id: str = Depends(get_current_learner_id),
+    session: AsyncSession = Depends(get_session),
+) -> WeeklyPlanOut:
+    """design §20.7: "One-click Revert creates a new revision that restores
+    the prior content." Only the plan's *current* revision may be reverted
+    (see `app/reflection/service.py::revert_to_previous_revision`)."""
+    try:
+        plan = await revert_to_previous_revision(session=session, learner_id=learner_id, plan_id=plan_id, revision_id=revision_id)
+    except UnknownRevisionError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc)) from exc
+
+    await session.commit()
+    return plan

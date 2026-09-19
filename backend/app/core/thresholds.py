@@ -171,3 +171,23 @@ STRUGGLE_REVISION_COOLDOWN_HOURS = 24
 # design §20.8: "after two failed remediation cycles -> persistent... does
 # not loop indefinitely."
 MAX_REMEDIATION_CYCLES = 2
+
+
+# design §20.6/§20.6.1: Reflection Agent + Reflection Validator (Phase 9 in
+# this project's numbering -- design's Phase 8, "Reflection / re-planning").
+# "Failure -> retry once (<= 2 rounds total)... after 2 rounds -> deterministic
+# patch." Mirrors PLANNER_MAX_DRAFT_ATTEMPTS's role in G2 for G3.
+REFLECTION_MAX_ROUNDS = 2
+
+# design §19.4, applied to Reflection generally (not just misconception
+# remediation, which already had its own cooldown via
+# STRUGGLE_REVISION_COOLDOWN_HOURS/LearnerMisconception.last_remediated_at):
+# at most one reflection-triggered revision per (learner, skill) per this
+# window, unless new assessed evidence exists.
+REFLECTION_REVISION_COOLDOWN_HOURS = STRUGGLE_REVISION_COOLDOWN_HOURS
+
+# design §20.5's DEFER operator: how many days a deferred item is pushed out
+# by default, and the last valid day_slot in a 5-day planning week (matches
+# `app/assessment/resolution.py`'s existing `min(max_day_slot + 1, 5)` convention).
+REFLECTION_DEFER_DAYS = 2
+PLAN_WEEK_MAX_DAY_SLOT = 5

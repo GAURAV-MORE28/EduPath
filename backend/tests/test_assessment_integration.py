@@ -90,11 +90,17 @@ async def test_confirmed_misconception_triggers_deterministic_remediation_with_r
     assert "repeated_misconception" in signal_classes
     assert "low_score" not in signal_classes  # only 2 items submitted -- below LOW_SCORE_MIN_ITEMS (3), so it can't fire
 
-    assert outcome.remediation is not None
-    assert outcome.remediation.started is True
-    assert outcome.remediation.learner_misconception.status == "remediating"
+    assert outcome.reflection is not None
+    assert outcome.reflection.needs_attention is False
+    assert outcome.reflection.misconception_status == "remediating"
+    assert outcome.reflection.root_cause_skill_id == "skill.chain_rule"  # misc.chain_rule_sum's ROOTED_IN skill
     # misc.chain_rule_sum's curated remediation_candidates (data/scripts/build_dataset.py)
-    assert set(outcome.remediation.remediation_resource_ids) & {"res.khan_diff_calc", "res.3b1b_calculus", "res.cs231n_backprop"}
+    assert set(outcome.reflection.remediation_resource_ids) & {"res.khan_diff_calc", "res.3b1b_calculus", "res.cs231n_backprop"}
+    op_names = {op["op"] for op in outcome.reflection.operators}
+    assert {"INSERT_REMEDIATION", "ADD_PROBE"} <= op_names
+    # root cause == the struggling skill itself here (chain_rule items were submitted
+    # directly) -- nothing to defer.
+    assert "DEFER" not in op_names
 
 
 async def test_correct_answers_never_trigger_remediation(catalog_session, graph_service):
@@ -115,7 +121,7 @@ async def test_correct_answers_never_trigger_remediation(catalog_session, graph_
     )
     assert outcome.score == 1.0
     assert outcome.signals == []
-    assert outcome.remediation is None
+    assert outcome.reflection is None
 
 
 async def test_mastery_updates_the_real_learner_skill_state(catalog_session, graph_service):
