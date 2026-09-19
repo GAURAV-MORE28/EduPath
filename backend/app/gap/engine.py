@@ -173,6 +173,21 @@ def _mastery_estimate(state: LearnerSkillRecord | None) -> float:
     return state.alpha / total if total > 0 else 0.0
 
 
+def mastery_estimate_for(state: LearnerSkillRecord | None) -> float:
+    """Public wrapper around `_mastery_estimate` -- Phase 8's Assessor/
+    Struggle Classifier need the same "what level does this state actually
+    clear" logic the Gap Engine already has (e.g. to label a generation
+    prompt's target difficulty, or to feed `StruggleContext.current_level`),
+    without duplicating the tier-gate math in another module."""
+    return _mastery_estimate(state)
+
+
+def current_level_for(state: LearnerSkillRecord | None) -> int:
+    """Public wrapper around `_current_level` -- see `mastery_estimate_for`'s
+    docstring for why this is exported rather than reimplemented per phase."""
+    return _current_level(state)
+
+
 def _level_met(state: LearnerSkillRecord | None, level: int) -> bool:
     """The tier gate for `MET` at required level *L* (ARCHITECTURE_CONTRACTS.md
     §3): mastery >= threshold(L) AND tier_max >= tier_required(L), plus L3's

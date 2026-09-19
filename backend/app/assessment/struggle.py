@@ -127,6 +127,7 @@ class StruggleSignalEntry:
     evidence_ids: list[str] = field(default_factory=list)  # item_ids (or misconception_id) that fired this signal
     counts: dict[str, float | int | str] = field(default_factory=dict)
     thresholds_used: dict[str, float | int] = field(default_factory=dict)
+    signal_id: str = ""  # populated by the caller after persisting (app/assessment/service.py); empty until then
 
 
 def classify_struggle(items: list[ItemOutcome], context: StruggleContext) -> list[StruggleSignalEntry]:

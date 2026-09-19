@@ -8,6 +8,127 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 8 | 2026-09-20] Assessment, Mastery, and Struggle Detection
+
+- Added `backend/app/assessment/` (design §10.4, §18, §19, §20.8;
+  ARCHITECTURE_CONTRACTS.md §2, new §17 — already named in §12's
+  package-naming convention list):
+  - `mastery.py`: `update_mastery()` — a **pure function** implementing
+    design §10.4's Beta-count formula (`α += w` on correct, `β += w` on
+    incorrect, difficulty-weighted, reversed for incorrect), accumulating
+    on top of any prior evidence-tier state rather than reseeding it
+    (deliberately different from `EvidenceCommitService`'s Phase 2 rule —
+    see §17). Any assessed item sets `tier_max = "E3"`. Always returns
+    `band`/`confidence` alongside the raw numbers — mastery is an
+    estimate, never asserted as fact.
+  - `struggle.py`: `classify_struggle()` — a **pure function** implementing
+    all six design §19.2 classes (`low_score`, `repeated_misconception`,
+    `missing_prerequisite`, `excessive_difficulty`, `cognitive_overload`,
+    `insufficient_practice`). Multiple classes can fire; `primary_signal()`
+    applies design's precedence order among medium/high-confidence signals
+    only. Time/retries are corroborating evidence only — no rule gates on
+    them alone, only `cognitive_overload`'s `>= 2`-signal tally.
+  - `grading.py`: `grade_mcq()` (deterministic, re-derives correctness from
+    the stored key server-side, never trusts client input) and
+    `grade_short_answer()` (small-tier LLM, rubric-based, degrades to
+    `correct=None`/`confidence="low"` rather than a guess).
+  - `prompting.py`: Assessor Agent prompt/parse — rejects an invented
+    misconception tag at parse time exactly like the Planner rejects an
+    invented resource ID; rejects a misconception tag on the key option.
+  - `item_bank.py`: `assemble_practice_set()` — item-bank-first (excluding
+    previously submitted items), generate-if-short (persists validated
+    generated items into the same global `PracticeItem` bank with
+    provenance), and the prerequisite-block rule (design §13.4's demo
+    chain: >= 2 items on an `UNVERIFIED` hard prerequisite).
+  - `resolution.py`: a deterministic misconception resolution state machine
+    (suspected/confirmed -> remediating -> resolved/persistent, design
+    §20.8) — real `REMEDIATED_BY` resource lookup, a 24h cooldown, and a
+    direct `PlanningRepository` insert (`INSERT_REMEDIATION`/`ADD_PROBE`)
+    rather than routing through the Planner Agent or the full Reflection
+    Agent (out of scope this phase — see §17 for the scope-boundary
+    reasoning).
+  - `service.py`: `create_practice_session()`/`submit_practice_set()` — the
+    design §9.5 G3 Evidence-Response flow scoped to this phase
+    (`record_evidence -> grade -> update_mastery -> detect_struggle ->
+    route`), implemented as plain async orchestration rather than an
+    explicit LangGraph graph (no branching/retry loop the way G2 needs one;
+    see IMPLEMENTATION_STATE.md's "Agent Status").
+- Implemented the real Assessor Agent (`backend/app/agents/assessor.py`):
+  strong-tier item generation (misconception-tagged distractors) retried up
+  to 2x on schema/tag failure, then small-tier blind-solver validation per
+  item (fails closed on any ambiguity — degraded gateway, unparsable
+  response, or a wrong pick are all treated as "drop the item," never
+  partially trusted). No offline generation stand-in exists; item-bank-first
+  still works fully offline.
+- Added Postgres tables (`backend/app/db/models.py`, migration
+  `0005_assessment`): `PracticeSession` (addition beyond design §28 — the
+  server-side staging record between assembling and submitting a set, same
+  shape as Phase 2's `PendingClaim`), `Assessment`, `StruggleSignal`,
+  `LearnerMisconception` (design §28, `remediation_cycles` a small field
+  addition for design §20.8's two-cycle cap).
+- Added API routes (`backend/app/api/v1/practice.py`, design §27):
+  `POST /api/learners/me/practice` (`{skill_id, purpose?}`) and
+  `POST /api/practice/{set_id}/submit`. Response items never carry
+  `is_key`/`misconception_id` (design §18.3); `learner_id` always
+  session-derived. No route for manually resolving a misconception — a
+  resolution-check submission's outcome is inferred automatically from
+  `PracticeSession.purpose`.
+- `AssessmentResult`/`StruggleSignal` (`backend/app/schemas/common.py`) got
+  their real design §25.2 field lists this phase, plus a new
+  `AssessmentItemResult` sub-model. New `backend/app/schemas/assessment.py`
+  for the practice-set/submit request/response shapes.
+- Small addition to `backend/app/gap/engine.py`: public
+  `current_level_for`/`mastery_estimate_for` wrappers around its previously
+  private tier-gate helpers, so this phase reuses the exact same math for
+  generation-prompt level labels and `StruggleContext.current_level`
+  instead of re-deriving it.
+- **Decided: the full Reflection Agent (design §20) is out of scope.** The
+  Phase 8 brief asked only for "misconception detected -> remediation ->
+  verification probe -> resolved/persistent" (design §20.8), not the
+  LLM-driven root-cause synthesis, closed operator set, or Reflection
+  Validator design §20 as a whole describes. `resolution.py` implements
+  exactly that narrower loop, deterministically, with one hard-coded
+  trigger. See ARCHITECTURE_CONTRACTS.md §17.
+- **Bug found and fixed via real-catalog testing (not a code bug in the
+  usual sense — a curated-data quirk):** several `skill.chain_rule` items
+  have their correct option also carrying a stray `misconception_id` tag.
+  `grade_mcq` already nulls any tag on a correct answer regardless, so no
+  behavior changed; flagged for Phase 3's outstanding human review pass.
+- **Verified against a real Postgres 16 + pgvector container this
+  session:** `alembic downgrade base` + `upgrade head` round-tripped all
+  five migrations cleanly; a full intake -> create-practice-set -> submit
+  round trip on real `skill.chain_rule` items correctly triggered
+  deterministic remediation with real `misc.chain_rule_sum` resources
+  (`res.khan_diff_calc`/`res.3b1b_calculus`/`res.cs231n_backprop`) once two
+  distinct wrong-tagged items were submitted for a fresh learner. Also
+  surfaced (and worked around, not fixed — a real open design question) a
+  `CatalogRepository.replace_all()` re-ingestion FK-violation issue once
+  real learner-scoped rows exist in the same database — see
+  IMPLEMENTATION_STATE.md "Known Issues".
+- 89 new backend tests: `tests/test_mastery.py` (15), `tests/test_struggle_classifier.py`
+  (35, every one of the six classes individually plus cross-class
+  exclusion/precedence — the phase brief's explicit "test every struggle
+  class" instruction), `tests/test_grading.py` (8), `tests/test_assessor_agent.py`
+  (6, mirroring `test_profiler_agent.py`'s `ScriptedLLMGateway` pattern),
+  `tests/test_resolution.py` (14, a small hand-built graph fixture), `tests/test_assessment_integration.py`
+  (4, real curated dataset via `catalog_session`), `tests/test_practice_api.py`
+  (7, full HTTP-layer flow via `app_client`). **375 tests total, all
+  passing** (286 from Phase 1-6, 89 new).
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §2, §3, §6, §9, and a new §17
+  covering every Phase 8 decision in full.
+- **Not implemented this phase (out of scope, per the phase brief and
+  design's phase ordering):** the full Reflection Agent / re-planning loop
+  (design §20); Tutor. Also not implemented: `no_open_misconceptions_for(skill)`
+  wiring into `LearningObjective.acceptance_criteria` (the table it needs
+  now exists, nothing reads it yet); a `LearningActivity` table (overload's
+  `planned_vs_actual_ratio`/`completion_rate` stay caller-supplied); the
+  `missing_prerequisite` "direct probe from a separate recent assessment"
+  evidence path (only same-submission prereq-block items and misconception
+  attribution are wired); wiring Struggle Classifier output into the Plan
+  Validator's V9 `overload_active` flag (Reflection's job).
+
+---
+
 ## [Phase 5 | 2026-09-19] Personalized Learning Planner
 
 - Added `backend/app/planning/` (design §16-§17; ARCHITECTURE_CONTRACTS.md

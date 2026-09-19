@@ -30,7 +30,7 @@
 |---|---|---|---|
 | **Profiler** | single | No — emits `ExtractedClaims` only | ✅ Phase 2 (`backend/app/agents/profiler.py`) |
 | **Planner** | draft / patch | No — writes only via validated commit nodes | ✅ Phase 5 (`backend/app/agents/planner.py`) |
-| **Assessor** | generation (strong) / grading & validation (small) | No | ❌ |
+| **Assessor** | generation (strong) / grading & validation (small) | No | ✅ Phase 8 (`backend/app/agents/assessor.py`) |
 | **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ❌ |
 | **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ❌ |
 
@@ -48,7 +48,14 @@ no LLM call anywhere in the package (see §15 below). **Plan Validator and
 Fallback Planner implemented (Phase 5):** `backend/app/planning/validator.py`'s
 `validate_plan()` and `backend/app/planning/fallback.py`'s
 `build_fallback_plan()` — both pure functions, no LLM call anywhere in either
-module (see §16 below).
+module (see §16 below). **Mastery Updater and Struggle Classifier
+implemented (Phase 8):** `backend/app/assessment/mastery.py`'s
+`update_mastery()` and `backend/app/assessment/struggle.py`'s
+`classify_struggle()` — both pure functions, no LLM call in either module
+(see §17 below). The misconception resolution state machine
+(`backend/app/assessment/resolution.py`) is likewise deterministic — it is
+**not** the Reflection Agent (§20's full LLM-driven root-cause synthesis
+remains out of scope; see §17).
 
 ## 3. Evidence tiers (never conflate these)
 
@@ -79,10 +86,17 @@ mastery *estimate* at 0.4 (E1/E2's `alpha/(alpha+beta)`) until real assessed
 observations exist — so in practice, pre-assessment E1/E2 evidence lands
 `WEAK` under this gate, not `MET`, even for a strong artifact like a GitHub
 repo. `MET` from evidence alone (design §13.4's worked example) requires the
-Mastery Updater (Phase 7) to accumulate real assessed `alpha`/`beta`; this is
-an intentional consequence of this section's fixed priors combined with
-§13.4 being an aspirational full-system illustration, not a Phase 4 defect —
-see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
+Mastery Updater to accumulate real assessed `alpha`/`beta`; this was an
+intentional consequence of this section's fixed priors combined with §13.4
+being an aspirational full-system illustration, not a Phase 4 defect — see
+`docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions". **The
+Mastery Updater is now implemented (Phase 8):**
+`backend/app/assessment/mastery.py`'s `update_mastery()` — once a skill has
+at least one *assessed* item, `tier_max` becomes `E3` and `alpha`/`beta`
+accumulate per item (design §10.4's `α += w` / `β += w`), so `MET` becomes
+reachable from real assessed evidence exactly as §13.4 describes; it
+remains unreachable from E0-E2 evidence alone, which is the gate working as
+specified, not a gap.
 
 ## 4. Skill-gap statuses
 
@@ -181,7 +195,10 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   route consumes it yet (see §15 below), but the schema itself is real.
   **`WeeklyPlan`/`PlanItem` implemented (Phase 5):** same file, real §25.2
   field lists — `PlanItem.practice_item_ids` is an addition beyond §25.2's
-  single `practice_set_id?` (see §16 below for why).
+  single `practice_set_id?` (see §16 below for why). **`AssessmentResult`/
+  `StruggleSignal` implemented (Phase 8):** same file, real §25.2 field
+  lists — `AssessmentResult` also gained a supporting `AssessmentItemResult`
+  sub-model for its `items[]` entries (see §17 below).
 
 ## 7. IDs
 
@@ -282,6 +299,12 @@ see `docs/IMPLEMENTATION_STATE.md`'s Phase 4 "Architectural Decisions".
   `practice_ref?` — no `PracticeSet` generation service exists yet (design
   §18, Assessor, Phase 7 in this project's numbering), so this stores the
   underlying curated `PracticeItem` IDs directly. See §16 below.
+- **Addition (Phase 8):** `Assessment`, `StruggleSignal`,
+  `LearnerMisconception` (migration `0005_assessment`) match design §28's
+  table list, `LearnerMisconception.remediation_cycles` a small field-list
+  addition (design §20.8's two-cycle cap needs somewhere to count them).
+  `PracticeSession` is a new staging table beyond §28's list entirely — see
+  §17 below for the full reasoning (same shape as Phase 2's `PendingClaim`).
 
 ## 10. Validation rules (Plan Validator V1–V10)
 
@@ -485,15 +508,139 @@ See §16 below for the full set of Phase 5 decisions.
   commit on it would violate this section's "a demo/run can never fail to
   produce a plan."
 - **V8 (struggle follow-up) and V9 (post-overload headroom) accept
-  caller-supplied signals rather than querying live data:** no
-  `StruggleSignal`/overload-detection source exists yet (Struggle Classifier,
-  Phase 8/9) — `effective_budget_minutes`/`effective_new_skill_cap`
+  caller-supplied signals rather than querying live data:**
+  `effective_budget_minutes`/`effective_new_skill_cap`
   (`app/planning/validator.py`) accept an `overload_active` flag, same
   "mechanism now, real source later" pattern `app/retrieval/ranker.py` used
-  for `learner_history` ahead of a `LearningActivity` table.
+  for `learner_history` ahead of a `LearningActivity` table. **The Struggle
+  Classifier itself is now implemented (Phase 8, see §17 below)** and does
+  persist real `cognitive_overload`/struggle signals — but nothing yet
+  reads them back into a `create_plan`/`patch_existing_plan` call's
+  `overload_active` flag; wiring that hand-off is Reflection's job (design
+  §20's re-planning trigger), still out of scope.
 - **No API route for `patch_existing_plan`.** Design §27's endpoint table's
   patch/override surface (`POST /api/plans/{id}/override`) belongs to
   Reflection (Phase 8), which decides *when* a patch is warranted. This
   phase exposes only `POST /api/learners/me/plans` and
   `GET /api/learners/me/plans/current` (design §27); `patch_existing_plan`
   is tested directly at the service layer.
+
+## 17. Assessment, Mastery, and Struggle Detection conventions (Phase 8,
+design §10.4, §18, §19, §20.8)
+
+- **Package:** `backend/app/assessment/` — already named in §12's
+  convention list. `mastery.py` (pure), `struggle.py` (pure), `grading.py`
+  (MCQ pure, short-answer async/gateway), `prompting.py` (Assessor Agent
+  prompt/parse), `item_bank.py` (async assembly orchestration),
+  `resolution.py` (deterministic misconception state machine),
+  `service.py` (async orchestration — mirrors `app/planning/service.py`'s
+  split).
+- **Scope decision (the Phase 8 brief's explicit framing):** the full
+  Reflection Agent (design §20 — LLM-driven root-cause synthesis over the
+  closed `INSERT_REMEDIATION`/`DEFER`/`SWAP_RESOURCE`/`ADD_PRACTICE`/
+  `ADD_PROBE`/`REDUCE_LOAD`/`REORDER` operator set, `ReflectionResult`, the
+  Reflection Validator, the `plan_draft`/`validate_plan` re-check loop) is
+  **not** implemented this phase. `backend/app/assessment/resolution.py`
+  implements only design §20.8's narrower "misconception detected ->
+  remediation -> verification probe -> resolved/persistent" loop, with
+  exactly one hard-coded trigger (a `repeated_misconception` signal at
+  `confirmed` status) rather than an LLM choosing when/how to intervene.
+  `INSERT_REMEDIATION` and `ADD_PROBE` are applied directly and
+  deterministically via `PlanningRepository` — both already are
+  "deterministic function[s] on the plan" per design §20.5's own framing,
+  so no LLM round-trip is needed once the trigger has fired.
+- **Mastery is always surfaced as an estimate, never asserted as fact**
+  (design §10.4, the Phase 8 brief's explicit instruction):
+  `app/assessment/mastery.py`'s `MasteryOutcome` always carries `band` and
+  `confidence` alongside the raw `alpha`/`beta`/`estimate` — no code path
+  in this package exposes a bare mastery number without them.
+- **Decided: the Mastery Updater's tier-upgrade rule deliberately differs
+  from `EvidenceCommitService`'s (Phase 2).** `EvidenceCommitService._upsert_skill_state`
+  *reseeds* `alpha`/`beta` to a flat prior on a tier upgrade (E0-E2 are
+  categorical evidence-strength priors). `update_mastery` instead
+  *accumulates* per assessed item on top of whatever `alpha`/`beta` already
+  existed (design's explicit `α += w` / `β += w` formula), and any assessed
+  item immediately sets `tier_max = "E3"` regardless of the skill's prior
+  tier — assessed-in-system evidence is always the strongest tier
+  (ARCHITECTURE_CONTRACTS.md §3's ordering).
+- **Struggle Classifier is a pure function** (`app/assessment/struggle.py`'s
+  `classify_struggle`) over a just-submitted item list plus a
+  caller-resolved `StruggleContext` — no DB/gateway import in the module,
+  same "unit-testable with hand-built fixtures" shape as `app/gap/engine.py`/
+  `app/retrieval/ranker.py`/`app/planning/validator.py`. Multiple classes
+  may fire from the same submission; `primary_signal()` applies design
+  §19.2's precedence order (misconception > prerequisite gap > difficulty
+  mismatch > overload > insufficient practice > low score) only among
+  medium/high-confidence signals, matching design §19.3's "low or suspected
+  -> schedule_probe, not a routing trigger."
+- **Time and retries are corroborating evidence only, never sole
+  authority** (design §19.1/§19.5, the Phase 8 brief's explicit
+  instruction): no rule in `struggle.py` gates on `ItemOutcome.time_sec`/
+  implicit retry count by itself. The only place timing-adjacent context
+  matters is `cognitive_overload`'s `>= 2`-corroborating-signals tally,
+  where it is one independent signal among several (planned-vs-actual
+  ratio, completion rate, self-report, new-skill concurrency) — design's
+  literal "time alone is insufficient."
+- **Addition:** `PracticeSession`, `Assessment`, `StruggleSignal`,
+  `LearnerMisconception` (migration `0005_assessment`) join design §28's
+  table list. `PracticeSession` is not itself a design §28 name — it is the
+  server-side staging record between assembling a set
+  (`POST /api/learners/me/practice`) and grading it
+  (`POST /api/practice/{set_id}/submit`), holding answer keys and
+  misconception tags **server-side only** (design §18.3), same staging-table
+  precedent as `PendingClaim` (Phase 2) and the same reason: no
+  Postgres-backed LangGraph checkpointer exists to hold this as in-flight
+  `RunState` instead. `LearnerMisconception.remediation_cycles` is an
+  addition beyond §28's field list, needed for design §20.8's "after two
+  failed remediation cycles -> persistent."
+- **Addition:** `CatalogRepository.get_practice_item`/
+  `get_practice_items_by_ids`/`create_practice_item`/`get_misconception`/
+  `get_misconceptions_for_skill` — the read/write primitives item
+  assembly and generated-item storage need; `create_practice_item` writes
+  an Assessor-generated item into the **same global item bank** curated
+  items live in (design §18.2 point 5's "store in the bank with
+  provenance" — `generated_by="assessor-llm"`, `validated_by="blind-solver"`),
+  not a separate table.
+- **Decided: the Assessor Agent has no offline generation stand-in.**
+  Unlike the Profiler (deterministic fallback extractor) or the Planner
+  (separate Fallback Planner graph node), there is no rule-based item
+  generator — when no LLM provider is configured (this project's default),
+  item-bank-first still works fully offline, but generate-if-short simply
+  yields nothing (never a fabricated item). Same posture as the VLM
+  Gateway's "no offline OCR stand-in" (Phase 2).
+- **Decided: invented misconception tags are rejected at parse time, not
+  just validated later.** `app/assessment/prompting.py`'s
+  `parse_generation_response` rejects any `misconception_id` not in the
+  candidate set handed to the LLM as a parse error (retried, then
+  degraded) — the same "never invents an ID" enforcement point pattern
+  `app/planning/prompting.py` established for resource/objective IDs (§7).
+  The **key** option is additionally rejected if it carries a
+  misconception tag at all (a wrong-answer-only concept), independent of
+  what the candidate set contains.
+- **Decided: `grade_mcq` never trusts a client-supplied correctness
+  claim** — it always re-derives `correct`/`misconception_id` from the
+  stored `PracticeItem.options[chosen_option]`, which the client never
+  receives (design §18.3). An out-of-range `chosen_option` index grades as
+  incorrect with no misconception tag, never an error.
+- **Decided: short-answer grading degrades to `correct=None`
+  ("ungraded"), never a guessed pass/fail**, when the gateway has no
+  provider configured or returns an unparsable response
+  (ARCHITECTURE_CONTRACTS.md §11's graceful-degradation contract, applied
+  to grading specifically) — design §18.1's "low-confidence grades
+  flagged" is implemented as `confidence="low"` plus `degraded=True`, a
+  caller-visible signal to not silently update mastery from it. (This
+  project's curated item bank is 100% MCQ, so this path is presently
+  exercised only via hand-built fixtures in tests, not real catalog data —
+  same situation Phase 6 already documented for a couple of its own
+  Postgres-only methods.)
+- **Addition: `gap/engine.py`'s `current_level_for`/`mastery_estimate_for`.**
+  Public wrappers around the Gap Engine's existing (previously private)
+  `_current_level`/`_mastery_estimate` helpers, added so
+  `app/assessment/item_bank.py` (level labels for generation prompts) and
+  `app/assessment/service.py` (`StruggleContext.current_level`) can reuse
+  the exact same tier-gate math instead of re-deriving it.
+- **No API route for `record_probe_result` or manual resolution
+  transitions.** A resolution-check probe's outcome is inferred
+  automatically inside `submit_practice_set` whenever the submitted
+  `PracticeSession.purpose == "resolution-check"` — there is no separate
+  endpoint a caller invokes to "mark a misconception resolved."

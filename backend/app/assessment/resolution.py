@@ -20,8 +20,6 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 
-from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.core.thresholds import MAX_REMEDIATION_CYCLES, STRUGGLE_REVISION_COOLDOWN_HOURS
 from app.db.models import LearnerMisconception
 from app.db.models import PlanItem as PlanItemRow
@@ -69,7 +67,6 @@ async def upsert_signal_status(
 
 async def start_remediation(
     *,
-    session: AsyncSession,
     repo: AssessmentRepository,
     planning_repo: PlanningRepository,
     graph: SkillGraphService,
@@ -111,7 +108,6 @@ async def start_remediation(
     lm.evidence_ids = sorted(set(lm.evidence_ids) | set(evidence_ids))
 
     plan_revision_id = await _apply_remediation_to_plan(
-        session=session,
         planning_repo=planning_repo,
         learner_id=learner_id,
         skill_id=skill_id,
@@ -147,7 +143,6 @@ async def record_probe_result(
 
 async def _apply_remediation_to_plan(
     *,
-    session: AsyncSession,
     planning_repo: PlanningRepository,
     learner_id: str,
     skill_id: str,
