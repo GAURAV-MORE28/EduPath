@@ -120,9 +120,10 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
 - Resource IDs, skill IDs, and misconception IDs are catalog/graph-resolved — an
   LLM never emits a raw URL or invents an ID; it selects from a pre-built candidate
   ID set.
-- The design doc does not mandate a specific ID string format (UUID vs slug); when
-  implementing, pick one (UUID v4 recommended for learner/run-scoped rows, stable
-  slugs for curated graph/catalog rows) and record the decision here.
+- **Decided (Phase 1):** UUID v4, stored as `String(36)`, for learner/run-scoped rows
+  (`user_id` implemented this way in `backend/app/db/models.py`). Stable slugs for
+  curated graph/catalog rows (skills, roles) remain the plan for Phase 3 but are not
+  yet implemented.
 
 ## 8. API conventions
 

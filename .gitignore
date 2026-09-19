@@ -1,0 +1,19 @@
+# Python
+backend/.venv/
+backend/**/__pycache__/
+backend/.pytest_cache/
+*.pyc
+
+# Env
+.env
+.env.*
+!.env.example
+
+# Node (frontend/.gitignore also covers this, kept here for root-level tools)
+frontend/node_modules/
+frontend/.next/
+
+# OS
+.DS_Store
+Thumbs.db
+backend/*.egg-info/
