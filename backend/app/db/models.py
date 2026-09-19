@@ -214,6 +214,130 @@ class PracticeItem(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
+class LearnerProfile(Base):
+    """design §28. One row per `User` (enforced by `unique=True` on
+    `user_id` — this project treats "user" and "learner" as 1:1 for now;
+    design doesn't specify otherwise). `target_role_id` must resolve against
+    the curated `Role` table (Phase 3) — an unsupported role is rejected at
+    the API layer, never silently accepted (ARCHITECTURE_CONTRACTS.md §5)."""
+
+    __tablename__ = "learner_profiles"
+
+    learner_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id: Mapped[str] = mapped_column(String(36), ForeignKey("users.user_id"), unique=True, index=True)
+    target_role_id: Mapped[str] = mapped_column(String(128), ForeignKey("roles.role_id"))
+    career_goal: Mapped[str] = mapped_column(Text, default="")
+    experience_summary: Mapped[str] = mapped_column(Text, default="")
+    weekly_hours: Mapped[float] = mapped_column(Float)
+    preferences: Mapped[dict] = mapped_column(JSON, default=dict)  # modality order, language, session length
+    constraints: Mapped[dict] = mapped_column(JSON, default=dict)  # e.g. fixed days off
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Document(Base):
+    """design §28. `storage_ref` is a local filesystem path (design §35:
+    "local volume or S3-compatible bucket" — this phase implements the local
+    volume) or, for a GitHub-sourced pseudo-document, the repo URL itself.
+    """
+
+    __tablename__ = "documents"
+
+    document_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    type: Mapped[str] = mapped_column(String(16))  # pdf / docx / text / github
+    storage_ref: Mapped[str] = mapped_column(String(1024))
+    text_hash: Mapped[str] = mapped_column(String(64), default="")  # sha256 of the scrubbed extracted text
+    parse_status: Mapped[str] = mapped_column(String(32))  # parsed / empty / needs_text_paste / error
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class Evidence(Base):
+    """design §28. Written only by the confirm-claims commit path
+    (`app/profiling/commit.py`), never directly by the Profiler agent
+    (ARCHITECTURE_CONTRACTS.md §2: "Profiler ... No — emits ExtractedClaims
+    only")."""
+
+    __tablename__ = "evidence"
+
+    evidence_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    tier: Mapped[str] = mapped_column(String(4))  # E0 / E1 / E2 / E3
+    source_type: Mapped[str] = mapped_column(String(32))  # intake / document / github / assessment
+    document_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("documents.document_id"), nullable=True)
+    span_text: Mapped[str] = mapped_column(Text, default="")
+    span_offsets: Mapped[dict | None] = mapped_column(JSON, nullable=True)  # {"start": int, "end": int}
+    assessment_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    extracted_by_run: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    verified: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LearnerSkillState(Base):
+    """design §28. `alpha`/`beta` seed from the tier's default prior
+    (ARCHITECTURE_CONTRACTS.md §3) when evidence is confirmed; real
+    assessment-driven Bayesian updates (correct/incorrect deltas) are the
+    Mastery Updater's job (Phase 7, Assessment — not implemented here). With
+    `n_obs = 0` (no assessed items yet), `band` is always `unknown` regardless
+    of tier or prior — design §10.4's band table only names bands other than
+    Unknown in terms of a *mastery estimate* that assessed observations make
+    meaningful; a prior alone isn't evidence of a mastery level, just of
+    *some* evidence existing. See Contract Changes for this simplification.
+    """
+
+    __tablename__ = "learner_skill_states"
+    __table_args__ = (UniqueConstraint("learner_id", "skill_id", name="uq_learner_skill_state"),)
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    skill_id: Mapped[str] = mapped_column(String(128), ForeignKey("skills.skill_id"), index=True)
+    alpha: Mapped[float] = mapped_column(Float)
+    beta: Mapped[float] = mapped_column(Float)
+    band: Mapped[str] = mapped_column(String(16))  # unknown / learning / developing / proficient
+    confidence: Mapped[str] = mapped_column(String(8))  # low / medium / high
+    n_obs: Mapped[int] = mapped_column(Integer, default=0)
+    tier_max: Mapped[str] = mapped_column(String(4))  # E0-E3
+    last_assessed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class PendingClaim(Base):
+    """Addition beyond design §28's table list — the staging area for
+    `ExtractedClaim`s between a G1 run (`parse_documents` -> `extract_claims`
+    -> `verify_evidence` -> `normalize_skills`) and the human confirmation
+    step (`POST /api/learners/me/claims/confirm`). Design's `RunState`
+    (§9.2) would normally hold this as in-flight, checkpointed graph state,
+    but Phase 1 did not build a Postgres-backed LangGraph checkpointer (it's
+    still in-memory only — see IMPLEMENTATION_STATE.md "Known Issues"), so
+    this table is the durable hand-off between the two HTTP requests
+    instead. See Contract Changes.
+
+    Claims that fail span verification (`dropped_unverified`) or that trip
+    the prompt-injection detector (`dropped_injection`) are never written
+    here at all — they are counted in the run's trace/summary only, per
+    design §22.5's "no span means no evidence" and §22.6's "flagged content
+    excluded from evidence."
+    """
+
+    __tablename__ = "pending_claims"
+
+    claim_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    learner_id: Mapped[str] = mapped_column(String(36), ForeignKey("learner_profiles.learner_id"), index=True)
+    run_id: Mapped[str] = mapped_column(String(36), index=True)
+    document_id: Mapped[str | None] = mapped_column(String(36), ForeignKey("documents.document_id"), nullable=True)
+    skill_label: Mapped[str] = mapped_column(String(256))
+    category: Mapped[str] = mapped_column(String(64), default="")
+    context_type: Mapped[str] = mapped_column(String(32))  # skills_list/project/experience/education/certificate
+    claimed_level_cue: Mapped[str | None] = mapped_column(String(128), nullable=True)
+    verbatim_span: Mapped[str] = mapped_column(Text)
+    span_offsets: Mapped[dict] = mapped_column(JSON)  # {"start": int, "end": int}
+    tier: Mapped[str] = mapped_column(String(4))  # E0-E2, assigned by the Evidence Verifier (design §22.4)
+    normalized_skill_id: Mapped[str | None] = mapped_column(String(128), ForeignKey("skills.skill_id"), nullable=True)
+    normalization_method: Mapped[str] = mapped_column(String(24))  # exact_alias/embedding/llm_disambiguation/unmapped
+    normalization_confidence: Mapped[float] = mapped_column(Float, default=0.0)
+    status: Mapped[str] = mapped_column(String(16), default="pending")  # pending / confirmed / removed
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class GraphMeta(Base):
     """Graph-versioning history (ARCHITECTURE_CONTRACTS.md §5: "Graph is
     curated offline, versioned... graph_version"). One row per successful

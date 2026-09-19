@@ -17,3 +17,4 @@ frontend/.next/
 .DS_Store
 Thumbs.db
 backend/*.egg-info/
+backend/storage/

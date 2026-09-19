@@ -8,6 +8,84 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 2 | 2026-09-19] Learner Profiling + Evidence Pipeline
+
+- Added `backend/app/profiling/` (design §12 naming convention): document
+  validation + text-first extraction (`document_parser.py`, PyMuPDF/
+  python-docx/plain-text, design §22.1/§29 whitelist and size/page caps),
+  PII scrubbing (`pii.py`), paragraph-boundary chunking with offsets
+  (`chunker.py`, built/tested, not yet wired into the live pipeline —
+  resume-scale text doesn't need it yet), prompt-injection pattern detection
+  (`injection.py`, design §22.6), deterministic claim extraction + LLM
+  prompt/parse helpers (`claim_extraction.py`), the Evidence Verifier
+  (`evidence_verifier.py`: span fuzzy-match + recovery search, design
+  §22.4/§22.5 tier assignment, injection flagging), the Skill Normalizer
+  (`skill_normalizer.py`: exact alias -> embedding top-5 -> bounded small-LLM
+  disambiguation -> unmapped), the `github_repo_summary` tool
+  (`github_client.py`, design §26.2, metadata only), evidence commit
+  (`commit.py`), and G1 orchestration glue (`onboarding.py`).
+- Added `backend/app/gateway/vlm_gateway.py`: same provider-agnostic shape
+  as the LLM/Embedding Gateways, degrades deterministically (no offline OCR
+  stand-in exists, so this always resolves to design §30's "ask user to
+  paste text" in this environment — documented, not a bug).
+- Implemented the real Profiler Agent (`backend/app/agents/profiler.py`):
+  LLM extraction (mid tier) retried up to 2x on schema failure
+  (ARCHITECTURE_CONTRACTS.md §11), falling back to a catalog-anchored
+  deterministic extractor whenever the gateway degrades or both retries
+  fail. `LLM_PROVIDER=none` (this project's default) means the fallback
+  path is what runs end to end in this environment and in tests.
+- Implemented the real G1 Onboarding LangGraph
+  (`backend/app/orchestration/graphs.py`'s `build_onboarding_graph`):
+  `parse_documents -> extract_claims -> verify_evidence -> normalize_skills`,
+  terminating at `status="needs_user"`. Does not include design's
+  `user_confirm`/`gap_analysis` nodes — `gap_analysis` is out of this
+  phase's scope, and `user_confirm` is a separate HTTP request rather than
+  an in-graph pause (no Postgres-backed LangGraph checkpointer exists yet
+  to resume a paused run — see Contract Changes below). One document per
+  graph run/API call.
+- Added Postgres tables for the learner overlay (`backend/app/db/models.py`,
+  migration `0003_learner_profiling`): `LearnerProfile`, `Document`,
+  `Evidence`, `LearnerSkillState` (design §28), plus `PendingClaim` — an
+  addition beyond §28's list, the staging area described above.
+- Added API routes (`backend/app/api/v1/learners.py`, design §27):
+  `POST /api/learners` (intake), `POST /api/learners/me/documents`
+  (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
+  `POST /api/learners/me/claims/confirm`. `learner_id` always resolved from
+  the session (`app/api/deps.py`'s new `get_current_learner_id`), never
+  from the request body.
+- **Bug found and fixed via real-Postgres verification** (not caught by the
+  SQLite-backed automated suite, since SQLite doesn't enforce FKs by
+  default): `LearnerProfile.user_id`'s FK to `users.user_id` failed because
+  the dev-mode session fallback (`user_id="dev-user"`, Phase 1) has no real
+  signup flow creating that row. Fixed with `UserRepository.get_or_create`
+  (auto-provisions a minimal `User` row), called from the intake route.
+  Added a regression test and re-verified end-to-end (intake -> upload ->
+  confirm) against a real Postgres 16 + pgvector container.
+- 106 new backend tests (160 total, all passing): document parsing (17),
+  PII (5), injection detection (6), evidence verification (14), claim
+  extraction (20), skill normalization (10, fully controlled stub
+  gateways), the Profiler Agent (5), the GitHub tool (8, `httpx.MockTransport`,
+  no live network calls), the full learners API through the real FastAPI
+  app (11, new `app_client` fixture), evidence commit (9), plus 1
+  `UserRepository.get_or_create` regression test.
+- Added `pymupdf`, `python-docx` to `backend/pyproject.toml`. Added
+  `GITHUB_TOKEN`, `DOCUMENT_STORAGE_DIR` to `.env.example`. Added
+  `backend/storage/` to `.gitignore`.
+- Updated `docs/ARCHITECTURE_CONTRACTS.md` §2 (Profiler Agent and the Skill
+  Normalizer's small-LLM step are now implemented) and §9 (three additions
+  to design §28's conceptual data model: `PendingClaim`, `Document.type`'s
+  `"github"` value, and the `UserRepository.get_or_create` decision).
+- **Not implemented this phase (explicitly out of scope, per the phase
+  brief):** gap analysis, planning, assessment, reflection. Also not
+  implemented: a Postgres-backed LLM Gateway replay cache (Phase 1's open
+  item, now overdue since the Profiler is a real agent call), true
+  multi-file document upload (one file per call currently), and wiring a
+  shared startup-loaded graph/catalog cache (Phase 2's services build a
+  fresh one per request — fine at this scale, a real cost at Postgres
+  scale).
+
+---
+
 ## [Phase 3 | 2026-09-19] Skill Graph + Catalog Engine
 
 - Added Postgres tables for the curated Skill Graph and catalog

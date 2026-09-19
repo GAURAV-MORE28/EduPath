@@ -36,6 +36,13 @@ class Settings(BaseSettings):
     # Session / auth boundary (placeholder until Phase 2 auth is designed)
     session_secret: str = "dev-only-insecure-secret-change-me"
 
+    # GitHub tool (design §26.2 github_repo_summary) — optional; unauthenticated
+    # requests work but are more tightly rate-limited by GitHub's API.
+    github_token: str = ""
+
+    # Document storage (design §35: local volume in dev; S3-compatible in prod)
+    document_storage_dir: str = "./storage/documents"
+
     # CORS
     frontend_origin: str = "http://localhost:3000"
 

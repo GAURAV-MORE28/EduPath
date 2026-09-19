@@ -26,13 +26,13 @@
 
 ## 2. The five LLM agents (and nothing else is an LLM agent)
 
-| Agent | Mode(s) | Can mutate persisted state directly? |
-|---|---|---|
-| **Profiler** | single | No — emits `ExtractedClaims` only |
-| **Planner** | draft / patch | No — writes only via validated commit nodes |
-| **Assessor** | generation (strong) / grading & validation (small) | No |
-| **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only |
-| **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms |
+| Agent | Mode(s) | Can mutate persisted state directly? | Implemented |
+|---|---|---|---|
+| **Profiler** | single | No — emits `ExtractedClaims` only | ✅ Phase 2 (`backend/app/agents/profiler.py`) |
+| **Planner** | draft / patch | No — writes only via validated commit nodes | ❌ |
+| **Assessor** | generation (strong) / grading & validation (small) | No | ❌ |
+| **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ❌ |
+| **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ❌ |
 
 Everything else (Gap Engine, Skill Normalizer\*, Skill Graph Service, Resource
 Retriever/Ranker, Plan Validator, Fallback Planner, Mastery Updater, Struggle
@@ -41,7 +41,8 @@ is a **deterministic service**. No new LLM agents may be added without updating 
 file and justifying the addition against design §8.1's role-by-role table.
 
 \* Skill Normalizer uses a small LLM only for ambiguous-alias disambiguation; it is
-not counted among the 5 agents.
+not counted among the 5 agents. **Implemented (Phase 2):**
+`backend/app/profiling/skill_normalizer.py`.
 
 ## 3. Evidence tiers (never conflate these)
 
@@ -193,6 +194,30 @@ A self-report or inference alone can only ever produce `UNVERIFIED`, never `MET`
   domain-pack JSON) are likewise additions beyond §28's field list, not
   contradictions of it (§28 says "only fields that are actually used are
   listed").
+- **Addition (Phase 2):** `PendingClaim` (`backend/app/db/models.py`) is not
+  in design §28's table list. It is the durable hand-off between a G1
+  Onboarding run (`parse_documents -> extract_claims -> verify_evidence ->
+  normalize_skills`) and the separate `POST /api/learners/me/claims/confirm`
+  request — design's `RunState` (§9.2) would normally hold in-flight claims
+  as checkpointed graph state, but no Postgres-backed LangGraph checkpointer
+  exists yet (Phase 1 left this open; see IMPLEMENTATION_STATE.md "Known
+  Issues"). Revisit once that checkpointer exists.
+- **Addition (Phase 2):** `Document.type` includes `"github"` as a value,
+  modeling a `github_repo_summary` result as a synthetic document (its
+  `storage_ref` is the repo URL) rather than a separate evidence code path
+  — this lets a GitHub-sourced claim flow through the same
+  extract/verify/normalize pipeline as any other document, with
+  `is_github_source=True` driving the Evidence Verifier's existing E2-tier
+  rule (design §22.4) instead of a parallel implementation.
+- **Decided (Phase 2):** `UserRepository.get_or_create(user_id)`
+  auto-provisions a minimal `User` row (a `sha256(user_id)` placeholder
+  `email_hash`) when one doesn't exist. `LearnerProfile.user_id` FK-
+  references `users.user_id`, and the session boundary's dev-mode fallback
+  (`app/api/deps.py`) has no real signup flow behind it — this was a real
+  bug caught by testing against real Postgres (SQLite, the test dialect,
+  doesn't enforce FKs by default) — see IMPLEMENTATION_STATE.md "Completed
+  Work". A real auth flow should eventually create `User` rows directly;
+  `get_or_create` stays safe to keep even then (idempotent).
 
 ## 10. Validation rules (Plan Validator V1–V10)
 

@@ -10,10 +10,15 @@
 ### Current Phase
 
 **Phase 1 — Foundation. Complete.**
-**Phase 3 — Skill Graph + Catalog Engine. Implemented (Postgres tables,
+**Phase 3 — Skill Graph + Catalog Engine. Implemented** (Postgres tables,
 NetworkX loader, graph validation/versioning, traversal queries, catalog
 ingestion, retrieval-preparation infra). Human review pass over the curated
-content itself is still outstanding — see "Domain Knowledge Pack" below.**
+content itself is still outstanding — see "Domain Knowledge Pack" below.
+**Phase 2 — Learner Profiling + Evidence Pipeline. Implemented** (intake,
+document upload with text-first PDF/DOCX/text extraction + VLM-fallback
+hook, Profiler Agent, Evidence Verifier, Skill Normalizer, human
+confirmation, basic GitHub metadata). Gap analysis, planning, assessment
+and reflection remain out of scope, per design's phase ordering.
 
 ### Overall Project Status
 
@@ -22,14 +27,23 @@ frontend, PostgreSQL + pgvector via Alembic migrations, a LangGraph
 orchestration skeleton, and a Docker Compose stack that builds and runs all
 three services together.
 
-The **Skill Graph + Catalog Engine** (Phase 3, design §11/§12/§15) is now
+The **Skill Graph + Catalog Engine** (Phase 3, design §11/§12/§15) is
 implemented: the domain knowledge pack (`data/`, curated offline) loads into
 Postgres via a validated ingestion pipeline, and a NetworkX graph built from
 those tables answers prerequisite/ancestor/descendant/role-subgraph/
-path-explanation queries. This is deterministic infrastructure only — no
-learner-specific logic (profiling, gap analysis, planning, assessment,
-reflection, tutor) exists yet, by design (see this phase's explicit "DO NOT
-IMPLEMENT: skill-gap engine, planner, agents, reflection").
+path-explanation queries.
+
+The **Learner Profiling + Evidence Pipeline** (Phase 2, design §10/§22) is
+now also implemented: a learner can complete intake (self-reported skills,
+target role, career goal, weekly hours, preferences), upload a resume
+(PDF/DOCX/text) or point at a GitHub repo, have the system extract
+span-verified skill claims (via a real LLM path with a deterministic,
+catalog-anchored fallback), normalize them against the curated Skill Graph,
+review/edit/remove them, and confirm them into `Evidence` +
+`LearnerSkillState` rows. This closes the loop from "raw learner input" to
+"graph-anchored, evidence-tiered learner state" — the exact input the Gap
+Engine (Phase 4, still not implemented) needs. No gap analysis, planning,
+assessment, or reflection logic exists yet, by design.
 
 ### Completed Phases
 
@@ -37,7 +51,7 @@ IMPLEMENT: skill-gap engine, planner, agents, reflection").
 |---|---|
 | 0 — Engineering state protocol | ✅ Done |
 | 1 — Foundation (repo skeleton, Docker Compose, FastAPI, Postgres schema, LLM Gateway, Trace Emitter, Next.js shell) | ✅ Done |
-| 2 — Learner profiling | ❌ Not started |
+| 2 — Learner profiling | ✅ Implemented (intake, document ingestion, Profiler Agent, Evidence Verifier, Skill Normalizer, human confirmation, GitHub metadata path). See "Completed Work" below. |
 | 3 — Skill graph + catalog (critical path) | ✅ Implemented (Postgres tables, NetworkX loader, validation, versioning, traversal queries, catalog ingestion, resource embeddings + FTS index). Curated content itself still needs a human review pass (§11.5) before production gap analysis trusts it. |
 | 4 — Gap analysis | ❌ Not started |
 | 5 — Planner | ❌ Not started |
@@ -237,6 +251,147 @@ ARCHITECTURE_CONTRACTS.md §5/§9):
   once per test — so these tests double as a regression check on the domain
   pack itself, not just the code. **54 tests total, all passing.**
 
+**Phase 2 — Learner Profiling + Evidence Pipeline** (design §10, §22, §28;
+ARCHITECTURE_CONTRACTS.md §2/§13; package `backend/app/profiling/` per §12's
+naming convention):
+
+- **Postgres schema** (`backend/app/db/models.py`, migration
+  `0003_learner_profiling`): `LearnerProfile`, `Document`, `Evidence`,
+  `LearnerSkillState` (design §28), plus `PendingClaim` — an addition beyond
+  §28's table list, the staging area for `ExtractedClaim`s between a G1 run
+  and the human confirmation step; see "Architectural Decisions" and
+  ARCHITECTURE_CONTRACTS.md's Contract Changes for why (no Postgres-backed
+  LangGraph checkpointer exists yet to hold this as in-flight `RunState`).
+- **Document parsing** (`backend/app/profiling/document_parser.py`):
+  type/size/MIME-sniffing validation (design §29 whitelist: PDF, DOCX,
+  TXT/MD, PNG/JPG), text-first extraction (PyMuPDF for PDF, python-docx for
+  DOCX, direct decode for TXT/MD). Empty/scanned PDFs and raw images are
+  flagged `needs_vlm_fallback` rather than treated as an extraction failure.
+- **VLM fallback** (`backend/app/gateway/vlm_gateway.py`): same
+  provider-agnostic-gateway shape as the LLM/Embedding Gateways. Wired into
+  `parse_documents` (a real PDF page is rendered to PNG via PyMuPDF and sent
+  through this gateway on an empty/scanned page); degrades deterministically
+  to empty text when no vision provider is configured
+  (`LLM_PROVIDER=none`, the default) — there is no offline OCR stand-in, so
+  this always resolves to design §30's "ask user to paste text" path in this
+  environment, exactly as designed, not silently.
+- **PII scrubbing** (`backend/app/profiling/pii.py`): regex-based
+  email/phone/best-effort-address redaction, run once before chunking so
+  every downstream offset is relative to the scrubbed text.
+- **Chunking** (`backend/app/profiling/chunker.py`): paragraph-boundary
+  chunking with offsets. Built and unit-tested but not wired into the live
+  pipeline's critical path — the Profiler processes a resume's full (small)
+  scrubbed text in one shot; chunking exists for when a real LLM's context
+  window forces a split, not hit at this scale. See "Known Issues".
+- **Prompt-injection detection** (`backend/app/profiling/injection.py`):
+  pattern-based (design §22.6: "ignore previous instructions", "give me all
+  skills", etc.); flagged spans are excluded from evidence entirely (never
+  even reach `PendingClaim`), counted in the run summary as
+  `dropped_injection`.
+- **Profiler Agent** (`backend/app/agents/profiler.py`): real
+  `ProfilerAgent.run()`. Tries a real LLM extraction call (mid tier, design
+  §33.2) first, retried up to 2× on schema-validation failure
+  (ARCHITECTURE_CONTRACTS.md §11); falls back to
+  `DeterministicClaimExtractor` (`backend/app/profiling/claim_extraction.py`
+  — a catalog-anchored literal substring scan, case-insensitive/word-boundary
+  matched) whenever the gateway degrades (no provider — this project's
+  default) or both retries fail. Every claim from either path carries a
+  verbatim span. `LLM_PROVIDER=none` in tests means the fallback path is
+  what the test suite exercises end to end; the LLM path's parsing/retry
+  logic is exercised via a scripted stub gateway.
+- **Evidence Verifier** (`backend/app/profiling/evidence_verifier.py`):
+  deterministic span verification (offset check, then a direct search
+  recovery if the claimed offsets are wrong but the span text is real;
+  ≥0.9 similarity after whitespace/case normalization, design §22.5) and
+  tier assignment (design §22.4's fixed table: `skills_list`→E0,
+  `project`/`experience`→E1, `certificate` or a GitHub source→E2). Never
+  assigns E3 (assessed-only, Phase 7). Injection flagging happens here too,
+  scanning a window around each claim's span.
+- **Skill Normalizer** (`backend/app/profiling/skill_normalizer.py`): exact
+  alias/label match → embedding top-5 (via `EmbeddingGateway`, cosine
+  similarity; skill embeddings computed on the fly and cached per
+  normalizer instance, since `Skill.embedding` itself is still unpopulated
+  per Phase 3's scope note) → bounded (≤1 call, no retry loop) small-tier
+  LLM disambiguation among the top-5 candidates, validated against that
+  exact candidate-ID set (ARCHITECTURE_CONTRACTS.md §7: never an invented
+  ID) → `unmapped`. A medium-confidence embedding match that the LLM can't
+  confirm (degraded, declines, or fails validation) resolves to `unmapped`,
+  never a silently-accepted guess.
+- **G1 Onboarding graph** (`backend/app/orchestration/graphs.py`'s
+  `build_onboarding_graph`): a real 4-node LangGraph
+  (`parse_documents → extract_claims → verify_evidence → normalize_skills`,
+  design §9.3) terminating at `status="needs_user"`. Does **not** include
+  design's next two nodes (`user_confirm`, `gap_analysis`) — `gap_analysis`
+  is this phase's explicit "DO NOT IMPLEMENT", and `user_confirm` is a
+  separate HTTP request (`POST /api/learners/me/claims/confirm`) rather than
+  an in-graph pause, because Phase 1 never built a Postgres-backed LangGraph
+  checkpointer to resume a paused run across requests — `PendingClaim` rows
+  are the hand-off instead. One document (or one GitHub-derived pseudo
+  document) per graph run/API call; multiple files means multiple calls.
+  See "Known Issues" and ARCHITECTURE_CONTRACTS.md's Contract Changes.
+- **Onboarding orchestration glue** (`backend/app/profiling/onboarding.py`):
+  builds the per-run deterministic services from the live catalog, compiles
+  and invokes the graph, and persists its output as `PendingClaim` rows
+  (skipping only the claims that were dropped before normalization —
+  unverified-span or injection-flagged ones never get this far).
+- **GitHub tool** (`backend/app/profiling/github_client.py`,
+  `github_repo_summary`, design §26.2): languages, README excerpt (first
+  1500 chars), top-level file listing, and dependency-manifest filenames via
+  the public GitHub REST API — metadata only, no deep code analysis
+  (explicitly out of scope this phase). `httpx.AsyncClient` is injected so
+  tests use `httpx.MockTransport` (no live network calls). Repo summaries
+  feed into the *same* G1 pipeline as a synthetic text document, tagged
+  `is_github_source=True` so the Evidence Verifier assigns E2 automatically.
+  404/rate-limit/network-error responses degrade to `fetched=False` with a
+  reason, never raise into the pipeline.
+- **Evidence commit** (`backend/app/profiling/commit.py`):
+  `EvidenceCommitService` — the only code path that writes `Evidence`/
+  `LearnerSkillState` (design §10.6's read/write matrix). Seeds
+  `alpha`/`beta` from the confirmed tier's default prior
+  (`backend/app/core/thresholds.py`, ARCHITECTURE_CONTRACTS.md §3); a
+  stronger tier upgrades an existing skill state, a weaker one never
+  downgrades it. `band` is always `"unknown"` while `n_obs == 0` (no
+  assessed items yet — see "Architectural Decisions"). Ignores claim IDs
+  that don't belong to the requesting learner or aren't `pending` — never
+  trusts client-supplied IDs blindly.
+- **API routes** (`backend/app/api/v1/learners.py`, design §27):
+  `POST /api/learners` (intake — creates/updates `LearnerProfile`,
+  normalizes self-reported skills straight to E0 evidence, rejects an
+  unsupported `target_role_id` with "role not supported" per
+  ARCHITECTURE_CONTRACTS.md §5), `POST /api/learners/me/documents`
+  (multipart file **or** `github_url`, triggers G1, returns a claims
+  summary), `GET /api/learners/me/claims/pending`,
+  `POST /api/learners/me/claims/confirm`. `learner_id` is always resolved
+  from the session (`app/api/deps.py`'s new `get_current_learner_id`),
+  never accepted from the request body. Not implemented from design §27's
+  table (out of scope, needs Gap Engine/Planner/Assessor): target-role
+  change, gaps, plans, practice, chat, dispute, progress, decisions, demo
+  seed endpoints.
+- **Bug found and fixed via real-Postgres verification**: the session
+  boundary's dev-mode fallback (`user_id="dev-user"`, `app/api/deps.py`,
+  Phase 1) has no real signup flow behind it, so no `users` row exists for
+  it — `LearnerProfile.user_id`'s FK to `users.user_id` failed on real
+  Postgres (SQLite, the test dialect, doesn't enforce FKs by default, so
+  this was invisible to the automated suite). Fixed with
+  `UserRepository.get_or_create` (auto-provisions a minimal `User` row,
+  `email_hash` synthesized from `user_id`), called from the intake route
+  before creating a `LearnerProfile`. A regression test now covers this
+  directly in `test_db_connection.py`, and the fix was re-verified against
+  a real Postgres 16 container end-to-end (intake → upload → confirm).
+- **Tests** (`backend/tests/`): 106 new tests across
+  `test_document_parser.py` (17), `test_pii.py` (5), `test_injection.py`
+  (6), `test_evidence_verifier.py` (14), `test_claim_extraction.py` (20),
+  `test_skill_normalizer.py` (10, fully controlled stub embedding/LLM
+  gateways so which normalization stage handles a claim is deterministic),
+  `test_profiler_agent.py` (5, degrade-to-fallback + scripted-gateway
+  retry/success paths), `test_github_client.py` (8, `httpx.MockTransport`),
+  `test_learners_api.py` (11, full HTTP-layer flow via ASGI transport — a
+  new `app_client` fixture in `tests/conftest.py`), `test_commit.py` (9),
+  plus 1 regression test in `test_db_connection.py`. **160 tests total, all
+  passing** (54 from Phase 1+3, 106 new). Frontend/document-storage temp
+  directories are redirected to a session-scoped tmp dir in `conftest.py`
+  so tests never write into the repo tree.
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -245,34 +400,57 @@ ARCHITECTURE_CONTRACTS.md §5/§9):
 - `app/core/__init__.py`, `app/core/errors.py`
 - `app/schemas/__init__.py`, `app/schemas/envelope.py`, `app/schemas/common.py`
 - `app/db/__init__.py`, `app/db/base.py`, `app/db/session.py`,
-  `app/db/models.py` (extended, Phase 3 — see below)
+  `app/db/models.py` (extended, Phase 3 and Phase 2 — see below)
 - `app/db/migrations/env.py`, `app/db/migrations/script.py.mako`,
   `app/db/migrations/versions/0001_foundation.py`,
-  `app/db/migrations/versions/0002_skill_graph_catalog.py` (new, Phase 3)
+  `app/db/migrations/versions/0002_skill_graph_catalog.py` (Phase 3),
+  `app/db/migrations/versions/0003_learner_profiling.py` (new, Phase 2)
 - `app/gateway/__init__.py`, `app/gateway/llm_gateway.py`,
-  `app/gateway/embedding_gateway.py` (new, Phase 3)
+  `app/gateway/embedding_gateway.py` (Phase 3),
+  `app/gateway/vlm_gateway.py` (new, Phase 2)
 - `app/orchestration/__init__.py`, `app/orchestration/state.py`,
-  `app/orchestration/graphs.py`
-- `app/agents/__init__.py`, `app/agents/base.py`, `app/agents/profiler.py`,
+  `app/orchestration/graphs.py` (extended, Phase 2: real `build_onboarding_graph`)
+- `app/agents/__init__.py`, `app/agents/base.py`,
+  `app/agents/profiler.py` (extended, Phase 2: real `ProfilerAgent`),
   `app/agents/planner.py`, `app/agents/assessor.py`,
   `app/agents/reflection.py`, `app/agents/tutor.py`
 - `app/services/__init__.py`
-- `app/repositories/__init__.py`, `app/repositories/user_repository.py`,
-  `app/repositories/catalog_repository.py` (new, Phase 3)
+- `app/repositories/__init__.py`,
+  `app/repositories/user_repository.py` (extended, Phase 2: `get_or_create`),
+  `app/repositories/catalog_repository.py` (Phase 3),
+  `app/repositories/profiling_repository.py` (new, Phase 2)
 - `app/graph/__init__.py`, `app/graph/loader.py`, `app/graph/queries.py`,
-  `app/graph/validation.py` (new package, Phase 3)
-- `app/catalog/__init__.py`, `app/catalog/ingest.py` (new package, Phase 3)
+  `app/graph/validation.py` (Phase 3)
+- `app/catalog/__init__.py`, `app/catalog/ingest.py` (Phase 3)
+- `app/profiling/__init__.py`, `app/profiling/document_parser.py`,
+  `app/profiling/pii.py`, `app/profiling/chunker.py`,
+  `app/profiling/injection.py`, `app/profiling/claim_extraction.py`,
+  `app/profiling/evidence_verifier.py`, `app/profiling/skill_normalizer.py`,
+  `app/profiling/github_client.py`, `app/profiling/commit.py`,
+  `app/profiling/onboarding.py`, `app/profiling/storage.py` (all new
+  package, Phase 2)
+- `app/core/__init__.py`, `app/core/errors.py`,
+  `app/core/thresholds.py` (new, Phase 2 — tunable numeric defaults)
+- `app/schemas/profiling.py` (new, Phase 2)
 - `app/sse/__init__.py`, `app/sse/trace.py`
-- `app/api/__init__.py`, `app/api/deps.py`
+- `app/api/__init__.py`, `app/api/deps.py` (extended, Phase 2:
+  `get_current_learner_id`)
 - `app/api/v1/__init__.py`, `app/api/v1/router.py`, `app/api/v1/health.py`,
-  `app/api/v1/runs.py`
-- `scripts/seed_catalog.py` (new, Phase 3 — CLI catalog ingestion entrypoint)
+  `app/api/v1/runs.py`, `app/api/v1/learners.py` (new, Phase 2)
+- `scripts/seed_catalog.py` (Phase 3 — CLI catalog ingestion entrypoint)
 - `tests/__init__.py`, `tests/conftest.py` (extended: `catalog_session`
-  fixture, Phase 3), `tests/test_health.py`, `tests/test_db_connection.py`,
-  `tests/test_langgraph_init.py`, `tests/test_graph_validation.py`,
-  `tests/test_catalog_ingest.py`, `tests/test_graph_loader.py`,
-  `tests/test_graph_queries.py`, `tests/test_embedding_gateway.py` (all five
-  new, Phase 3)
+  fixture (Phase 3), `app_client` fixture + storage-tmp-dir redirect
+  (Phase 2)), `tests/test_health.py`,
+  `tests/test_db_connection.py` (extended, Phase 2: `get_or_create`
+  regression test), `tests/test_langgraph_init.py`,
+  `tests/test_graph_validation.py`, `tests/test_catalog_ingest.py`,
+  `tests/test_graph_loader.py`, `tests/test_graph_queries.py`,
+  `tests/test_embedding_gateway.py` (Phase 3);
+  `tests/test_document_parser.py`, `tests/test_pii.py`,
+  `tests/test_injection.py`, `tests/test_evidence_verifier.py`,
+  `tests/test_claim_extraction.py`, `tests/test_skill_normalizer.py`,
+  `tests/test_profiler_agent.py`, `tests/test_github_client.py`,
+  `tests/test_learners_api.py`, `tests/test_commit.py` (all new, Phase 2)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -301,7 +479,8 @@ Tailwind v4, App Router, ESLint), then customized:
 **Backend** (`backend/pyproject.toml`): fastapi, uvicorn[standard], pydantic,
 pydantic-settings, sqlalchemy, asyncpg, alembic, pgvector, langgraph,
 langchain-core, python-multipart, sse-starlette, structlog, httpx,
-**networkx (Phase 3, new — the graph engine per design §34).**
+networkx (Phase 3), **pymupdf, python-docx (Phase 2, new — PDF/DOCX
+text-first extraction per design §22.1/§34).**
 Dev extra (`[dev]`): pytest, pytest-asyncio, aiosqlite.
 
 **Frontend** (`frontend/package.json`): next 16.3.5, react/react-dom 19.2.8.
@@ -316,24 +495,33 @@ See `.env.example` at repo root (copy to `.env`). Summary:
 `LLM_API_KEY`, `LLM_SMALL_MODEL`/`MID_MODEL`/`STRONG_MODEL`,
 `SESSION_SECRET`, `FRONTEND_ORIGIN`, `NEXT_PUBLIC_API_BASE_URL`,
 `LOG_LEVEL`. No real provider key is required yet — `LLM_PROVIDER=none` is
-the default and the gateway degrades deterministically.
+the default and the gateway degrades deterministically. **New this phase:**
+`GITHUB_TOKEN` (optional; unauthenticated GitHub API requests work but are
+more tightly rate-limited), `DOCUMENT_STORAGE_DIR` (default
+`./storage/documents`, relative to the backend process's cwd; gitignored).
 
 ### Database Status
 
 Postgres 16 + pgvector, running via Docker Compose, migrated with Alembic.
-Two migrations: `0001_foundation` (`vector`/`pg_trgm` extensions, `users`)
-and `0002_skill_graph_catalog` (`skills`, `skill_edges`, `roles`,
+Three migrations: `0001_foundation` (`vector`/`pg_trgm` extensions, `users`),
+`0002_skill_graph_catalog` (`skills`, `skill_edges`, `roles`,
 `role_requirements`, `misconceptions`, `resources`, `resource_skills`,
 `practice_items`, `graph_meta`, plus a generated `resources.search_vector`
-tsvector column with a GIN index). Both verified this session against a real
-Postgres 16 + pgvector container: upgrade, downgrade, and re-upgrade all ran
-clean, and `backend/scripts/seed_catalog.py` populated the full 158-skill
-domain pack (158 skills, 3 roles, 203 edges, 140 resources, 18
-misconceptions, 95 items) with FTS and pgvector cosine-similarity queries
-both confirmed working end-to-end.
+tsvector column with a GIN index), and `0003_learner_profiling`
+(`learner_profiles`, `documents`, `evidence`, `learner_skill_states`,
+`pending_claims`). All three verified this session against a real Postgres
+16 + pgvector container: upgrade, downgrade, and re-upgrade all ran clean
+for each; `backend/scripts/seed_catalog.py` populated the full 158-skill
+domain pack, and a full intake → document-upload → confirm flow was run
+against the real container through the actual FastAPI app (not just SQLite)
+— this is what caught the `users` FK bug documented above under "Completed
+Work".
 
-No other table in the conceptual schema (`LearnerProfile`, `Document`,
-`Evidence`, ...) exists yet — each is created by the migration the owning
+No other table in the conceptual schema (`LearningObjective`, `Resource`
+already exists from Phase 3, `PracticeTask`, `Assessment`,
+`LearningActivity`, `StruggleSignal`, `WeeklyPlan`, `PlanItem`,
+`PlanRevision`, `ReflectionRecord`, `DecisionRecord`, `AgentRun`,
+`AgentStep`, ...) exists yet — each is created by the migration the owning
 phase adds.
 
 ### Domain Knowledge Pack
@@ -389,34 +577,46 @@ Current state: **validates with 0 errors and 0 warnings.**
 
 ### API Status
 
-Two endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
-(SSE). None of the learner-scoped endpoints in design §27's table exist yet.
-Phase 3 deliberately added no API routes — `SkillGraphService` and
-`CatalogRepository` are internal services with no HTTP surface yet; the first
-route that needs them (most likely Gap Analysis's role-subgraph/explanation
-queries) is Phase 4's to add.
+Six endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
+(SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
+(multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
+`POST /api/learners/me/claims/confirm`. The rest of design §27's table
+(target-role change, gaps, plans, practice, chat, dispute, progress,
+decisions, demo seed) is not implemented yet — each needs the Gap
+Engine/Planner/Assessor/Reflection this phase explicitly excluded.
+`SkillGraphService`/`CatalogRepository` (Phase 3) are still internal
+services with no direct HTTP surface of their own; the intake route reads
+`CatalogRepository.get_role` for role validation, but nothing exposes
+`/skills/{id}` or similar yet.
 
 ### Agent Status
 
-All five LLM agents exist as classes with the shared `Agent` interface, each
-raising `NotImplementedError`. No LangGraph business graphs (G1-G4) exist —
-only the bootstrap graph used to prove the framework. No agent has tool
-access. Phase 3 added no agents (it is 100% deterministic services, per
-ARCHITECTURE_CONTRACTS.md §2).
+The Profiler Agent (A1) is now real (`app/agents/profiler.py`) — see
+"Completed Work" above. The other four LLM agents (Planner, Assessor,
+Reflection, Tutor) remain placeholder classes raising `NotImplementedError`.
+Only one LangGraph business graph exists for real: G1 Onboarding
+(`build_onboarding_graph`); G2/G3/G4 remain placeholders naming their owning
+phase (5, 8, 9). No agent other than the Profiler has tool access, and the
+Profiler's tools (`parse_document`'s underlying parsing, `github_repo_summary`)
+have no side effects, per ARCHITECTURE_CONTRACTS.md §13.
 
 ### Tests Status
 
-Backend: **54 tests, all passing** (`backend/tests/`) — run with
+Backend: **160 tests, all passing** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
-invariants, catalog ingestion against the real domain pack, NetworkX graph
-loading, prerequisite/role-subgraph/path-explanation queries, embedding
-gateway determinism — see the Phase 3 "Tests" bullet under "Completed Work"
-above for the breakdown). All run against SQLite (`tests/conftest.py`'s
-existing dialect-portability convention); the Postgres-only paths
+invariants, catalog ingestion, NetworkX graph loading, prerequisite/role-
+subgraph/path-explanation queries, embedding gateway determinism) plus
+Phase 2's 106 (document parsing, PII/injection, evidence verification,
+claim extraction, skill normalization, the Profiler Agent, the GitHub tool,
+the full learners API, evidence commit — see the Phase 2 "Tests" bullet
+under "Completed Work" above for the exact breakdown). All run against
+SQLite (`tests/conftest.py`'s existing dialect-portability convention); the
+Postgres-only catalog paths
 (`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
-the generated `search_vector` column) were verified manually this session
+the generated `search_vector` column) and the full learner-profiling flow
+through the real FastAPI app were both verified manually this session
 against a real Postgres 16 + pgvector container instead (see "Database
 Status" above) rather than added to the automated suite, since the project
 has no Postgres-backed CI/test tier yet.
@@ -439,29 +639,59 @@ one.
 - The session/auth boundary (`app/api/deps.py`) is a placeholder: a bare
   cookie value with a dev-mode fallback (`session=None` → `"dev-user"` only
   when `env=dev`). There is no real login/signup flow. This is intentional
-  for Phase 1 (design doc does not specify an auth provider) but any
-  learner-scoped router added in Phase 2+ must not rely on this beyond the
-  boundary shape.
+  for Phase 1 (design doc does not specify an auth provider), but note it
+  now has a real consequence: `UserRepository.get_or_create` auto-provisions
+  a `users` row for whatever `user_id` the boundary hands back, since
+  `LearnerProfile` FK-references it (see "Completed Work" above). A real
+  auth flow should replace the dev-mode fallback with actually-authenticated
+  IDs; `get_or_create` itself is fine to keep (idempotent, self-healing).
 - The LLM Gateway's replay cache is in-process only (`InMemoryReplayCache`),
   not yet backed by a Postgres table. ARCHITECTURE_CONTRACTS.md §14 requires
-  a durable record/replay cache — implement the Postgres-backed version
-  alongside the first real agent call (Phase 2, Profiler).
+  a durable record/replay cache — the Profiler Agent (Phase 2) is now the
+  first real agent call, so this is worth prioritizing before Phase 4+ adds
+  more agent calls on top of the same gap.
 - No CI pipeline exists to run backend tests / frontend build / compose
   startup automatically on push.
 - Docker Desktop must be running before `docker compose up`; if its engine
   is stopped, compose fails at the daemon connection (not a config issue —
   `docker compose config` validates independent of the daemon).
 - The Skill Graph is not yet loaded at app startup (`app/main.py`'s
-  `lifespan`) — Phase 3 built the loader but nothing calls it yet, since no
-  API route or agent needs the graph in-process until Phase 4. Wire this in
-  alongside Phase 4's first real caller rather than loading it speculatively
-  now.
+  `lifespan`) — Phase 3 built the loader, Phase 2's `onboarding.py` builds a
+  fresh `SkillNormalizer`/`DeterministicClaimExtractor` from the catalog on
+  every document-upload request instead of reusing a startup-loaded
+  singleton (acceptable at 158 skills / SQLite-in-memory-pool speed, but a
+  real per-request cost at Postgres scale). Wire a shared, startup-loaded
+  graph/catalog cache in alongside Phase 4's first real caller (the Gap
+  Engine will need the same NetworkX graph) rather than loading it
+  speculatively now, and have Phase 2's services reuse it too.
 - `CatalogRepository.search_resources_by_text`/`search_resources_by_vector`
   raise `NotImplementedError` under SQLite (Postgres-only SQL/operators) —
   by design, but it means the automated test suite cannot exercise them; they
   were only verified manually against a live Postgres container this
   session, not via `pytest`. Re-verify manually after touching either method
   until the project has a Postgres-backed CI tier.
+- **(Phase 2)** `chunk_text` (`app/profiling/chunker.py`) is implemented and
+  unit-tested but not wired into the live `parse_documents` node — the
+  Profiler currently processes a document's full scrubbed text in one call.
+  Fine at resume scale; revisit if a real provider's context window ever
+  forces a split (claim offsets would then need remapping from
+  chunk-relative back to document-relative, which nothing currently does).
+- **(Phase 2)** `POST /api/learners/me/documents` accepts exactly one file
+  (or one `github_url`) per call, not true multi-file batches, even though
+  design §27's table shows `file(s)`. Uploading several documents means
+  several calls (several G1 runs, several `run_id`s) — see Contract Changes.
+- **(Phase 2)** The VLM fallback (`app/gateway/vlm_gateway.py`) always
+  degrades to empty text in this environment (no vision provider
+  configured) — there is no offline OCR stand-in, unlike text extraction and
+  embeddings which have deterministic fallbacks. A scanned PDF or a
+  certificate image will currently always end up `needs_text_paste`
+  (design §30's documented behavior, not a bug), until a real provider is
+  wired in.
+- **(Phase 2)** `PendingClaim` rows are never cleaned up or expired — a
+  learner who never confirms/removes an extracted claim leaves it `pending`
+  indefinitely. No garbage-collection job exists yet; not a correctness bug
+  (claims are learner-scoped and harmless at rest) but worth a TTL/cleanup
+  pass before a long-lived deployment.
 
 ### Architectural Decisions
 
@@ -501,44 +731,75 @@ one.
   ARCHITECTURE_CONTRACTS.md §14's offline-determinism requirement. Swap in a
   real provider/local model when Phase 6 (Resource Retriever) needs
   semantic-quality ranking — the interface is already provider-agnostic.
+- **(Phase 2)** G1 Onboarding stops at `status="needs_user"` and does not
+  include design's `user_confirm`/`gap_analysis` nodes; `PendingClaim` rows
+  are the hand-off to the separate confirm-claims HTTP request instead of an
+  in-graph pause. Reason: no Postgres-backed LangGraph checkpointer exists
+  yet to resume a paused run across requests (Phase 1 left this as an open
+  item — see the replay-cache bullet above, a related gap). Revisit once
+  that checkpointer exists; at that point `user_confirm` could become a real
+  interrupt/resume node and `PendingClaim` could potentially be retired in
+  favor of checkpointed `RunState`.
+- **(Phase 2)** `LearnerSkillState.band` is always `"unknown"` while
+  `n_obs == 0`, regardless of tier or the seeded prior's numeric mastery
+  estimate. Design §10.4's band table only names Learning/Developing/
+  Proficient in terms of a mastery estimate that assessed observations make
+  meaningful; a prior alone (E0-E2, no assessment yet) isn't evidence of a
+  mastery *level*, just of evidence *existing*. Real banding starts once the
+  Mastery Updater (Phase 7) adds assessed observations.
+- **(Phase 2)** `EvidenceCommitService._upsert_skill_state` reseeds
+  `alpha`/`beta` to the new tier's flat prior on a tier upgrade, rather than
+  Bayesian-combining the old and new priors. Simple and matches design's own
+  framing (§10.3: "a handful of assessed items can quickly outweigh
+  documents" — i.e., tier priors are meant to be overtaken wholesale by
+  better evidence, not finely blended). A weaker/equal tier never downgrades
+  the state, so this can only move mastery-prior estimates upward over time.
+- **(Phase 2)** GitHub repo summaries are modeled as a `Document` row
+  (`type="github"`, `storage_ref=repo_url`) and fed through the *same* G1
+  pipeline as a synthetic text document (description + languages + manifest
+  filenames + README excerpt), rather than a separate code path. This reuses
+  claim extraction/verification/normalization as-is and is why a GitHub
+  source can get E2 tier automatically (`is_github_source=True` flows
+  straight into the existing tier-assignment rule) instead of needing a
+  parallel tier-assignment implementation.
 
 ### Contract Changes
 
-`docs/ARCHITECTURE_CONTRACTS.md` §5 and §9 updated this phase (see that
-file's diff for exact wording):
-- §5: recorded that the Postgres tables + NetworkX loader described as
-  "Phase 4+ work" in the previous entry are now implemented, and named the
-  files (`app/catalog/ingest.py`, `app/graph/loader.py`,
-  `app/graph/queries.py`).
-- §9: recorded two **additions** to design §28's conceptual data model — the
-  `GraphMeta` table (graph-version history; §28 doesn't list it, but §5's
-  "graph is versioned" and §14's "record graph_version" need a home for that
-  version history) and a handful of extra columns
-  (`Misconception.remediation_candidates`, `PracticeItem.purpose`/
-  `explanation`/`generated_by`/`validated_by`/`graph_version`) that carry
-  source/review metadata and the `REMEDIATED_BY` edge target list from the
-  domain-pack JSON. Also recorded the `JSON`-over-`ARRAY` dialect-portability
-  decision. None of this contradicts §28 (which says "only fields that are
-  actually used are listed") or any other stable contract.
+`docs/ARCHITECTURE_CONTRACTS.md` §2, §5, and §9 updated this phase (see that
+file's diff for exact wording); Phase 3's entry above still stands for its
+own §5/§9 additions:
+- §2: noted the Profiler Agent (A1) is now real, and that it is the only
+  currently-implemented LLM agent among the five.
+- §9: recorded three more **additions** to design §28's conceptual data
+  model, following the same "§28 lists only fields/tables actually used"
+  latitude Phase 3 already used for `GraphMeta`: (1) `PendingClaim` — the
+  G1-run-to-confirmation staging table, needed because no Postgres-backed
+  LangGraph checkpointer exists to hold this as in-flight `RunState`
+  instead (see "Architectural Decisions" above); (2) `Document.type`
+  includes `"github"` as a pseudo-document type, modeling a GitHub repo
+  summary as a synthetic document rather than a separate evidence path;
+  (3) `UserRepository.get_or_create` as the documented way `User` rows get
+  created under the current placeholder (non-)auth flow, since
+  `LearnerProfile.user_id`'s FK now makes a missing `users` row a hard
+  failure on Postgres, not just a soft assumption.
+- Scope note (not a contract change, but worth flagging near §8 API
+  conventions for the next reader): `POST /api/learners/me/documents`
+  accepts one file (or one `github_url`) per call, not the batched
+  `file(s)` design §27's table shows — see "Known Issues".
 
 ### Next Phase
 
 **Phase 4 — Gap analysis** (design §39.1, §13): the deterministic Gap Engine
 (`analyze_gaps(role, learner, graph)`, design §13.3) that compares the
-target-role subgraph (`SkillGraphService.role_subgraph`, now implemented)
-against a learner's evidence/mastery to produce `SkillGap[]`
+target-role subgraph (`SkillGraphService.role_subgraph`, implemented Phase 3)
+against a learner's evidence/mastery (`LearnerSkillState`, `Evidence`,
+implemented Phase 2 — real learner data can now flow into it, not just the
+seeded demo state) to produce `SkillGap[]`
 (MET/WEAK/UNVERIFIED/MISSING/BLOCKED), `strengths[]`, `audit_flags[]`, and
-`LearningObjective[]`. Needs Phase 2 (Learner profiling — not started) to
-exist first for real learner evidence to analyze against, or can be built
-and tested against the seeded demo learner state
-(`data/dataset/demo/demo_learner_state.json`) in the meantime. This is also
-where the NetworkX graph gets wired into `app/main.py`'s startup lifespan for
-the first time (see "Known Issues" above).
-
-Phase 2 (Learner profiling) remains not started and is not blocked by
-anything in this phase; it can proceed independently, now with
-`data/dataset/skills.json`'s aliases available (loaded into Postgres) for the
-Skill Normalizer.
+`LearningObjective[]`. This is also where the NetworkX graph should get
+wired into `app/main.py`'s startup lifespan for the first time, replacing
+Phase 2's per-request catalog reads with a shared loaded graph (see "Known
+Issues" above).
 
 Still open on **Phase 3** itself (does not block Phase 4, but should happen
 before this graph is trusted in a real demo): a human review pass over the
@@ -547,24 +808,33 @@ curated content (§11.5) — every edge/resource/misconception/item still shows
 HEAD-request link-validation sweep over the 140 resource URLs (`link_status`
 is currently a spot-check, not a full crawl).
 
+Also still open on **Phase 2**: a Postgres-backed LLM Gateway replay cache
+(now overdue — the Profiler is a real agent call); wiring a shared,
+startup-loaded catalog/graph cache instead of Phase 2's per-request
+`SkillNormalizer`/`DeterministicClaimExtractor` construction; true
+multi-file document upload (currently one file per call).
+
 ### Exact Next Task
 
 1. For Phase 4 code: implement the Gap Engine as a deterministic service
    (`app/gap/`, per ARCHITECTURE_CONTRACTS.md §12's package-naming
    convention) implementing design §13.3's `analyze_gaps` algorithm on top of
    `SkillGraphService.role_subgraph`/`hard_ancestors`/`topological_layers`
-   (all implemented, Phase 3); add the `LearnerSkillState`,
-   `LearnerMisconception` tables (design §28) + migration for the learner
-   overlay (design §12.1) the Gap Engine reads; add `GET
-   /api/learners/me/gaps` (or similar, per design §27); wire `GraphLoader`
-   into `app/main.py`'s lifespan so the NetworkX graph is loaded once at
-   startup rather than per-request.
-2. If Phase 2 (Learner profiling) isn't done first, build/test Phase 4
-   against the seeded demo learner state
-   (`data/dataset/demo/demo_learner_state.json`) so Gap Engine work isn't
-   blocked on Profiler work landing first.
+   (Phase 3) and `ProfilingRepository.list_skill_states_for_learner`/
+   `list_evidence_for_learner` (Phase 2, both already implemented); add
+   `GET /api/learners/me/gaps` (or similar, per design §27); wire
+   `GraphLoader` into `app/main.py`'s lifespan so the NetworkX graph is
+   loaded once at startup rather than per-request, and have
+   `app/profiling/onboarding.py` reuse that shared instance too.
+2. Test Phase 4 against real learner data created via Phase 2's intake +
+   document-upload + confirm flow (no longer only the seeded demo learner
+   state) — e.g. run the exact sequence `test_learners_api.py` exercises,
+   then feed the resulting `LearnerSkillState` rows into `analyze_gaps`.
 3. Before trusting this graph in a live demo: run the human review pass and
    live link-validation sweep noted above (Phase 3 remaining work).
+4. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
+   now overdue since the Profiler is a real agent call) before adding more
+   agents on top of the same gap.
 
 ### Commands To Verify Current State
 
@@ -579,8 +849,9 @@ cd backend && python -m pytest -q
 # Frontend build
 cd frontend && npm run build
 
-# Skill graph + catalog migration and seed (from backend/; requires a running,
-# reachable Postgres — e.g. `docker compose up -d postgres` from repo root)
+# Skill graph + catalog + learner-profiling migrations and seed (from backend/;
+# requires a running, reachable Postgres — e.g. `docker compose up -d postgres`
+# from repo root)
 cd backend && alembic upgrade head
 python scripts/seed_catalog.py
 

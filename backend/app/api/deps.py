@@ -10,9 +10,12 @@ this only establishes the boundary so later routers cannot accidentally take
 """
 from __future__ import annotations
 
-from fastapi import Cookie, HTTPException, status
+from fastapi import Cookie, Depends, HTTPException, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
+from app.db.session import get_session
+from app.repositories.profiling_repository import ProfilingRepository
 
 
 async def get_current_user_id(session: str | None = Cookie(default=None)) -> str:
@@ -29,3 +32,20 @@ async def get_current_user_id(session: str | None = Cookie(default=None)) -> str
             return "dev-user"
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
     return session
+
+
+async def get_current_learner_id(
+    user_id: str = Depends(get_current_user_id),
+    db_session: AsyncSession = Depends(get_session),
+) -> str:
+    """Resolves `learner_id` for `/api/learners/me/...` routes
+    (ARCHITECTURE_CONTRACTS.md §7: session-derived, never accepted as a
+    request-body/LLM argument). Raises 404 if the current user hasn't
+    completed intake (`POST /api/learners`) yet — there is no learner
+    profile to attach documents/claims/evidence to."""
+    profile = await ProfilingRepository(db_session).get_learner_profile_by_user_id(user_id)
+    if profile is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="No learner profile for this user yet — complete intake first"
+        )
+    return profile.learner_id
