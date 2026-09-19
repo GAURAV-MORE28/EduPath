@@ -7,7 +7,7 @@ backend/.pytest_cache/
 # Env
 .env
 .env.*
-!.env.example
+.env.example
 
 # Node (frontend/.gitignore also covers this, kept here for root-level tools)
 frontend/node_modules/
