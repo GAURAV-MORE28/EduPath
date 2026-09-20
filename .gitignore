@@ -19,3 +19,7 @@ frontend/.next/
 Thumbs.db
 backend/*.egg-info/
 backend/storage/
+
+# impeccable review captures
+.impeccable/review/
+.impeccable/mocks/
