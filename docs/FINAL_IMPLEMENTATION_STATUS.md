@@ -105,6 +105,43 @@ Two of these numbers are deliberately *not* flattering, and they are the most im
 These are **not** Postgres/Docker numbers and there is **no live-model latency** in them. Reproduce against the real stack with
 `python scripts/run_journey.py` (§9).
 
+## 4b. Live providers: Groq, Hugging Face, Tavily, GitHub (verified against the real services)
+
+After Phase 12 the project was connected to real services. `python scripts/live_smoke.py` (needs your `.env`) runs one tiny real
+call per service through the project's own gateways; all seven checks passed:
+
+| Service | Configured as | Result |
+|---|---|---|
+| LLM small / mid / strong | Groq: `openai/gpt-oss-20b` / `openai/gpt-oss-120b` / `openai/gpt-oss-120b` (also works: `qwen/qwen3.8-27b`) | 0.4-0.9 s, JSON parsed |
+| Embeddings | `Qwen/Qwen3-Embedding-0.6B` via the HF router (served by deepinfra; the `hf-inference` route is broken for this model), truncated to 256 dims (Matryoshka) | dim 256; related 0.83 vs unrelated 0.44 cosine |
+| Vision (scanned PDF / image) | HF router, `deepseek-ai/DeepSeek-V4.1-Flash:novita` | transcribed a rendered page exactly; end to end an image-only PDF became `parsed_vlm` with 6 correct claims |
+| Web search | Tavily, allowlisted domains, unvetted | 5 allowlisted https results |
+| GitHub | your token | authenticated, 5,000 requests/hour; a real repo fetched and turned into E2 claims |
+
+**The complete journey on live models** (real server, empty database, catalog embedded by Qwen3): every step passes. User-driven path: 26 s
+total, **8 LLM calls, 0 degraded, 0 retries**, 9.3k tokens in / 2.0k out; upload to claims 12 s, plan 2.3 s, struggle to revision 1.7 s,
+chat 1.4-6.5 s. Seeded path: 9 calls, 1 degraded (a rate-limited call that fell back deterministically, as designed).
+Latency has spikes (a seed took 57 s, a progress report 20 s) that are **Groq free-tier throttling**: the gateway waits on `Retry-After`
+(bounded) and retries, then falls back to the recorded response or the deterministic path. Expect the design's 3 s chat target to be met
+only when the quota is not being throttled.
+
+What connecting a real model exposed, and what was fixed (the deterministic mode had hidden all of it):
+
+1. **Planner drafts were rejected by the validator** (a BLOCKED skill scheduled, difficulty above the band, 5 new skills vs a cap of 3) and the
+   deterministic fallback silently produced every plan. The prompt now states the constraints with computed values (new-skill cap, each
+   objective's unmet prerequisites and `schedulable_this_week`, `max_item_difficulty`); a live draft now passes (`degraded: false`).
+2. **Tutor answers cited things the citation verifier rightly rejected** (tool names like `explain_skill_path`, the role id, a skill named only
+   in prose), so every answer was regenerated and often fell back to the conservative text. The prompt now receives the exact
+   `allowed_citation_ids`; the two demo questions are answered live in ~1 s, verified, on the first draft.
+3. **A big context hit the free tier's per-request limit (HTTP 413)**: the Tutor sent all 56 gaps. Tool output is now bounded (top 12 open gaps,
+   8 strengths, 20 skill states, with true totals alongside; only shown IDs are citable).
+4. The mid tier on `qwen/qwen3.8-27b` took 17-31 s per planner call; `gpt-oss-120b` takes 2-3 s.
+5. Rejections are now visible: `edupath.planning.draft_rejected` / `edupath.tutor.citation_rejected` (log + a trace step with the violated rules).
+
+**Not measured with live models:** the evaluation suite is pinned to `LLM_PROVIDER=none` (deterministic, offline, free). The quality of
+LLM-authored plans, reflections and answers has been *spot-checked* (they read well and validate), not scored on a gold set.
+Adding an LLM-mode evaluation run is the natural next step (section 7).
+
 ## 5. Security testing (all pass)
 
 | Threat | Verified |
@@ -139,11 +176,11 @@ These are **not** Postgres/Docker numbers and there is **no live-model latency**
    only 56 % of role skills have an eligible lesson at the default 45-min cap and a 20 h/week learner is scheduled ~45 min. Plans
    are always *valid* and never over budget; they are often *thin*. The fix is a planner feature (segment splitting +
    duplicate-rule exemption for segments of one resource) — deliberately not done in a hardening phase.
-2. **The system runs in "reduced-intelligence" mode by default** (`LLM_PROVIDER=none`): every agent takes its deterministic path
-   (deterministic extractor, fallback planner, rule-based reflection, conservative tutor answers). The Anthropic adapter, record/replay
-   and retry behavior are unit-tested with mocked HTTP; **they have not been run against the live API**, and the agents' LLM paths
-   have only ever been exercised with fakes. Expect prompt/schema tuning when a key is attached.
-3. **Authentication is a placeholder**: the `session` cookie is a bare user id (forgeable). Learner isolation is enforced *given* a
+2. **Live models are integrated but lightly evaluated.** `LLM_PROVIDER=none` is still the default (offline / no key); with Groq configured every
+   agent runs its LLM path and the journey completes (section 4b). Only spot checks exist for LLM output quality, prompts were tuned against one
+   persona, and the free tier throttles (429 waits, occasional deterministic fallbacks, one 413 fixed). Record/replay works with the fake provider
+   in tests and was seen rescuing a rate-limited call live, but "record a demo, then replay it offline" has not been rehearsed end to end.
+3. **Authentication is a placeholder**: the `session` cookie is a bare user id (forgeable). **API keys you pasted into chat should be rotated** (they live only in gitignored `.env` files, but they were exposed in the conversation). Learner isolation is enforced *given* a
    session; there is no login, signing or CSRF protection. `SESSION_SECRET` is unused. Do not expose this to the internet.
 4. **The curated content has had no human review** (`reviewed_by: edupath-phase3-curation`), and resource `link_status` has never been
    verified by a live sweep in these sessions (no network): run `python scripts/validate_links.py` before a demo. The item bank
@@ -152,7 +189,7 @@ These are **not** Postgres/Docker numbers and there is **no live-model latency**
 6. Postgres is exercised manually and through SQL-level checks, not by the automated suite (which runs on SQLite): see §8.
 7. Not implemented (unchanged, by design of earlier phases): Reflection plan-critique mode, Tutor-drafted overrides,
    `POST /plans/{id}/override`, skill-dispute endpoint, `DELETE /learners/me`, streamed chat, chat-turn persistence, high-impact-change
-   confirmation, code sandbox, live web-search fallback, real VLM/OCR (scanned PDFs always need pasted text).
+   confirmation, code sandbox, the web-search results are not fed into planning (by design: unvetted). The VLM reads only the first page of a scanned PDF.
 8. `/api/metrics` is unauthenticated (aggregate-only, no learner data). The SSE bus is in-process (one API worker).
 
 ## 8. What was and was not verified in this session
@@ -209,10 +246,19 @@ run once with `LLM_PROVIDER=anthropic`, model ids, `DEMO_MODE=true` (which recor
 --demo-seed`; then set `REPLAY_MODE=true` to serve recorded responses first (a miss falls through to live, then to the deterministic path).
 The fixed persona id keeps prompt hashes stable across rehearsals. Runs are inspectable at `GET /api/runs/{id}` and `GET /api/metrics`.
 
+### Connect real providers
+
+```bash
+# put keys in .env (gitignored) - see .env.example - then, from backend/:
+python scripts/live_smoke.py                 # one real call per service; PASS/FAIL/SKIP
+python scripts/reembed_catalog.py            # only if the catalog was seeded BEFORE EMBEDDING_PROVIDER=huggingface
+python scripts/run_journey.py --base-url http://localhost:8000 --iterations 1     # the whole journey on live models
+```
+
 ### Tests
 
 ```bash
-cd backend && python -m pytest -q                     # everything (572 tests, ~2.5 min)
+cd backend && python -m pytest -q                     # everything (601 tests, ~2 min; the suite pins every provider to `none`, so live keys in `.env` are never used or spent)
 python -m pytest tests/integration -q                 # the full journey, live + seeded paths
 python -m pytest tests/evaluation -q                  # gold sets + oracles; writes reports/evaluation_metrics.{json,md}
 python -m pytest tests/security -q                    # injection, uploads, isolation, tools, roles, broken resources
@@ -231,7 +277,12 @@ cd ../frontend && npx playwright test                 # needs a live API + `npm 
 | `POSTGRES_USER/PASSWORD/DB` | `edupath` | Compose's Postgres |
 | `DEMO_MODE` | `false` | enables `/api/demo/seed` + `/api/demo/scripted-attempt`, records live LLM responses, builds the web UI in demo mode |
 | `REPLAY_MODE` | `false` | serve recorded LLM responses first (offline / deterministic) |
-| `LLM_PROVIDER` | `none` | `none` = deterministic agents; `anthropic` = live |
+| `LLM_PROVIDER` | `none` | `none` = deterministic agents; `groq` / `huggingface` (OpenAI-compatible) or `anthropic` = live |
+| `HF_TOKEN` | empty | Hugging Face token: embeddings, vision, and the `huggingface` LLM provider |
+| `EMBEDDING_PROVIDER`, `EMBEDDING_MODEL` | `none`, `Qwen/Qwen3-Embedding-0.6B` | `huggingface` = real semantic embeddings (256 dims). Re-embed a seeded catalog after changing: `python scripts/reembed_catalog.py` |
+| `VLM_PROVIDER`, `VLM_MODEL` | `none`, `deepseek-ai/DeepSeek-V4.1-Flash:novita` | vision fallback for scanned PDFs / images (first page only) |
+| `WEB_SEARCH_PROVIDER`, `TAVILY_API_KEY`, `WEB_SEARCH_ALLOWED_DOMAINS` | `none` | `tavily` = `GET /api/learners/me/skills/{id}/web-resources` (unvetted, allowlisted, never enters a plan) |
+| `LLM_JSON_MODE`, `LLM_REASONING_EFFORT` | `true`, `low` | ask OpenAI-compatible providers for JSON; effort sent to gpt-oss models only |
 | `LLM_API_KEY`, `LLM_SMALL/MID/STRONG_MODEL`, `LLM_BASE_URL` | empty / Anthropic URL | provider credentials and per-tier model ids |
 | `LLM_TIMEOUT_S` | `8` | live-call timeout before falling back to a recorded/deterministic answer |
 | `LLM_RECORD` | `false` | record successful live responses into `llm_replay_entries` (implied by `DEMO_MODE`) |

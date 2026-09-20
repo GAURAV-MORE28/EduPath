@@ -64,6 +64,8 @@ class PlannerAgent(Agent):
             existing_items=existing_items,
             operators=operators,
             validation_feedback=validation_feedback,
+            new_skill_cap=input_payload.get("new_skill_cap"),
+            unmet_prerequisites=input_payload.get("unmet_prerequisites"),
         )
 
         last_error: str | None = None

@@ -110,11 +110,12 @@ class SkillNormalizer:
 
     async def _skill_embeddings(self) -> dict[str, list[float]]:
         if self._skill_embedding_cache is None:
-            cache: dict[str, list[float]] = {}
-            for skill_id, skill in self._skills_by_id.items():
-                text = f"{skill.label}. {skill.description}" if skill.description else skill.label
-                cache[skill_id] = await self._embedding_gateway.embed(text)
-            self._skill_embedding_cache = cache
+            ids = list(self._skills_by_id)
+            texts = [
+                f"{sk.label}. {sk.description}" if sk.description else sk.label
+                for sk in (self._skills_by_id[i] for i in ids)
+            ]
+            self._skill_embedding_cache = dict(zip(ids, await self._embedding_gateway.embed_many(texts)))
         return self._skill_embedding_cache
 
     async def _top_candidates(self, label: str) -> list[tuple[str, float]]:

@@ -8,6 +8,21 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 12b | 2026-09-20] Live provider integration: Groq, Hugging Face, Tavily
+
+- **LLM:** OpenAI-compatible adapter (`call_openai_compatible`) for Groq and the Hugging Face router; JSON mode with one plain-text retry,
+  `reasoning_effort` for gpt-oss, `Retry-After` honored (bounded). Tier models: `openai/gpt-oss-20b` / `gpt-oss-120b` / `gpt-oss-120b`.
+- **Embeddings:** `HuggingFaceEmbeddingGateway` (Qwen3-Embedding-0.6B via the HF router's deepinfra route), batched, cached, truncated to 256 dims
+  (Matryoshka; no migration), logged deterministic fallback that is never cached. `embed_many` on the interface; the normalizer and ingestion
+  batch. `scripts/reembed_catalog.py`.
+- **Vision:** `HuggingFaceVLMGateway` (scanned PDFs / images become `parsed_vlm`). **Web search:** `TavilyWebFallbackGateway` + read-only
+  `GET /api/learners/me/skills/{id}/web-resources` (allowlisted https, title-only, always `unvetted`). **GitHub:** token in use.
+- **Fixed by running real models:** Planner prompt now states the validator's constraints with computed values (live drafts validate);
+  Tutor prompt receives the exact `allowed_citation_ids`; Tutor tool output bounded (a free-tier 413); mid tier moved off a slow model;
+  rejections logged and traced (`draft_rejected`, `citation_rejected`).
+- `scripts/live_smoke.py` (7/7 pass). The test suite pins every provider to `none` (a developer's `.env` can no longer make tests hit live services).
+- Tests 572 -> 601. Full details: `docs/FINAL_IMPLEMENTATION_STATUS.md` section 4b.
+
 ## [Phase 12 | 2026-09-20] Integration, evaluation and demo hardening
 
 No major features; the system was driven end to end and made reliable. Full status:

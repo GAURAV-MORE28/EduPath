@@ -86,7 +86,11 @@ def build_planner_prompt(
     existing_items: list[dict] | None = None,
     operators: list[dict] | None = None,
     validation_feedback: list[str] | None = None,
+    new_skill_cap: int | None = None,
+    unmet_prerequisites: dict[str, list[str]] | None = None,
 ) -> str:
+    unmet_prerequisites = unmet_prerequisites or {}
+    objective_skills = {cs.skill_id for cs in candidate_sets.values()}
     objectives_payload = [
         {
             "objective_id": cs.objective_id,
@@ -94,6 +98,9 @@ def build_planner_prompt(
             "objective_type": cs.objective_type,
             "target_level": cs.target_level,
             "current_level": cs.current_level,
+            "max_item_difficulty": cs.current_level + 1,
+            "unmet_hard_prerequisite_skills": unmet_prerequisites.get(cs.skill_id, []),
+            "schedulable_this_week": all(p in objective_skills for p in unmet_prerequisites.get(cs.skill_id, [])),
             "priority": round(cs.priority, 3),
             "candidate_resources": [
                 {"resource_id": r.resource_id, "title": r.title, "type": r.type, "duration_min": r.duration_min, "modality": r.modality}
@@ -104,9 +111,26 @@ def build_planner_prompt(
         for cs in sorted(candidate_sets.values(), key=lambda c: -c.priority)
     ]
 
+    cap_line = (
+        f"1. At most {new_skill_cap} DISTINCT skill_ids may appear in resource/practice/review/project items "
+        "(probe items do not count). Pick the highest-priority objectives and drop the rest.\n"
+        if new_skill_cap
+        else ""
+    )
+    constraints = (
+        "HARD CONSTRAINTS -- checked by code; a draft that breaks any of them is thrown away:\n"
+        + cap_line
+        + "2. Never schedule an objective whose schedulable_this_week is false. If an objective lists "
+        "unmet_hard_prerequisite_skills, EVERY one of those skills must have an item on a STRICTLY EARLIER day_slot; "
+        "if that is not possible, leave the objective out.\n"
+        "3. Every item's difficulty must be <= its objective's max_item_difficulty.\n"
+        "4. Sum of est_minutes must be <= the weekly budget; use the chosen resource's duration_min as est_minutes.\n"
+        "5. Use each resource_id at most once."
+    )
     parts = [
         f"Weekly time budget (minutes): {hours_budget_minutes:.0f}",
         f"Mode: {mode}",
+        constraints,
         "Objectives with candidate sets (JSON):",
         json.dumps(objectives_payload, indent=2),
     ]

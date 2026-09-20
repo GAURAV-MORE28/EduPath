@@ -109,6 +109,10 @@ class CatalogIngestor:
         ]
         skill_edges = [self._build_skill_edge(e) for e in dataset["edges"]]
         misconceptions = [self._build_misconception(m) for m in dataset["misconceptions"]]
+        # One batched call warms a remote gateway's cache; each `_build_resource` embed then hits it.
+        await self.embedding_gateway.embed_many(
+            [f"{r['title']}. {r['learning_objective_text']}" for r in dataset["resources"]]
+        )
         resources = [await self._build_resource(r) for r in dataset["resources"]]
         resource_skills = [
             self._build_resource_skill(r["resource_id"], st)

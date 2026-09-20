@@ -34,7 +34,13 @@ from pydantic import BaseModel
 from sqlalchemy import select
 
 from app.config import Settings, get_settings
-from app.gateway.providers import ProviderError, ProviderResult, call_anthropic, extract_json_object
+from app.gateway.providers import (
+    ProviderError,
+    ProviderResult,
+    call_anthropic,
+    call_openai_compatible,
+    extract_json_object,
+)
 from app.logging_config import get_logger
 from app.observability.context import note_llm_call
 from app.sse.trace import emit
@@ -166,6 +172,15 @@ async def _default_provider_call(settings: Settings, request: LLMRequest) -> Pro
             user_prompt=request.user_prompt,
             temperature=request.temperature,
         )
+    if settings.llm_provider in ("groq", "huggingface"):
+        return await call_openai_compatible(
+            settings,
+            provider=settings.llm_provider,
+            tier=request.tier.value,
+            system_prompt=request.system_prompt,
+            user_prompt=request.user_prompt,
+            temperature=request.temperature,
+        )
     raise ProviderError(f"unsupported LLM_PROVIDER '{settings.llm_provider}'", retryable=False)
 
 
@@ -244,7 +259,9 @@ class LLMGateway:
 
     async def _live(self, request: LLMRequest) -> tuple[LLMResponse | None, str | None]:
         last_error: str | None = None
+        last_exc: Exception | None = None
         for attempt in range(self.max_retries + 1):
+            last_exc = None
             try:
                 result = await asyncio.wait_for(
                     self._provider_call(self.settings, request), timeout=self.settings.llm_timeout_s + 1.0
@@ -253,6 +270,7 @@ class LLMGateway:
                 last_error = "provider timeout"
             except ProviderError as exc:
                 last_error = str(exc)
+                last_exc = exc
                 if not exc.retryable:
                     break
             except Exception as exc:  # noqa: BLE001 -- the gateway must never raise into an agent
@@ -270,6 +288,9 @@ class LLMGateway:
                     None,
                 )
             if attempt < self.max_retries:
-                await asyncio.sleep(self.backoff_base_s * (2**attempt))
+                delay = self.backoff_base_s * (2**attempt)
+                if isinstance(last_exc, ProviderError) and last_exc.retry_after:
+                    delay = max(delay, min(last_exc.retry_after, 15.0))  # honour a 429's Retry-After, bounded
+                await asyncio.sleep(delay)
         logger.warning("edupath.gateway.live_failed", error=last_error)
         return None, last_error

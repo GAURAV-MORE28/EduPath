@@ -27,7 +27,9 @@ from app.core.thresholds import (
 from app.gap.engine import GapAnalysisResult, analyze_gaps
 from app.gateway.vlm_gateway import VLMGateway, VLMPageReadRequest
 from app.graph.queries import SkillGraphService
+from app.logging_config import get_logger
 from app.observability.context import note_planner_loop
+from app.sse.trace import emit
 from app.orchestration.state import RunState
 from app.planning.candidates import ObjectiveCandidateSet, build_candidate_sets
 from app.planning.fallback import FALLBACK_OVERALL_REASON, build_fallback_plan
@@ -53,6 +55,9 @@ async def _start_node(state: RunState) -> dict[str, Any]:
 
 async def _finish_node(state: RunState) -> dict[str, Any]:
     return {"status": "completed"}
+
+
+logger = get_logger(__name__)
 
 
 def build_bootstrap_graph():
@@ -284,9 +289,20 @@ def build_planning_graph(
         counters["planner_attempts"] = counters.get("planner_attempts", 0) + 1
         note_planner_loop()
 
+        gap_result_for_prompt: GapAnalysisResult = d["gap_result"]
+        statuses = {g.skill_id: g.status for g in gap_result_for_prompt.gaps}
+        unmet_prerequisites = {
+            cs.skill_id: [
+                p for p in graph_service.direct_prerequisites(cs.skill_id, include_soft=False)
+                if p in statuses and statuses[p] != "MET"
+            ]
+            for cs in d["candidate_sets"].values()
+        }
         result = await planner_agent.run(
             state["run_id"],
             {
+                "new_skill_cap": d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
+                "unmet_prerequisites": unmet_prerequisites,
                 "candidate_sets": d["candidate_sets"],
                 "hours_budget_minutes": d["hours_budget_minutes"],
                 "mode": d.get("mode", "draft"),
@@ -318,6 +334,14 @@ def build_planning_graph(
         )
         d["validation"] = result
         d["last_violation_messages"] = [v.message for v in result.hard_violations]
+        if not d["draft_degraded"] and not result.passed:
+            # A live model's draft was rejected: say why (design 31.1 "validation results (pass/fail with violations)").
+            rules = sorted({v.rule for v in result.hard_violations})
+            logger.info("edupath.planning.draft_rejected", attempt=state["counters"].get("planner_attempts", 0), rules=rules,
+                        messages=[v.message for v in result.hard_violations[:5]])
+            await emit("Plan Validator", "validation",
+                       f"Draft {state['counters'].get('planner_attempts', 0)} rejected: {', '.join(rules)}",
+                       status="degraded", output_ref=",".join(rules)[:200])
 
         status = "running"
         if result.passed and not d["draft_degraded"]:
@@ -475,6 +499,7 @@ def build_tutor_graph(*, ctx: TutorContext, tutor_agent: TutorAgent):
                 "question": d["message"],
                 "context_blocks": context_blocks,
                 "missing_ids": d.get("last_invalid_citations"),
+                "allowed_ids": sorted(d["valid_ids"]),
             },
         )
         d["draft"] = result["draft"]
@@ -490,6 +515,10 @@ def build_tutor_graph(*, ctx: TutorContext, tutor_agent: TutorAgent):
         check = verify_citations(d["draft"].citations, d["valid_ids"])
         d["citation_check_passed"] = check.passed
         d["last_invalid_citations"] = check.invalid_ids
+        if not check.passed:
+            logger.info("edupath.tutor.citation_rejected", invalid=check.invalid_ids[:8], cited=len(check.cited_ids))
+            await emit("Citation Verifier", "validation", f"Rejected {len(check.invalid_ids)} uncitable id(s): {', '.join(check.invalid_ids[:3])}",
+                       status="degraded")
         return {"data": d}
 
     def route_after_verify(state: RunState) -> str:

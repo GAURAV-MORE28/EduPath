@@ -951,3 +951,19 @@ Full design rules: `docs/FRONTEND_DESIGN_SYSTEM.md`.
   `test_observability.py`, `test_llm_gateway.py`, `test_demo_mode.py`. `scripts/run_journey.py` drives the
   same `JourneyDriver` against a running stack for smoke + benchmark.
 
+### 22.1 Provider adapters (Phase 12b)
+
+- `LLM_PROVIDER` = `none | groq | huggingface | anthropic`. `groq` / `huggingface` share `call_openai_compatible`
+  (`app/gateway/providers.py`): system + user message, `response_format: json_object` (`LLM_JSON_MODE`; one plain-text retry if the
+  provider rejects it), `reasoning_effort` only for `gpt-oss` models, usage mapped from `prompt_tokens` / `completion_tokens`. A 429 carries
+  `retry_after`; the gateway honors it, bounded at 15 s. Other 4xx (incl. 413) are non-retryable and degrade.
+- `EMBEDDING_PROVIDER` = `none | huggingface`. Vectors are truncated to `EMBEDDING_DIM` (256) and re-normalized (Matryoshka), so the schema is
+  unchanged. **Catalog and query embeddings must come from the same provider** (`scripts/reembed_catalog.py`). A failed remote call falls back to
+  the deterministic embedding, logged, never cached.
+- `VLM_PROVIDER` = `none | huggingface`: transcription only; the transcript still passes the Profiler's verbatim-span verification.
+- `WEB_SEARCH_PROVIDER` = `none | tavily`: results are https, allowlisted (re-checked in code, not trusted to the provider), title-only,
+  `unvetted`; exposed only at `GET /api/learners/me/skills/{skill_id}/web-resources`; never a plan input or a `resource_id`.
+- Prompts must carry the constraints their validator enforces (Planner: new-skill cap, unmet prerequisites, max difficulty) and the exact
+  allowed citation set (Tutor). Tool output handed to a model is bounded (`MAX_GAPS_SHOWN` etc.).
+- Tests never use live providers: `tests/conftest.py` pins every provider to `none` and blanks every key.
+

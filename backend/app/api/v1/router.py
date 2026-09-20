@@ -18,6 +18,7 @@ from app.api.v1.practice import router as practice_router
 from app.api.v1.runs import router as runs_router
 from app.api.v1.tutor import router as tutor_router
 from app.api.v1.views import router as views_router
+from app.api.v1.web_resources import router as web_resources_router
 
 api_router = APIRouter()
 api_router.include_router(health_router)
@@ -30,3 +31,4 @@ api_router.include_router(tutor_router)
 api_router.include_router(views_router)
 api_router.include_router(observability_router)
 api_router.include_router(demo_router)
+api_router.include_router(web_resources_router)

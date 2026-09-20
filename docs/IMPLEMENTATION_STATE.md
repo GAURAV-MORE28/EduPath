@@ -91,6 +91,11 @@ consolidated status — features, measured results, limitations, demo/test/deplo
 `docs/FINAL_IMPLEMENTATION_STATUS.md`.** `docker compose up --build` could **not** be verified end to
 end this session (Docker Desktop's engine wedged); see that file's section 8.
 
+**Phase 12b — Live provider integration. Implemented** (after Phase 12): Groq LLM (OpenAI-compatible adapter), Hugging Face
+Qwen3-Embedding + VLM, Tavily web-search endpoint, GitHub token. `python scripts/live_smoke.py` passes 7/7 and the whole journey runs on live
+models (8 LLM calls, 0 degraded on the user path). Running real models exposed and fixed Planner-constraint, Tutor-citation and context-size
+problems (FINAL_IMPLEMENTATION_STATUS.md section 4b). Tests: 601. `LLM_PROVIDER=none` remains the default; the suite pins all providers to `none`.
+
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
@@ -1813,7 +1818,7 @@ excludes from that list; no LLM call exists anywhere in `app/gap/`,
 
 ### Tests Status
 
-Backend: **572 tests, all passing after Phase 12** (466 before it; the per-phase breakdown
+Backend: **601 tests, all passing after Phase 12b** (466 before it; the per-phase breakdown
 below stops at 455). Phase 12's tiers: `tests/integration`, `tests/evaluation` (writes
 `backend/reports/`), `tests/security`. Historic text: **455 tests** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint

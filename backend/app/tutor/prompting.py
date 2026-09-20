@@ -26,6 +26,10 @@ other knowledge of this learner and must never use anything you "remember" about
 Rules:
 - Every factual claim (a status, a number, a reason, a fact about the graph) MUST be backed by an
   ID that appears in the context blocks, and that ID MUST be listed in "citations".
+- "citations" are IDs that appear as VALUES or KEYS inside the blocks' data, such as "skill.chain_rule",
+  a UUID, "res.khan_diff_calc" or "obj.role.ml_engineer.skill.numpy". The names of the blocks themselves
+  (for example "explain_skill_path" or "get_gaps") are NOT IDs and must never be cited.
+- Cite only the few IDs your answer actually relies on (at most 6).
 - NEVER invent an ID, a skill, a resource, a number, or a fact that is not in the context blocks.
 - If the context blocks do not contain enough information to answer, say so plainly instead of
   guessing, and cite whatever IDs you did use.
@@ -43,18 +47,33 @@ class TutorParseError(Exception):
     pass
 
 
+MAX_ALLOWED_IDS_IN_PROMPT = 80
+
+
 def build_tutor_prompt(
-    *, question: str, context_blocks: dict[str, dict], missing_ids: list[str] | None = None
+    *,
+    question: str,
+    context_blocks: dict[str, dict],
+    missing_ids: list[str] | None = None,
+    allowed_ids: list[str] | None = None,
 ) -> str:
     parts = [
         f"Learner's question: {question!r}",
         "Context blocks (JSON, ID-labeled):",
         json.dumps(context_blocks, indent=2, default=str),
     ]
+    if allowed_ids:
+        # The verifier only accepts IDs the tools returned this turn. Naming that exact set removes the
+        # commonest failure: citing a real-looking ID (e.g. the role or a skill mentioned only in prose).
+        shown = sorted(allowed_ids)[:MAX_ALLOWED_IDS_IN_PROMPT]
+        parts.append(
+            'allowed_citation_ids (JSON) -- "citations" must be a subset of exactly these; anything else is rejected:\n'
+            + json.dumps(shown)
+        )
     if missing_ids:
         parts.append(
-            "Your previous answer cited these IDs, which do NOT appear in the context blocks above: "
-            f"{missing_ids}. Rewrite the answer using only IDs that actually appear in the context blocks."
+            "Your previous answer cited these, which are NOT IDs found inside the context blocks' data "
+            f"(block names are not IDs): {missing_ids}. Rewrite the answer and cite only real IDs from the data."
         )
     parts.append("Respond with ONLY the JSON object described in the system prompt.")
     return "\n\n".join(parts)

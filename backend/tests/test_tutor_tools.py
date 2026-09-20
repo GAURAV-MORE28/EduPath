@@ -70,7 +70,12 @@ async def test_get_gaps_matches_gap_engine_and_cites_real_skills(catalog_session
 
     result = await tools.get_gaps(ctx)
     assert result.data["role_id"] == "role.ml_engineer"
-    assert len(result.data["gaps"]) == len(ctx.gap_result.gaps)
+    # bounded for the model (Phase 12): the highest-priority open gaps, with the true total alongside
+    open_gaps = [g for g in ctx.gap_result.gaps if g.status != "MET"]
+    assert result.data["open_gaps_total"] == len(open_gaps)
+    assert len(result.data["gaps"]) == min(len(open_gaps), tools.MAX_GAPS_SHOWN)
+    priorities = [g["priority"] for g in result.data["gaps"]]
+    assert priorities == sorted(priorities, reverse=True)
     gap_skill_ids = {g["skill_id"] for g in result.data["gaps"]}
     assert gap_skill_ids <= result.citable_ids
     # every cited skill must be a real graph node

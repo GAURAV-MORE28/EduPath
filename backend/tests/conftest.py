@@ -8,6 +8,14 @@ needs them lands; Phase 1 only needs to prove connectivity + migrations.
 import os
 import tempfile
 
+# The suite must be deterministic and offline no matter what a developer's `.env` holds (real provider
+# keys, DEMO_MODE, ...): environment variables outrank the dotenv file, so pin every external service off.
+for _name, _value in {
+    "LLM_PROVIDER": "none", "EMBEDDING_PROVIDER": "none", "VLM_PROVIDER": "none", "WEB_SEARCH_PROVIDER": "none",
+    "LLM_API_KEY": "", "HF_TOKEN": "", "TAVILY_API_KEY": "", "GITHUB_TOKEN": "",
+    "DEMO_MODE": "false", "REPLAY_MODE": "false", "LLM_RECORD": "false",
+}.items():
+    os.environ[_name] = _value
 os.environ.setdefault("DATABASE_URL", "sqlite+aiosqlite:///:memory:")
 # Document uploads (Phase 2 profiling) would otherwise land under the default
 # ./storage/documents relative to the test run's cwd -- redirect to a

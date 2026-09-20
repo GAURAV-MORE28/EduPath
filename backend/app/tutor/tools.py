@@ -30,6 +30,15 @@ class ToolCallResult:
     error: str | None = None
 
 
+# Bound what a tool hands the model: a full role has ~50 gaps / ~25 skill states, which exceeds a small
+# per-request token limit (observed: Groq answered 413 "request too large") and buries the answer. The tools
+# return the highest-signal rows plus the true totals, and only IDs actually shown are citable.
+MAX_GAPS_SHOWN = 12
+MAX_STRENGTHS_SHOWN = 8
+MAX_SKILL_STATES_SHOWN = 20
+MAX_EVIDENCE_IDS_PER_ROW = 3
+
+
 class UnknownToolError(Exception):
     pass
 
@@ -40,7 +49,8 @@ async def get_learner_state(ctx: TutorContext) -> ToolCallResult:
 
     citable_ids = {ctx.role_id}
     skills: dict[str, dict[str, Any]] = {}
-    for s in skill_states:
+    ranked = sorted(skill_states, key=lambda st: (st.alpha / (st.alpha + st.beta) if st.alpha + st.beta else 0.0), reverse=True)
+    for s in ranked[:MAX_SKILL_STATES_SHOWN]:
         total = s.alpha + s.beta
         skills[s.skill_id] = {
             "band": s.band,
@@ -57,6 +67,7 @@ async def get_learner_state(ctx: TutorContext) -> ToolCallResult:
         "career_goal": profile.career_goal if profile else "",
         "graph_version": ctx.graph.graph_version,
         "skills": skills,
+        "skills_total": len(skill_states),
     }
     return ToolCallResult(tool="get_learner_state", args={}, data=data, citable_ids=citable_ids)
 
@@ -65,28 +76,34 @@ async def get_gaps(ctx: TutorContext) -> ToolCallResult:
     result = ctx.gap_result
     citable_ids: set[str] = set()
 
+    open_gaps = sorted((g for g in result.gaps if g.status != "MET"), key=lambda g: -g.priority)
     gaps_out = []
-    for g in result.gaps:
+    for g in open_gaps[:MAX_GAPS_SHOWN]:
+        evidence = g.evidence_ids[:MAX_EVIDENCE_IDS_PER_ROW]
+        blocked_by = g.blocked_by[:MAX_EVIDENCE_IDS_PER_ROW]
         citable_ids.add(g.skill_id)
-        citable_ids.update(g.evidence_ids)
-        citable_ids.update(g.blocked_by)
+        citable_ids.update(evidence)
+        citable_ids.update(blocked_by)
         gaps_out.append(
             {
                 "skill_id": g.skill_id, "label": g.label, "status": g.status, "gap_type": g.gap_type,
                 "required_level": g.required_level, "current_level": g.current_level,
-                "blocked_by": g.blocked_by, "priority": g.priority, "evidence_ids": g.evidence_ids,
+                "blocked_by": blocked_by, "priority": round(g.priority, 3), "evidence_ids": evidence,
             }
         )
 
     strengths_out = []
-    for s in result.strengths:
+    for s in result.strengths[:MAX_STRENGTHS_SHOWN]:
+        evidence = s.evidence_ids[:MAX_EVIDENCE_IDS_PER_ROW]
         citable_ids.add(s.skill_id)
-        citable_ids.update(s.evidence_ids)
-        strengths_out.append(
-            {"skill_id": s.skill_id, "label": s.label, "mastery": s.mastery, "evidence_ids": s.evidence_ids}
-        )
+        citable_ids.update(evidence)
+        strengths_out.append({"skill_id": s.skill_id, "label": s.label, "mastery": s.mastery, "evidence_ids": evidence})
 
-    data = {"role_id": result.role_id, "graph_version": result.graph_version, "gaps": gaps_out, "strengths": strengths_out}
+    data = {
+        "role_id": result.role_id, "graph_version": result.graph_version,
+        "gaps": gaps_out, "open_gaps_total": len(open_gaps), "open_gaps_shown": len(gaps_out),
+        "strengths": strengths_out, "strengths_total": len(result.strengths),
+    }
     return ToolCallResult(tool="get_gaps", args={}, data=data, citable_ids=citable_ids)
 
 

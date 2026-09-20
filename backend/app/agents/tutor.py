@@ -36,7 +36,12 @@ class TutorAgent(Agent):
         context_blocks: dict[str, dict] = input_payload["context_blocks"]
         missing_ids: list[str] | None = input_payload.get("missing_ids")
 
-        base_prompt = build_tutor_prompt(question=question, context_blocks=context_blocks, missing_ids=missing_ids)
+        base_prompt = build_tutor_prompt(
+            question=question,
+            context_blocks=context_blocks,
+            missing_ids=missing_ids,
+            allowed_ids=input_payload.get("allowed_ids"),
+        )
 
         last_error: str | None = None
         for _attempt in range(self.max_retries + 1):
