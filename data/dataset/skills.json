@@ -417,7 +417,9 @@
     "label": "Algorithmic Complexity (Big-O)",
     "aliases": [
       "time complexity",
-      "space complexity"
+      "space complexity",
+      "Big-O",
+      "Big O"
     ],
     "category": "data_structures_algorithms",
     "kind": "concept",
@@ -518,7 +520,8 @@
     "skill_id": "skill.linear_algebra_matrices",
     "label": "Matrices & Matrix Operations",
     "aliases": [
-      "matrix multiplication"
+      "matrix multiplication",
+      "matrices"
     ],
     "category": "math_foundations",
     "kind": "concept",
@@ -679,7 +682,8 @@
     "skill_id": "skill.ml_fundamentals",
     "label": "Machine Learning Fundamentals",
     "aliases": [
-      "intro to machine learning"
+      "intro to machine learning",
+      "machine learning"
     ],
     "category": "machine_learning_fundamentals",
     "kind": "concept",
@@ -1545,7 +1549,9 @@
     "skill_id": "skill.rest_api_design",
     "label": "REST API Design",
     "aliases": [
-      "RESTful APIs"
+      "RESTful APIs",
+      "REST API",
+      "REST APIs"
     ],
     "category": "backend_engineering",
     "kind": "concept",
@@ -1742,7 +1748,8 @@
     "skill_id": "skill.kubernetes_basics",
     "label": "Kubernetes Basics",
     "aliases": [
-      "K8s"
+      "K8s",
+      "Kubernetes"
     ],
     "category": "devops_infrastructure",
     "kind": "concept",
@@ -1754,7 +1761,8 @@
     "label": "CI/CD Pipelines",
     "aliases": [
       "continuous integration",
-      "continuous deployment"
+      "continuous deployment",
+      "CI/CD"
     ],
     "category": "devops_infrastructure",
     "kind": "practice",
@@ -1766,7 +1774,8 @@
     "label": "Cloud Computing Fundamentals",
     "aliases": [
       "AWS basics",
-      "cloud services"
+      "cloud services",
+      "AWS"
     ],
     "category": "devops_infrastructure",
     "kind": "concept",
@@ -1788,7 +1797,8 @@
     "skill_id": "skill.infrastructure_as_code",
     "label": "Infrastructure as Code",
     "aliases": [
-      "Terraform basics"
+      "Terraform basics",
+      "Terraform"
     ],
     "category": "devops_infrastructure",
     "kind": "concept",

@@ -6,6 +6,7 @@ the LangGraph orchestrator, agents, and deterministic services.
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
+from uuid import uuid4
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +15,8 @@ from app.api.v1.router import api_router
 from app.config import get_settings
 from app.core.errors import register_exception_handlers
 from app.logging_config import configure_logging, get_logger
+from app.observability.context import RunContext, current_run
+from app.observability.store import persist_run
 from app.orchestration.graphs import build_bootstrap_graph
 from app.sse.trace import current_run_id
 
@@ -43,6 +46,11 @@ async def lifespan(app: FastAPI):
         from app.graph.queries import SkillGraphService
         from app.repositories.catalog_repository import CatalogRepository
 
+        if settings.auto_seed_catalog:
+            from app.catalog.bootstrap import ensure_catalog
+
+            async with SessionLocal() as session:
+                await ensure_catalog(session)
         async with SessionLocal() as session:
             skill_graph = await GraphLoader(CatalogRepository(session)).load()
         app.state.skill_graph_service = SkillGraphService(skill_graph)
@@ -56,9 +64,12 @@ async def lifespan(app: FastAPI):
 
 
 class TraceRunMiddleware:
-    """Pure-ASGI middleware: copies a valid `X-Run-Id` request header into the
-    `current_run_id` context var so services can `emit()` trace events for the
-    run the client is already subscribed to."""
+    """Pure-ASGI middleware: opens one `RunContext` per `/api` request (design
+    §31 -- every important action gets a run id), copies a valid client
+    `X-Run-Id` into it (so the SSE panel the client already subscribed to gets
+    the events), echoes the run id back in an `X-Run-Id` response header, and
+    persists the run + its steps (`app.observability.store.persist_run`) once
+    the response is done. Persistence errors never reach the client."""
 
     def __init__(self, app) -> None:
         self.app = app
@@ -67,18 +78,54 @@ class TraceRunMiddleware:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        run_id = None
+        path = scope.get("path", "")
+        client_run_id = None
         for name, value in scope.get("headers", []):
             if name == b"x-run-id":
                 candidate = value.decode("latin-1").strip()
                 if 8 <= len(candidate) <= 64 and all(c.isalnum() or c == "-" for c in candidate):
-                    run_id = candidate
+                    client_run_id = candidate
                 break
-        token = current_run_id.set(run_id)
+
+        # Health probes and the SSE stream itself are not "actions".
+        if not path.startswith("/api") or path == "/api/health" or path.endswith("/events"):
+            token = current_run_id.set(client_run_id)
+            try:
+                await self.app(scope, receive, send)
+            finally:
+                current_run_id.reset(token)
+            return
+
+        ctx = RunContext(
+            run_id=client_run_id or str(uuid4()),
+            client_supplied=client_run_id is not None,
+            method=scope.get("method", ""),
+            route=path,
+        )
+        run_token = current_run.set(ctx)
+        id_token = current_run_id.set(client_run_id)
+        state = {"status": 0}
+
+        async def send_with_run_id(message) -> None:
+            if message["type"] == "http.response.start":
+                state["status"] = message["status"]
+                headers = list(message.get("headers", []))
+                headers.append((b"x-run-id", ctx.run_id.encode("latin-1")))
+                message = {**message, "headers": headers}
+            await send(message)
+
+        error: str | None = None
         try:
-            await self.app(scope, receive, send)
+            await self.app(scope, receive, send_with_run_id)
+        except Exception as exc:
+            error = f"{type(exc).__name__}: {exc}"[:500]
+            if not state["status"]:
+                state["status"] = 500
+            raise
         finally:
-            current_run_id.reset(token)
+            current_run.reset(run_token)
+            current_run_id.reset(id_token)
+            await persist_run(ctx, http_status=state["status"], error=error)
 
 
 def create_app() -> FastAPI:
@@ -95,6 +142,7 @@ def create_app() -> FastAPI:
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
+        expose_headers=["X-Run-Id"],
     )
 
     app.add_middleware(TraceRunMiddleware)

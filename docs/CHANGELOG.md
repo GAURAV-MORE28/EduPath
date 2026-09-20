@@ -8,6 +8,46 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 12 | 2026-09-20] Integration, evaluation and demo hardening
+
+No major features; the system was driven end to end and made reliable. Full status:
+`docs/FINAL_IMPLEMENTATION_STATUS.md`. Contracts: `ARCHITECTURE_CONTRACTS.md` section 22.
+
+- **Observability:** `TraceRunMiddleware` gives every `/api` request a run (client `X-Run-Id` or UUID,
+  echoed as a response header) persisted as `AgentRun` + `AgentStep` (migration `0007_observability`):
+  run/step/learner ids, actor, input/output refs, decision link, duration, tokens/cost, status; counters
+  for LLM calls, retries, replays, planner loops, retrieval time. `GET /api/runs/{id}` (owner only),
+  `/api/learners/me/runs`, `/api/metrics`. `emit(..., publish=False)` and `span()` added.
+- **LLM Gateway:** never raises (replay, live, recorded, then degrade); bounded retries; durable
+  `llm_replay_entries` record/replay cache; `anthropic` adapter over `httpx`; tokens/cost per call. The
+  embedding/VLM/web-fallback gateways no longer raise for a configured provider (**a provider other than
+  `none` used to turn intake, upload and planning into 500s**).
+- **DEMO_MODE:** seeded persona "Asha" (`POST /api/demo/seed`), deterministic scripted struggle
+  (`POST /api/demo/scripted-attempt`, keys stay server-side), rehearsal `GET /api/demo/preflight`,
+  `scripts/seed_demo.py`, `erase_learner_data`. Dataset fixed at its source: the scenario scripted a
+  distractor that did not exist and expected a `DEFER` that cannot fire; the validator now checks scripted
+  answers against the bank.
+- **Journey driver:** `app/demo/journey.py` + `scripts/run_journey.py` (integration test, smoke test,
+  benchmark and rehearsal are one code path). `app/profiling/intake.py` extracted from the learners route.
+- **Evaluation** (`backend/tests/evaluation`, writes `backend/reports/evaluation_metrics.*`): evidence
+  correctness 1.00; normalization top-1 1.00; gap statuses vs an independent oracle 1.00 over 3,500
+  statuses; prerequisite consistency 1.00; retrieval eligibility violations 0 (graph anchoring P@3 1.00 vs
+  0.26 vector-only); plan validity 1.00 over 10 personas; struggle 4 classes x 25 simulated learners 1.00 with
+  0 false positives on 100 benign; reflection root cause 1.00 (10 misconceptions); citation-existence 1.00
+  (465 citations). Honest negatives recorded: 56% retrieval coverage at the 45-minute session cap and 4-38%
+  budget utilization.
+- **Security** (`backend/tests/security`): injection (documents, intake, chat), 8 invalid-upload classes,
+  path traversal, SSRF-style GitHub URLs, learner isolation across every id-bearing route, invalid tool
+  calls, unsupported roles, broken resources.
+- **Fixes found by hardening:** Tutor `search_resources` omitted `met_skill_ids`; unhandled 500s lacked CORS
+  headers; catalog alias gaps (CI/CD, Big-O, Kubernetes, AWS, Terraform, matrices, machine learning,
+  REST API); the persona left `chain_rule` BLOCKED; `HTTP_422_UNPROCESSABLE_ENTITY` deprecation.
+- **Deployment:** `docker compose up` used to leave the catalog empty (nothing seeded it, `data/` was outside
+  the build context). Now: catalog seeded on first start iff empty, `./data` mounted, API healthcheck, `web`
+  waits for a healthy API, document volume, `NEXT_PUBLIC_*` as build args. **Not verified end to end** (Docker
+  Desktop's engine wedged mid-session); config validates and the equivalent real-`uvicorn` start was verified.
+- **Tests:** 466 to 572 (integration, evaluation, security, gateway, observability, demo, tutor regression).
+
 ## [Phase 11 | 2026-09-20] Frontend design toolchain and premium adaptive-learning UI
 
 - **Toolchain** (setup): UI/UX Pro Max skill installed to `.claude/skills/ui-ux-pro-max`; shadcn/ui

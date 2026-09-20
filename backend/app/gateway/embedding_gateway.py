@@ -22,7 +22,6 @@ import math
 import re
 from abc import ABC, abstractmethod
 
-from app.config import get_settings
 from app.db.models import EMBEDDING_DIM
 
 _TOKEN_RE = re.compile(r"[a-z0-9]+")
@@ -70,12 +69,10 @@ class DegradedEmbeddingGateway(EmbeddingGateway):
         return deterministic_embedding(text, self.dim)
 
 
-def get_embedding_gateway() -> EmbeddingGateway:
-    settings = get_settings()
-    if settings.llm_provider == "none":
-        return DegradedEmbeddingGateway()
-    raise NotImplementedError(
-        "Real embedding-provider routing is implemented by the phase that first "
-        "needs provider-quality embeddings (Phase 6, Resource Retriever); the "
-        "deterministic fallback (LLM_PROVIDER=none) is what Phase 3 ingestion uses."
-    )
+def get_embedding_gateway():
+    """Always the deterministic/degraded gateway: no embedding provider is
+    implemented in this project, so a configured `LLM_PROVIDER` (which only
+    routes the LLM Gateway) must not make this raise -- Phase 12 fixed a crash
+    where any provider other than "none" turned intake/upload/planning into a
+    500. The degrade is reported honestly by each response's own flags."""
+    return DegradedEmbeddingGateway()

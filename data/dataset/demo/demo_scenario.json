@@ -27,21 +27,18 @@
       "item.chain_rule.4"
     ],
     "misconception_tagged_items": [
-      "item.backpropagation.1",
       "item.backpropagation.3",
-      "item.backpropagation.4",
-      "item.chain_rule.2",
-      "item.chain_rule.4",
-      "item.chain_rule.5"
+      "item.chain_rule.3",
+      "item.chain_rule.4"
     ]
   },
   "scripted_attempt": {
-    "description": "Scripted-wrong-answer button per §38.2 step 8: selects the misc.chain_rule_sum-tagged distractor on the misconception-tagged items, and fails the chain_rule prerequisite-block items.",
+    "description": "Scripted-wrong-answer button per §38.2 step 8: answers the misc.chain_rule_sum-tagged *wrong* option on backpropagation.3 and on both chain_rule prerequisite-block items (3 tagged occurrences, chain_rule block 0/2), and answers the other backpropagation items correctly so no competing misconception is detected. Every chosen distractor exists in data/dataset/assessment_items.json (validate_dataset.py checks this).",
     "answers": [
       {
         "item_id": "item.backpropagation.1",
-        "chosen_is_key": false,
-        "chosen_misconception_id": "misc.chain_rule_sum"
+        "chosen_is_key": true,
+        "chosen_misconception_id": null
       },
       {
         "item_id": "item.backpropagation.2",
@@ -55,8 +52,8 @@
       },
       {
         "item_id": "item.backpropagation.4",
-        "chosen_is_key": false,
-        "chosen_misconception_id": "misc.chain_rule_sum"
+        "chosen_is_key": true,
+        "chosen_misconception_id": null
       },
       {
         "item_id": "item.chain_rule.3",
@@ -70,7 +67,8 @@
       }
     ],
     "expected_classification": {
-      "class": "misconception_confirmed",
+      "class": "repeated_misconception",
+      "status": "confirmed",
       "misconception_id": "misc.chain_rule_sum",
       "secondary_class": "missing_prerequisite",
       "root_skill": "skill.chain_rule"
@@ -78,8 +76,10 @@
   },
   "expected_reflection_operators": [
     "INSERT_REMEDIATION",
-    "DEFER",
     "ADD_PROBE"
+  ],
+  "optional_reflection_operators": [
+    "DEFER"
   ],
   "tutor_demo_questions": [
     "Why did my plan change?",

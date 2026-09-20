@@ -163,9 +163,21 @@ def main():
             for iid in seeded_item_set[group]:
                 if iid not in item_ids:
                     err(f"Demo scenario seeded_item_set[{group}] references unknown item: {iid!r}")
+        items_by_id = {it["item_id"]: it for it in items}
         for ans in demo_scenario["scripted_attempt"]["answers"]:
             if ans["item_id"] not in item_ids:
                 err(f"Demo scripted_attempt references unknown item: {ans['item_id']!r}")
+                continue
+            options = items_by_id[ans["item_id"]]["options"]
+            if ans["chosen_is_key"]:
+                if not any(o.get("is_key") for o in options):
+                    err(f"Demo scripted_attempt: {ans['item_id']} has no key option")
+            else:
+                tag = ans.get("chosen_misconception_id")
+                wrong = [o for o in options if not o.get("is_key")]
+                if not wrong or (tag and not any(o.get("misconception_id") == tag for o in wrong)):
+                    err(f"Demo scripted_attempt: {ans['item_id']} has no WRONG option tagged {tag!r} "
+                        f"(the scripted attempt would not surface the intended misconception)")
     else:
         warn("data/dataset/demo/ not found — skipping demo dataset checks")
 

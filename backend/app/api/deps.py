@@ -17,6 +17,7 @@ from app.config import get_settings
 from app.db.session import get_session
 from app.graph.loader import GraphLoader
 from app.graph.queries import SkillGraphService
+from app.observability.context import bind_identity
 from app.repositories.catalog_repository import CatalogRepository
 from app.repositories.profiling_repository import ProfilingRepository
 
@@ -32,8 +33,10 @@ async def get_current_user_id(session: str | None = Cookie(default=None)) -> str
     settings = get_settings()
     if session is None:
         if settings.env == "dev":
+            bind_identity(user_id="dev-user")
             return "dev-user"
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Not authenticated")
+    bind_identity(user_id=session)
     return session
 
 
@@ -51,6 +54,7 @@ async def get_current_learner_id(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="No learner profile for this user yet — complete intake first"
         )
+    bind_identity(learner_id=profile.learner_id)
     return profile.learner_id
 
 

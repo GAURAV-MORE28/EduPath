@@ -9,11 +9,13 @@ a graph run actually produces steps worth persisting.
 from __future__ import annotations
 
 import asyncio
+import time
 from collections import OrderedDict, defaultdict
 from contextlib import asynccontextmanager
 from contextvars import ContextVar
 from uuid import uuid4
 
+from app.observability.context import get_run
 from app.schemas.envelope import TraceEvent
 
 
@@ -85,16 +87,114 @@ async def step(run_id: str, actor: str, kind: str, summary: str, refs: list[str]
         await trace_bus.publish(event)
 
 
-async def emit(actor: str, kind: str, summary: str, refs: list[str] | None = None) -> None:
-    """Publish one real trace event for the request's run, if the client asked
-    to trace it (`X-Run-Id`). Never raises: tracing must not break the work it
+async def emit(
+    actor: str,
+    kind: str,
+    summary: str,
+    refs: list[str] | None = None,
+    *,
+    duration_ms: float | None = None,
+    status: str | None = None,
+    input_ref: str = "",
+    output_ref: str = "",
+    decision_id: str | None = None,
+    tokens_in: int = 0,
+    tokens_out: int = 0,
+    cost_usd: float = 0.0,
+    publish: bool = True,
+) -> None:
+    """Record one real trace step for the current request's run, and stream it
+    over SSE when the client asked to trace it (`X-Run-Id`). Persisted into
+    `agent_steps` by `TraceRunMiddleware`. `publish=False` keeps a step in the
+    audit trail without adding it to the learner-facing trace panel (used for
+    per-LLM-call bookkeeping). Never raises: tracing must not break the work it
     describes (ARCHITECTURE_CONTRACTS.md §11: degrade, never hard-fail)."""
-    run_id = current_run_id.get()
-    if run_id is None:
+    ctx = get_run()
+    if ctx is None:
+        # No persisted run (e.g. a script or test that only set `current_run_id`):
+        # keep the original behavior -- stream to the SSE bus for that id, if any.
+        run_id = current_run_id.get()
+        if run_id is None or not publish:
+            return
+        try:
+            await trace_bus.publish(
+                TraceEvent(run_id=run_id, step_id=str(uuid4()), agent_or_service=actor, kind=kind, summary=summary, refs=refs or [])
+            )
+        except Exception:  # noqa: BLE001
+            pass
         return
     try:
-        await trace_bus.publish(
-            TraceEvent(run_id=run_id, step_id=str(uuid4()), agent_or_service=actor, kind=kind, summary=summary, refs=refs or [])
+        step_rec = ctx.add_step(
+            actor,
+            kind,
+            summary,
+            refs,
+            duration_ms=duration_ms,
+            status=status,
+            input_ref=input_ref,
+            output_ref=output_ref,
+            decision_id=decision_id,
+            tokens_in=tokens_in,
+            tokens_out=tokens_out,
+            cost_usd=cost_usd,
         )
+        if publish and ctx.client_supplied:
+            await trace_bus.publish(
+                TraceEvent(
+                    run_id=ctx.run_id,
+                    step_id=step_rec.step_id,
+                    agent_or_service=actor,
+                    kind=kind,
+                    summary=summary,
+                    refs=refs or [],
+                )
+            )
     except Exception:  # noqa: BLE001
         pass
+
+
+class SpanHandle:
+    """Mutable handle yielded by `span()` so the body can attach real results."""
+
+    def __init__(self, summary: str, refs: list[str] | None) -> None:
+        self.summary = summary
+        self.refs = list(refs or [])
+        self.status: str | None = None
+        self.input_ref = ""
+        self.output_ref = ""
+        self.decision_id: str | None = None
+        self.publish = True
+
+
+@asynccontextmanager
+async def span(actor: str, kind: str, summary: str, refs: list[str] | None = None):
+    """Time a unit of work and record it as one step with its real duration and
+    a status derived from how the body ended (exception -> `error`, re-raised)."""
+    handle = SpanHandle(summary, refs)
+    started = time.perf_counter()
+    try:
+        yield handle
+    except Exception as exc:
+        await emit(
+            actor,
+            "error",
+            f"{handle.summary} failed: {type(exc).__name__}",
+            handle.refs,
+            duration_ms=(time.perf_counter() - started) * 1000.0,
+            status="error",
+            input_ref=handle.input_ref,
+            publish=handle.publish,
+        )
+        raise
+    await emit(
+        actor,
+        kind,
+        handle.summary,
+        handle.refs,
+        duration_ms=(time.perf_counter() - started) * 1000.0,
+        status=handle.status,
+        input_ref=handle.input_ref,
+        output_ref=handle.output_ref,
+        decision_id=handle.decision_id,
+        publish=handle.publish,
+    )

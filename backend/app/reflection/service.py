@@ -271,6 +271,13 @@ async def run_reflection(
             output_ref=plan_revision_id or "",
         )
     )
+    await emit(
+        "Reflection Agent", "decision",
+        f"Recorded decision for {struggling_skill_id.removeprefix('skill.')} ({'agent' if from_llm else 'deterministic'} path)",
+        refs=[struggling_skill_id, root_cause.skill_id],
+        input_ref=trigger.signal_id, output_ref=plan_revision_id or "", decision_id=decision_row.decision_id,
+        status="ok" if from_llm else "degraded",
+    )
 
     return ReflectionOutcome(
         triggered=True, root_cause_skill_id=root_cause.skill_id, root_cause_class=root_cause.root_cause_class,

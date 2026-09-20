@@ -61,6 +61,28 @@ async def app_client():
 
 
 @pytest.fixture
+def demo_mode(monkeypatch):
+    """Turn DEMO_MODE on for one test (settings are a process-wide cached singleton)."""
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "demo_mode", True)
+    return True
+
+
+@pytest.fixture
+async def other_client(app_client):
+    """A second, independent learner session (its own cookie jar) against the same app + DB
+    as `app_client` -- for learner-isolation tests. Both clients carry an explicit `session`
+    cookie so their user ids differ (the dev fallback would make them the same user)."""
+    from app.main import app
+
+    app_client.cookies.set("session", "user-a")
+    transport = httpx.ASGITransport(app=app)
+    async with httpx.AsyncClient(transport=transport, base_url="http://test", cookies={"session": "user-b"}) as client:
+        yield client
+
+
+@pytest.fixture
 async def catalog_session() -> AsyncSession:
     """A SQLite session with the real `data/dataset/*.json` domain pack
     (Phase 3) already ingested. Exercises the full ingestion pipeline

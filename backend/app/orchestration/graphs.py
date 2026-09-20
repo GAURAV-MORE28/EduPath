@@ -27,6 +27,7 @@ from app.core.thresholds import (
 from app.gap.engine import GapAnalysisResult, analyze_gaps
 from app.gateway.vlm_gateway import VLMGateway, VLMPageReadRequest
 from app.graph.queries import SkillGraphService
+from app.observability.context import note_planner_loop
 from app.orchestration.state import RunState
 from app.planning.candidates import ObjectiveCandidateSet, build_candidate_sets
 from app.planning.fallback import FALLBACK_OVERALL_REASON, build_fallback_plan
@@ -281,6 +282,7 @@ def build_planning_graph(
         d = dict(state["data"])
         counters = dict(state.get("counters") or {})
         counters["planner_attempts"] = counters.get("planner_attempts", 0) + 1
+        note_planner_loop()
 
         result = await planner_agent.run(
             state["run_id"],

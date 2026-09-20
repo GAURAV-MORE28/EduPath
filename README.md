@@ -18,15 +18,18 @@ evidence arrives.
 
 ## Status
 
-**Design-complete, implementation not started.** See
-[`docs/IMPLEMENTATION_STATE.md`](docs/IMPLEMENTATION_STATE.md) for the current
-phase and the exact next task.
+**Implemented end to end and hardened (Phase 12).** All five agents, every deterministic service, the
+premium frontend, persisted observability, record/replay, a seeded demo mode, and automated
+integration / evaluation / security suites. See
+[`docs/FINAL_IMPLEMENTATION_STATUS.md`](docs/FINAL_IMPLEMENTATION_STATUS.md) for what works, the
+measured evaluation numbers, known limitations, demo instructions and deployment commands.
 
 ## Documentation
 
 | Document | Purpose |
 |---|---|
 | [`docs/EduPath_System_Design.md`](docs/EduPath_System_Design.md) | **Authoritative** system design (v1.0): architecture, agents, data model, API, security, evaluation, phased plan. Read this for "why". |
+| [`docs/FINAL_IMPLEMENTATION_STATUS.md`](docs/FINAL_IMPLEMENTATION_STATUS.md) | **Start here for a demo or a review:** completed features, remaining bugs, known limitations, demo instructions, environment variables, test commands, deployment. |
 | [`docs/IMPLEMENTATION_STATE.md`](docs/IMPLEMENTATION_STATE.md) | Canonical handoff file — current phase, completed work, known issues, exact next task. Read this first when resuming work. |
 | [`docs/ARCHITECTURE_CONTRACTS.md`](docs/ARCHITECTURE_CONTRACTS.md) | Stable contracts (agent I/O schemas, evidence tiers, graph/DB/API conventions, validator rules) extracted from the design doc. |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Engineering changelog, newest first. |
@@ -42,6 +45,16 @@ rationale in `docs/EduPath_System_Design.md` §5–8 and §41.
 
 ## Getting started
 
-No build yet — see `docs/IMPLEMENTATION_STATE.md` → "Exact Next Task" for the
-current entry point (Phase 1: repo skeleton, Docker Compose, FastAPI + Postgres
-schema, LLM Gateway, Next.js shell).
+```bash
+cp .env.example .env            # defaults work: no LLM key needed (deterministic "reduced-intelligence" mode)
+docker compose up --build       # postgres + api (migrates, seeds the catalog) + web
+# web: http://localhost:3000    api: http://localhost:8000/api/health
+```
+
+Demo (seeded persona + scripted struggle, works offline): set `DEMO_MODE=true` in `.env`, rebuild
+(`docker compose up --build`), then `docker compose exec api python scripts/seed_demo.py` and open the
+app. Smoke test / benchmark of the whole journey against the running stack:
+`docker compose exec api python scripts/run_journey.py --iterations 3 --demo-seed`.
+
+Tests: `cd backend && python -m pytest -q` (unit, integration, evaluation, security). Full
+instructions: [`docs/FINAL_IMPLEMENTATION_STATUS.md`](docs/FINAL_IMPLEMENTATION_STATUS.md).

@@ -14,6 +14,7 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
 
   api:
     build:
@@ -25,25 +26,51 @@ services:
       DEMO_MODE: ${DEMO_MODE:-false}
       LLM_PROVIDER: ${LLM_PROVIDER:-none}
       LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_SMALL_MODEL: ${LLM_SMALL_MODEL:-}
+      LLM_MID_MODEL: ${LLM_MID_MODEL:-}
+      LLM_STRONG_MODEL: ${LLM_STRONG_MODEL:-}
+      LLM_RECORD: ${LLM_RECORD:-false}
+      LLM_TIMEOUT_S: ${LLM_TIMEOUT_S:-8}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
       SESSION_SECRET: ${SESSION_SECRET:-dev-only-insecure-secret-change-me}
       FRONTEND_ORIGIN: http://localhost:3000
+      # The curated domain pack lives outside the backend build context; it is mounted read-only and
+      # ingested on first start (only when the catalog is empty -- see app/catalog/bootstrap.py).
+      DATASET_DIR: /data/dataset
+      AUTO_SEED_CATALOG: "true"
+      DOCUMENT_STORAGE_DIR: /app/storage/documents
     ports:
       - "8000:8000"
+    volumes:
+      - ./data:/data:ro
+      - edupath_documents:/app/storage/documents
     depends_on:
       postgres:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://localhost:8000/api/health', timeout=4).status == 200 else 1)"]
+      interval: 10s
+      timeout: 6s
+      retries: 12
+      start_period: 40s
+    restart: unless-stopped
     command: >
       sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000"
 
   web:
     build:
       context: ./frontend
-    environment:
-      NEXT_PUBLIC_API_BASE_URL: http://localhost:8000
+      args:
+        # Next.js inlines NEXT_PUBLIC_* at BUILD time, so these are build args, not runtime env.
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+        NEXT_PUBLIC_DEMO_MODE: ${DEMO_MODE:-false}
     ports:
       - "3000:3000"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   edupath_postgres_data:
+  edupath_documents:

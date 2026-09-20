@@ -199,6 +199,256 @@
       "note": "Would become BLOCKED if backpropagation is later found WEAK/MISSING after the probe."
     },
     {
+      "skill_id": "skill.algebra_basics",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Calculus I & II coursework presupposes algebra (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.algebra_basics.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Calculus I & II coursework presupposes algebra (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.functions_graphs_math",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Calculus I & II coursework presupposes functions and graphs (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.functions_graphs_math.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Calculus I & II coursework presupposes functions and graphs (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.calculus_limits",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Calculus I & II coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.calculus_limits.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Calculus I & II coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.derivatives",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Calculus I & II coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.derivatives.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Calculus I & II coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.multivariable_calculus",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Calculus II coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.multivariable_calculus.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Calculus II coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.linear_algebra_vectors",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Linear Algebra coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.linear_algebra_vectors.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Linear Algebra coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.linear_algebra_matrices",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Linear Algebra coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.linear_algebra_matrices.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Linear Algebra coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.activation_functions",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Introduction to Machine Learning coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.activation_functions.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Introduction to Machine Learning coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.optimization_basics",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Introduction to Machine Learning coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.optimization_basics.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Introduction to Machine Learning coursework (listed on resume)."
+        }
+      ]
+    },
+    {
+      "skill_id": "skill.python_data_structures",
+      "status_for_role": "UNVERIFIED",
+      "target_level": 1,
+      "mastery": {
+        "alpha": 1.0,
+        "beta": 1.0,
+        "estimate": 0.5,
+        "band": "Unknown",
+        "confidence": "low",
+        "n_obs": 0
+      },
+      "tier_max": "E1",
+      "claims": [
+        "Data Structures and Algorithms coursework (listed on resume)."
+      ],
+      "evidence": [
+        {
+          "evidence_id": "ev.asha.python_data_structures.coursework",
+          "tier": "E1",
+          "source_type": "document",
+          "note": "Data Structures and Algorithms coursework (listed on resume)."
+        }
+      ]
+    },
+    {
       "skill_id": "skill.mlops_fundamentals",
       "status_for_role": "MISSING",
       "target_level": 1,

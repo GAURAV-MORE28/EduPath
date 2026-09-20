@@ -45,6 +45,15 @@ from app.repositories.catalog_repository import CatalogRepository
 DEFAULT_DATASET_DIR = Path(__file__).resolve().parents[3] / "data" / "dataset"
 
 
+def default_dataset_dir() -> Path:
+    """`DATASET_DIR` when set (Docker mounts the repo's `data/` at `/data`), else the
+    repo-relative default."""
+    from app.config import get_settings
+
+    configured = get_settings().dataset_dir
+    return Path(configured) if configured else DEFAULT_DATASET_DIR
+
+
 @dataclass
 class IngestionResult:
     graph_version: str
@@ -247,8 +256,9 @@ class CatalogIngestor:
         )
 
 
-async def run_ingestion(session: AsyncSession, dataset_dir: Path = DEFAULT_DATASET_DIR) -> IngestionResult:
+async def run_ingestion(session: AsyncSession, dataset_dir: Path | None = None) -> IngestionResult:
     """Convenience entrypoint: load JSON from `dataset_dir` and ingest it."""
+    dataset_dir = dataset_dir or default_dataset_dir()
     dataset = load_dataset_json(dataset_dir)
     ingestor = CatalogIngestor(session)
     return await ingestor.ingest(dataset, source=str(dataset_dir))

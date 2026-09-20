@@ -6,13 +6,37 @@ between "pure algorithm" and "DB/gateway glue".
 """
 from __future__ import annotations
 
+import functools
+import time
 from datetime import date
 
 from app.core.thresholds import DEFAULT_SESSION_CAP_MINUTES
 from app.gateway.embedding_gateway import EmbeddingGateway
 from app.graph.queries import SkillGraphService
+from app.observability.context import note_retrieval
 from app.repositories.catalog_repository import CatalogRepository
 from app.retrieval.ranker import ResourceCandidate, ResourceRecommendation, ResourceUsageRecord, recommend
+from app.sse.trace import emit
+
+
+def _timed_retrieval(fn):
+    """Measure each retrieval call (design §31: "retrieval speed"): adds its
+    real duration to the run's `retrieval_ms` and records one audit-only step."""
+
+    @functools.wraps(fn)
+    async def wrapper(self, *args, **kwargs):
+        started = time.perf_counter()
+        result = await fn(self, *args, **kwargs)
+        elapsed_ms = (time.perf_counter() - started) * 1000.0
+        note_retrieval(elapsed_ms)
+        skill_id = kwargs.get("skill_id", "")
+        await emit(
+            "Resource Retriever", "retrieval", f"{skill_id}: {len(result)} ranked recommendations",
+            refs=[skill_id] if skill_id else [], duration_ms=elapsed_ms, publish=False,
+        )
+        return result
+
+    return wrapper
 
 
 class ResourceRetrievalService:
@@ -50,6 +74,7 @@ class ResourceRetrievalService:
             for resource, resource_skill in pairs
         ]
 
+    @_timed_retrieval
     async def recommend_for_skill(
         self,
         *,

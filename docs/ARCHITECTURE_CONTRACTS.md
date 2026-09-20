@@ -394,7 +394,8 @@ See §16 below for the full set of Phase 5 decisions.
 
 - A **record/replay LLM Gateway** cache exists so the full stack can run offline for
   a demo. This is a first-class requirement, not an afterthought — do not build an
-  LLM Gateway without it.
+  LLM Gateway without it. **Implemented (Phase 12):** durable `llm_replay_entries`
+  table + `DbReplayCache`; resolution order, flags and failure behavior in §22.
 - Numeric thresholds (mastery cut-offs, load caps, ranking weights) are **tunable
   defaults to be calibrated on the evaluation set** — never hardcode them as if they
   were derived constants, and keep them in one place (config/thresholds), not
@@ -895,3 +896,58 @@ Full design rules: `docs/FRONTEND_DESIGN_SYSTEM.md`.
   page scroll.
 - **Performance:** heavy visualisation (`SkillGraph`) via `next/dynamic`; pages are client
   components only where data is per-learner; the landing page is a server component.
+
+## 22. Observability, record/replay, demo mode and deployment (Phase 12)
+
+- **LLM Gateway never raises into an agent.** `LLMGateway.complete` resolves in this order and
+  returns an `LLMResponse` in every case: (1) `REPLAY_MODE=true` → the recorded response for the
+  prompt hash; (2) `LLM_PROVIDER != none` → live call (timeout `LLM_TIMEOUT_S`, backoff, at most
+  1 + 2 attempts); a successful non-degraded answer is *recorded* when `LLM_RECORD=true` or
+  `DEMO_MODE=true`; (3) live failed / no provider → the recorded response, if any; (4) degrade
+  (`degraded=True`) → the caller's deterministic path. A degraded stub is never recorded or replayed.
+  `LLMResponse` gained `tokens_in/out`, `model`, `latency_ms`, `error`. The one implemented provider is
+  `anthropic` (`app/gateway/providers.py`, plain `httpx`); an unknown provider degrades, it does not
+  crash. The embedding / VLM / web-fallback gateways always use their deterministic implementation (no
+  provider exists for them) — a configured `LLM_PROVIDER` must never make them raise.
+- **Every `/api` request except `/api/health` and the SSE stream is a run.** `TraceRunMiddleware` opens
+  a `RunContext` (`app/observability/context.py`), honors a valid client `X-Run-Id` (8–64
+  alphanumerics/hyphens) or generates a UUID, echoes it as the `X-Run-Id` response header, and persists
+  `AgentRun` + `AgentStep` rows after the response (`app/observability/store.py`; never fails the
+  request; state-changing requests and any request that produced steps are persisted, bare GETs are
+  not). `learner_id`/`user_id` are bound by the auth dependencies. Persisted per step: actor, kind,
+  summary, refs, `input_ref`/`output_ref` (IDs, never payloads), `decision_id`, `duration_ms`,
+  `tokens_in/out`, `cost_usd`, `status` (`ok | degraded | error`). Per run: route, graph, HTTP status,
+  duration, LLM calls / retries / replays / degraded calls, tokens, cost, planner loops, retrieval time,
+  `status` (`completed | degraded | failed`). Steps come from `app.sse.trace.emit` / `span`
+  (`publish=False` keeps a step in the audit trail without pushing it to the learner-facing SSE panel —
+  used for per-LLM-call and per-retrieval bookkeeping). `emit` without a `RunContext` keeps the Phase 11
+  behavior (SSE-only when `current_run_id` is set).
+- **Read APIs:** `GET /api/runs/{run_id}` (owner only; a foreign or unknown run is 404),
+  `GET /api/learners/me/runs`, `GET /api/metrics` (learner-anonymous aggregates: latency p50/p95, LLM
+  calls, retries, planner loops, tokens, cost, degraded/failed rates, by graph).
+- **Tables (migration `0007_observability`):** `agent_runs`, `agent_steps`, `llm_replay_entries`.
+  `agent_runs.user_id/learner_id` are deliberately not FKs (an audit row must survive a missing profile).
+- **DEMO_MODE (`DEMO_MODE=true`):** `POST /api/demo/seed` re-creates the persona "Asha"
+  (`learner_id = demo-learner-asha`, fixed so replay hashes are stable) for the session user through the
+  real services: `apply_intake` → `ingest_file_document` (the demo resume) → claim confirmation → seeded
+  evidence state (`demo_learner_state.json`, evidence rows labelled `source_type="demo_seed"`) → week-0
+  plan. `POST /api/demo/scripted-attempt` submits the scenario's scripted wrong answers through the real
+  `submit_practice_set`; option indexes are resolved server-side (keys never reach a client).
+  `GET /api/demo/preflight` (always available) is the design §38.3 rehearsal checklist. Both write
+  endpoints answer 403 unless `DEMO_MODE=true`. The seed erases any prior state held by the persona's
+  fixed learner id — a single-tenant rehearsal feature, not multi-user safe.
+- **Demo data invariants (`data/scripts/validate_dataset.py` enforces):** every scripted answer names a
+  real *wrong* option carrying the scripted misconception tag (or a real key); the scenario's expected
+  operators are `INSERT_REMEDIATION`, `ADD_PROBE` (`DEFER` is optional — it only fires when the affected
+  skill has a scheduled item).
+- **Deployment:** the API seeds the catalog on start iff it is empty (`AUTO_SEED_CATALOG`,
+  `app/catalog/bootstrap.py`) — never re-ingesting a populated catalog (`replace_all` would violate
+  learner-scoped FKs). `DATASET_DIR` overrides the dataset location (Compose mounts `./data` at `/data`).
+  `NEXT_PUBLIC_*` are Docker **build args** (Next.js inlines them at build time).
+- **Unhandled 500s** carry `Access-Control-Allow-*` for the single configured frontend origin
+  (`app/core/errors.py`), so browsers no longer report them as network failures.
+- **Test tiers:** `tests/integration` (full journey), `tests/evaluation` (gold sets + independent
+  oracles; writes `backend/reports/evaluation_metrics.{json,md}`), `tests/security`, plus
+  `test_observability.py`, `test_llm_gateway.py`, `test_demo_mode.py`. `scripts/run_journey.py` drives the
+  same `JourneyDriver` against a running stack for smoke + benchmark.
+

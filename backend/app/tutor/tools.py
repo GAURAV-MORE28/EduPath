@@ -198,9 +198,13 @@ async def explain_skill_path(ctx: TutorContext, *, skill_id: str) -> ToolCallRes
 async def search_resources(ctx: TutorContext, *, skill_id: str) -> ToolCallResult:
     gaps_by_skill = {g.skill_id: g for g in ctx.gap_result.gaps}
     current_level = gaps_by_skill[skill_id].current_level if skill_id in gaps_by_skill else 0
+    # Same eligibility input the Planner uses (app/planning/candidates.py): a resource whose own
+    # prerequisites the learner has met must not be filtered out. Omitting this made every
+    # resource with a prerequisite "ineligible" -> "0 catalog resource(s) found" (Phase 12 fix).
+    met_skill_ids = {g.skill_id for g in ctx.gap_result.gaps if g.status == "MET"}
     try:
         recs = await ctx.retrieval_service.recommend_for_skill(
-            skill_id=skill_id, current_level=current_level, top_k=TUTOR_SEARCH_RESOURCES_TOP_K
+            skill_id=skill_id, current_level=current_level, met_skill_ids=met_skill_ids, top_k=TUTOR_SEARCH_RESOURCES_TOP_K
         )
     except UnknownSkillError:
         return ToolCallResult(tool="search_resources", args={"skill_id": skill_id}, data={"resources": []}, error="unknown skill_id")

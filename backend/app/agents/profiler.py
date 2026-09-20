@@ -18,6 +18,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.agents.base import Agent
+from app.observability.context import note_retry
 from app.gateway.llm_gateway import LLMGateway, LLMRequest, ModelTier
 from app.profiling.claim_extraction import (
     EXTRACTION_SYSTEM_PROMPT,
@@ -55,6 +56,8 @@ class ProfilerAgent(Agent):
         last_error: str | None = None
 
         for attempt in range(self.max_retries + 1):
+            if attempt > 0:
+                note_retry()
             user_prompt = (
                 base_prompt
                 if last_error is None

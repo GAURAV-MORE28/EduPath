@@ -10,6 +10,8 @@ from fastapi import FastAPI, Request, status
 from fastapi.responses import JSONResponse
 from pydantic import ValidationError
 
+from app.config import get_settings
+
 
 class EduPathError(Exception):
     """Base class for domain errors that should map to a clean HTTP response."""
@@ -37,7 +39,7 @@ class ValidationFailedError(EduPathError):
     surfaced to the API boundary only after that policy has already been applied.
     """
 
-    status_code = status.HTTP_422_UNPROCESSABLE_ENTITY
+    status_code = status.HTTP_422_UNPROCESSABLE_CONTENT
     error_code = "validation_failed"
 
 
@@ -66,13 +68,27 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(ValidationError)
     async def handle_pydantic_validation_error(_: Request, exc: ValidationError) -> JSONResponse:
         return JSONResponse(
-            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
             content=_error_body("validation_failed", "Request failed schema validation.", details=exc.errors()),
         )
 
     @app.exception_handler(Exception)
-    async def handle_unexpected_error(_: Request, exc: Exception) -> JSONResponse:
+    async def handle_unexpected_error(request: Request, exc: Exception) -> JSONResponse:
+        # Starlette answers unhandled exceptions from its *outermost* middleware, outside
+        # CORSMiddleware -- so without this, a browser reports a real 500 as an opaque
+        # network failure (IMPLEMENTATION_STATE.md Phase 11 known issue). Add the CORS
+        # headers for the one configured frontend origin here.
+        headers: dict[str, str] = {}
+        origin = request.headers.get("origin")
+        if origin and origin == get_settings().frontend_origin:
+            headers = {
+                "access-control-allow-origin": origin,
+                "access-control-allow-credentials": "true",
+                "access-control-expose-headers": "X-Run-Id",
+                "vary": "Origin",
+            }
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content=_error_body("internal_error", "An unexpected error occurred."),
+            headers=headers,
         )

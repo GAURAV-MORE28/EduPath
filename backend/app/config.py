@@ -32,6 +32,12 @@ class Settings(BaseSettings):
     llm_small_model: str = ""
     llm_mid_model: str = ""
     llm_strong_model: str = ""
+    llm_base_url: str = "https://api.anthropic.com"
+    llm_timeout_s: float = 8.0  # design §38.3: live call first (8 s), then the recorded response
+    llm_record: bool = False  # record successful live responses into the replay table (implied by demo_mode)
+    # Optional pricing so AgentRun/AgentStep can report cost where a provider returns token usage.
+    llm_cost_per_1k_input_usd: float = 0.0
+    llm_cost_per_1k_output_usd: float = 0.0
 
     # Session / auth boundary (placeholder until Phase 2 auth is designed)
     session_secret: str = "dev-only-insecure-secret-change-me"
@@ -42,6 +48,11 @@ class Settings(BaseSettings):
 
     # Document storage (design §35: local volume in dev; S3-compatible in prod)
     document_storage_dir: str = "./storage/documents"
+
+    # Curated domain pack (data/dataset). Empty -> the repo-relative default; Docker mounts ./data at /data.
+    dataset_dir: str = ""
+    # Seed the catalog on API startup when the catalog is empty (Compose relies on this).
+    auto_seed_catalog: bool = True
 
     # CORS
     frontend_origin: str = "http://localhost:3000"

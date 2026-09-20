@@ -8,9 +8,11 @@ segment).
 """
 from fastapi import APIRouter
 
+from app.api.v1.demo import router as demo_router
 from app.api.v1.gap import router as gap_router
 from app.api.v1.health import router as health_router
 from app.api.v1.learners import router as learners_router
+from app.api.v1.observability import router as observability_router
 from app.api.v1.plans import router as plans_router
 from app.api.v1.practice import router as practice_router
 from app.api.v1.runs import router as runs_router
@@ -26,3 +28,5 @@ api_router.include_router(plans_router)
 api_router.include_router(practice_router)
 api_router.include_router(tutor_router)
 api_router.include_router(views_router)
+api_router.include_router(observability_router)
+api_router.include_router(demo_router)

@@ -23,6 +23,7 @@ from __future__ import annotations
 from typing import Any
 
 from app.agents.base import Agent
+from app.observability.context import note_retry
 from app.core.thresholds import REFLECTION_MAX_ROUNDS
 from app.gateway.llm_gateway import LLMRequest, ModelTier
 from app.reflection.evidence import EvidenceBundle
@@ -55,6 +56,8 @@ class ReflectionAgent(Agent):
 
         last_error: str | None = None
         for _attempt in range(self.max_retries + 1):
+            if _attempt > 0:
+                note_retry()
             user_prompt = (
                 base_prompt
                 if last_error is None

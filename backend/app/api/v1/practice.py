@@ -34,6 +34,25 @@ from app.schemas.common import AssessmentItemResult, AssessmentResult, StruggleS
 router = APIRouter(tags=["practice"])
 
 
+def build_reflection_out(r) -> ReflectionOut:
+    """`ReflectionOutcome` -> the API's `ReflectionOut` (shared with the demo scripted attempt)."""
+    return ReflectionOut(
+        root_cause_skill_id=r.root_cause_skill_id,
+        root_cause_class=r.root_cause_class,
+        misconception_id=r.misconception_id,
+        misconception_status=r.misconception_status,
+        remediation_resource_ids=r.remediation_resource_ids,
+        operators=r.operators,
+        plan_revision_id=r.plan_revision_id,
+        degraded=r.degraded,
+        needs_attention=r.needs_attention,
+        rounds=r.rounds,
+        explanation=r.explanation,
+        decision_id=r.decision_id,
+        reflection_id=r.reflection_id,
+    )
+
+
 @router.post("/learners/me/practice", response_model=PracticeSetOut)
 async def create_practice_set_route(
     body: CreatePracticeSetRequest,
@@ -103,24 +122,7 @@ async def submit_practice_set_route(
 
     await session.commit()
 
-    reflection_out: ReflectionOut | None = None
-    if outcome.reflection is not None:
-        r = outcome.reflection
-        reflection_out = ReflectionOut(
-            root_cause_skill_id=r.root_cause_skill_id,
-            root_cause_class=r.root_cause_class,
-            misconception_id=r.misconception_id,
-            misconception_status=r.misconception_status,
-            remediation_resource_ids=r.remediation_resource_ids,
-            operators=r.operators,
-            plan_revision_id=r.plan_revision_id,
-            degraded=r.degraded,
-            needs_attention=r.needs_attention,
-            rounds=r.rounds,
-            explanation=r.explanation,
-            decision_id=r.decision_id,
-            reflection_id=r.reflection_id,
-        )
+    reflection_out = build_reflection_out(outcome.reflection) if outcome.reflection is not None else None
 
     return SubmitPracticeResponse(
         result=AssessmentResult(

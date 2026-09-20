@@ -575,3 +575,86 @@ class DecisionRecord(Base):
     graph_version: Mapped[str] = mapped_column(String(64), default="")
     output_ref: Mapped[str] = mapped_column(String(36), default="")  # the resulting PlanRevision.revision_id
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+# ---------------------------------------------------------------------------
+# Phase 12 -- Observability + record/replay (design §31, §33.5, §38.3)
+# ---------------------------------------------------------------------------
+
+
+class AgentRun(Base):
+    """design §28's `AgentRun`: one row per traced API request ("run").
+
+    `run_id` is the `X-Run-Id` the client asked to trace, or a server-generated
+    UUID -- always echoed back in the `X-Run-Id` response header. `user_id` /
+    `learner_id` are deliberately *not* foreign keys: a run is an audit record
+    that must be writable even for requests that fail before a profile exists.
+    Counters are real measurements taken at the LLM Gateway and the planning
+    graph; `tokens_*` stay 0 when a provider returns no usage block (never guessed).
+    """
+
+    __tablename__ = "agent_runs"
+
+    run_id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str | None] = mapped_column(String(64), nullable=True, index=True)
+    learner_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    method: Mapped[str] = mapped_column(String(8), default="")
+    route: Mapped[str] = mapped_column(String(200), default="")
+    graph: Mapped[str] = mapped_column(String(32), default="api")  # onboarding | planning | assessment | tutor | demo | api
+    status: Mapped[str] = mapped_column(String(16), default="completed")  # completed | degraded | failed
+    http_status: Mapped[int] = mapped_column(Integer, default=0)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    ended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    duration_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    llm_calls: Mapped[int] = mapped_column(Integer, default=0)
+    llm_retries: Mapped[int] = mapped_column(Integer, default=0)
+    llm_replays: Mapped[int] = mapped_column(Integer, default=0)
+    llm_degraded: Mapped[int] = mapped_column(Integer, default=0)
+    tokens_in: Mapped[int] = mapped_column(Integer, default=0)
+    tokens_out: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    planner_loops: Mapped[int] = mapped_column(Integer, default=0)
+    retrieval_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    degraded: Mapped[bool] = mapped_column(Boolean, default=False)
+    error: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class AgentStep(Base):
+    """design §28's `AgentStep`: one row per trace event inside a run
+    (`app.sse.trace.emit` / `span`). `input_ref`/`output_ref` are *references*
+    (IDs), never payloads (ARCHITECTURE_CONTRACTS.md §6: agents talk by ID);
+    `decision_id` links a step to its `DecisionRecord` when one exists."""
+
+    __tablename__ = "agent_steps"
+
+    step_id: Mapped[str] = mapped_column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    run_id: Mapped[str] = mapped_column(String(64), ForeignKey("agent_runs.run_id"), index=True)
+    learner_id: Mapped[str | None] = mapped_column(String(36), nullable=True, index=True)
+    seq: Mapped[int] = mapped_column(Integer, default=0)
+    actor: Mapped[str] = mapped_column(String(64))
+    kind: Mapped[str] = mapped_column(String(24))
+    summary: Mapped[str] = mapped_column(Text, default="")
+    refs: Mapped[list] = mapped_column(JSON, default=list)
+    input_ref: Mapped[str] = mapped_column(String(200), default="")
+    output_ref: Mapped[str] = mapped_column(String(200), default="")
+    decision_id: Mapped[str | None] = mapped_column(String(36), nullable=True)
+    duration_ms: Mapped[float] = mapped_column(Float, default=0.0)
+    tokens_in: Mapped[int] = mapped_column(Integer, default=0)
+    tokens_out: Mapped[int] = mapped_column(Integer, default=0)
+    cost_usd: Mapped[float] = mapped_column(Float, default=0.0)
+    status: Mapped[str] = mapped_column(String(16), default="ok")  # ok | degraded | error
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
+class LlmReplayEntry(Base):
+    """The durable record/replay table ARCHITECTURE_CONTRACTS.md §14 requires
+    (design §33.5, §38.3): `prompt_hash -> recorded LLMResponse`. Only
+    successful, non-degraded live responses are ever recorded."""
+
+    __tablename__ = "llm_replay_entries"
+
+    prompt_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    schema_name: Mapped[str] = mapped_column(String(64), default="")
+    tier: Mapped[str] = mapped_column(String(16), default="")
+    response: Mapped[dict] = mapped_column(JSON, default=dict)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

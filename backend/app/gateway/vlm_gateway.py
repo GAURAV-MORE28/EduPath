@@ -18,7 +18,6 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel
 
-from app.config import get_settings
 
 
 class VLMPageReadRequest(BaseModel):
@@ -50,11 +49,10 @@ class DegradedVLMGateway(VLMGateway):
         return VLMPageReadResponse(text="", degraded=True)
 
 
-def get_vlm_gateway() -> VLMGateway:
-    settings = get_settings()
-    if settings.llm_provider == "none":
-        return DegradedVLMGateway()
-    raise NotImplementedError(
-        "Real vision-provider routing is implemented by whichever phase first needs scanned-document "
-        "support in a live demo; the deterministic degrade path (LLM_PROVIDER=none) is what this phase uses."
-    )
+def get_vlm_gateway():
+    """Always the deterministic/degraded gateway: no vision provider is
+    implemented in this project, so a configured `LLM_PROVIDER` (which only
+    routes the LLM Gateway) must not make this raise -- Phase 12 fixed a crash
+    where any provider other than "none" turned intake/upload/planning into a
+    500. The degrade is reported honestly by each response's own flags."""
+    return DegradedVLMGateway()

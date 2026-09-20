@@ -80,6 +80,17 @@ emission). Design toolchain established, design system "The Checked Set"
 Playwright + axe verification. See "Phase 11 — Frontend" under Completed Work and
 ARCHITECTURE_CONTRACTS.md §20–§21.
 
+**Phase 12 — Integration, Evaluation and Demo Hardening. Implemented** (final phase; no major
+features). The whole system was driven end to end and hardened: persisted observability
+(`AgentRun`/`AgentStep`, run ids on every response, `/api/runs`, `/api/metrics`), a durable
+record/replay LLM Gateway that never raises (+ an Anthropic adapter), DEMO_MODE (seeded persona,
+deterministic scripted struggle, rehearsal preflight), a single `JourneyDriver` used by the integration
+test / smoke test / benchmark, automated evaluation (gold sets + independent oracles + simulated
+learners), a security suite, deployment fixes, and real bugs found and fixed along the way. **The
+consolidated status — features, measured results, limitations, demo/test/deploy commands — is
+`docs/FINAL_IMPLEMENTATION_STATUS.md`.** `docker compose up --build` could **not** be verified end to
+end this session (Docker Desktop's engine wedged); see that file's section 8.
+
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
@@ -163,7 +174,7 @@ never presented as measured quantities.
 | 7 — Practice + assessment | ✅ Implemented (Assessor Agent, MCQ + short-answer grading, Mastery Updater, Struggle Classifier, scoped-down deterministic resolution loop). Landed as this project's "Phase 8" per the operator's own numbering — see "Completed Work" below. |
 | 8 — Reflection / re-planning (core differentiator) | ✅ Implemented (real `ReflectionAgent` bounded to a closed operator set, deterministic `ReflectionValidator`, deterministic root-cause/operator policy, layered fallback, `PlanRevision`/`ReflectionRecord`/`DecisionRecord`, one-click Revert). Landed as this project's "Phase 9" per the operator's own numbering — see "Completed Work" below. |
 | 9 — Tutor | ✅ Implemented (read-only `TutorAgent`, nine-tool inventory, rule-based `classify_intent`/`plan_tools`, a real bounded G4 LangGraph, citation verification via the Provenance Service, a deterministic Report Builder). Landed as this project's "Phase 10" per the operator's own numbering — see "Completed Work" below. |
-| 10 — Observability / evaluation / polish | ❌ Not started |
+| 10 — Observability / evaluation / polish | ✅ Implemented (this project's Phase 12): persisted run/step trace + metrics, durable record/replay gateway, DEMO_MODE, integration + evaluation + security suites, deployment fixes. See `docs/FINAL_IMPLEMENTATION_STATUS.md`. |
 | 11 — Frontend (this project's numbering) | ✅ Implemented (design toolchain, design system, all journey screens on real APIs, live SSE trace, Playwright/axe suite). See "Phase 11 — Frontend" below. |
 
 ### Current Phase Status
@@ -1320,6 +1331,42 @@ ARCHITECTURE_CONTRACTS.md §20 backend read-model/trace, §21 frontend):
   Asha", "Use the demo resume", and "answer with a common misconception" (uses
   `public/demo/struggle-answers.json`, derived from the item bank). All go through real endpoints.
 
+#### Phase 12 — Integration, Evaluation and Demo Hardening
+
+- **Observability** (`app/observability/`, `app/sse/trace.py`, `app/main.py`): `TraceRunMiddleware`
+  opens a `RunContext` per `/api` request (client `X-Run-Id` or a UUID, echoed back as `X-Run-Id`),
+  persists `AgentRun` + `AgentStep` (migration `0007_observability`) with run/step/learner ids,
+  actor, `input_ref`/`output_ref`, `decision_id`, duration, tokens/cost, status; the gateway, the
+  retrieval service, the planning graph and the agents report LLM calls / retries / planner loops /
+  retrieval time. `emit(..., publish=False)` keeps audit-only steps out of the learner-facing SSE
+  panel. `GET /api/runs/{id}` (owner only), `/api/learners/me/runs`, `/api/metrics`.
+  ARCHITECTURE_CONTRACTS.md section 22.
+- **LLM Gateway** (`app/gateway/llm_gateway.py`, `providers.py`): never raises; replay, live,
+  recorded, then degrade; retries <= 2 with backoff; durable `llm_replay_entries` (`DbReplayCache`;
+  process-local on SQLite because a second session on the shared in-memory connection would roll back
+  the request's writes); an `anthropic` adapter over `httpx`; token/cost accounting. The embedding,
+  VLM and web-fallback gateways no longer raise for a configured provider (they always degrade).
+- **DEMO_MODE** (`app/demo/`, `api/v1/demo.py`, `scripts/seed_demo.py`): `POST /api/demo/seed`
+  (fixed learner `demo-learner-asha`; intake, resume, confirm, seeded evidence state, plan, all through
+  the real services), `POST /api/demo/scripted-attempt` (keys resolved server-side),
+  `GET /api/demo/preflight`, `erase_learner_data`. `app/profiling/intake.py` was extracted from the
+  learners route so the route and the seeder share one code path. Dataset fixes at the source:
+  scenario answers now name real distractors (the validator enforces it), persona coursework chain
+  added, expected operators corrected.
+- **Journey driver** (`app/demo/journey.py`, `scripts/run_journey.py`): the complete journey over
+  HTTP; the integration test, the smoke test/benchmark and the rehearsal are the same code.
+- **Deployment** (`docker-compose.yml`, `app/catalog/bootstrap.py`, `frontend/Dockerfile`): catalog
+  seeded on first start (only when empty), `./data` mounted, `DATASET_DIR`, API healthcheck,
+  `web` waits for a healthy API, document volume, `NEXT_PUBLIC_*` as build args.
+- **Bug fixes found by the hardening:** see FINAL_IMPLEMENTATION_STATUS.md section 3 (a provider other
+  than `none` crashed the app; compose left the catalog empty; demo scenario drifted from the bank;
+  Tutor `search_resources` omitted `met_skill_ids`; 500s lacked CORS headers; catalog alias gaps).
+- **Tests** (466 to 572): `tests/integration/` (full journey, live + seeded), `tests/evaluation/`
+  (evidence, normalization, gap oracle, prerequisites, retrieval + ablation, plan personas, struggle
+  simulation, reflection, adaptation events, citations, performance; writes
+  `backend/reports/evaluation_metrics.{json,md}`), `tests/security/`, `test_observability.py`,
+  `test_llm_gateway.py`, `test_demo_mode.py`, `test_tutor_search_resources.py`.
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -1496,6 +1543,17 @@ ARCHITECTURE_CONTRACTS.md §20 backend read-model/trace, §21 frontend):
   `tests/test_tutor_agent.py`, `tests/test_tutor_service.py`,
   `tests/test_tutor_api.py` (all new, Phase 10)
 
+**Phase 12** (`backend/`): `app/observability/{context,store}.py`, `app/gateway/providers.py`,
+`app/demo/{service,journey}.py`, `app/catalog/bootstrap.py`, `app/profiling/intake.py`,
+`app/api/v1/{observability,demo}.py`, `app/db/migrations/versions/0007_observability.py`,
+`scripts/{run_journey,seed_demo}.py`; modified: `gateway/{llm,embedding,vlm,web_fallback}_gateway.py`,
+`sse/trace.py`, `main.py`, `config.py`, `core/errors.py`, `db/models.py`, `api/deps.py`,
+`api/v1/{learners,practice,router}.py`, `agents/*.py` (retry notes), `orchestration/graphs.py`,
+`reflection/service.py`, `retrieval/service.py`, `tutor/tools.py`, `catalog/ingest.py`;
+tests listed above. Root: `docker-compose.yml`, `.env.example`, `.gitignore`, `README.md`,
+`frontend/Dockerfile`, `data/scripts/{build_dataset,validate_dataset}.py` + regenerated
+`data/dataset/`, `docs/FINAL_IMPLEMENTATION_STATUS.md`.
+
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
 - `app/layout.tsx`, `app/page.tsx` (rewritten)
@@ -1542,7 +1600,9 @@ See `.env.example` at repo root (copy to `.env`). Summary:
 the default and the gateway degrades deterministically. **New this phase:**
 `GITHUB_TOKEN` (optional; unauthenticated GitHub API requests work but are
 more tightly rate-limited), `DOCUMENT_STORAGE_DIR` (default
-`./storage/documents`, relative to the backend process's cwd; gitignored).
+`./storage/documents`, relative to the backend process's cwd; gitignored). **Phase 12:** `LLM_BASE_URL`, `LLM_TIMEOUT_S`, `LLM_RECORD`,
+`LLM_COST_PER_1K_INPUT_USD`/`_OUTPUT_USD`, `DATASET_DIR`, `AUTO_SEED_CATALOG` (full table:
+`docs/FINAL_IMPLEMENTATION_STATUS.md` section 10).
 
 ### Database Status
 
@@ -1570,6 +1630,11 @@ returned a real `resource_id` from the 158-skill catalog end to end, and
 the practice flow correctly triggered deterministic remediation with real
 `misc.chain_rule_sum` resources once two distinct wrong-tagged items were
 submitted for the same (fresh) learner.
+
+**Phase 12 added migration `0007_observability`** (`agent_runs`, `agent_steps`, `llm_replay_entries`);
+the chain is now `0001`..`0007` (the paragraph above predates Phases 9 and 12). Its SQL was compiled
+for PostgreSQL offline (`alembic upgrade 0006_reflection:0007_observability --sql`); it has not been run
+against a live Postgres in this session.
 
 No other table in the conceptual schema (`LearningObjective`, `Resource`
 already exists from Phase 3, `PracticeTask`, `LearningActivity`,
@@ -1615,6 +1680,14 @@ Current state: **validates with 0 errors and 0 warnings.**
 | Assessment items | 95 | Covers 23 skills, most to the design §11.5 "≥ 6 mixed-difficulty items" standard; **not** exhaustive across all 158 skills — see "Known scope decisions" below. |
 | Demo dataset | 4 files | `demo_learner.json`, `demo_resume.md`, `demo_learner_state.json`, `demo_scenario.json` under `data/dataset/demo/` — implements the design §38.1 "Asha" persona and the `Chain Rule → Backpropagation → Training Neural Networks` seeded path, including the `misc.chain_rule_sum` misconception and a scripted-wrong-answer attempt matching §38.2 step 8. |
 
+**Phase 12 data changes:** `demo_scenario.json` now scripts answers that exist in the bank (1 tagged
+wrong option on `backpropagation.3` + both `chain_rule` prerequisite-block items; the other backprop
+items answered correctly), expected operators are `INSERT_REMEDIATION` + `ADD_PROBE`; `demo_learner_state.json`
+gained ten coursework-level skills (algebra through matrices, activation functions, optimization, data
+structures) so `chain_rule` is `UNVERIFIED` rather than `BLOCKED`; eight catalog aliases were added
+("CI/CD", "Big-O", "Kubernetes", "AWS", "Terraform", "matrices", "machine learning", "REST API").
+`validate_dataset.py` now fails if a scripted distractor does not exist in the item bank.
+
 **Known scope decisions (do not assume beyond these without checking
 `data/README.md`):**
 - Assessment item bank is an *initial* bank (95 items / 23 skills), not full
@@ -1641,6 +1714,9 @@ Current state: **validates with 0 errors and 0 warnings.**
 
 ### API Status
 
+(Phase 12 added `GET /api/runs/{run_id}`, `GET /api/learners/me/runs`, `GET /api/metrics`,
+`GET /api/demo/preflight`, `POST /api/demo/seed`, `POST /api/demo/scripted-attempt`; Phase 11 added the
+read-model views. The count below predates both.)
 Fifteen endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
 (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
@@ -1737,7 +1813,9 @@ excludes from that list; no LLM call exists anywhere in `app/gap/`,
 
 ### Tests Status
 
-Backend: **455 tests, all passing** (`backend/tests/`) — run with
+Backend: **572 tests, all passing after Phase 12** (466 before it; the per-phase breakdown
+below stops at 455). Phase 12's tiers: `tests/integration`, `tests/evaluation` (writes
+`backend/reports/`), `tests/security`. Historic text: **455 tests** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
@@ -2017,6 +2095,33 @@ one.
   correct answer regardless, so this has no behavioral effect; still worth
   folding into Phase 3's still-outstanding human review pass.
 
+- **(Phase 12, top limitation) Plans under-fill large budgets.** Retrieval's hard `duration <= session
+  cap` filter removes course-length resources and nothing splits a long resource into segments, so only
+  56% of role skills have an eligible lesson at the 45-minute default and a 20 h/week learner is
+  scheduled ~45 minutes (utilization 38/15/8/4% at 2/5/10/20 h). Plans are valid, never over budget,
+  and often thin. Fix = segment splitting in the Planner + a duplicate-rule exemption for segments of
+  one resource (design V6's intent). Measured by `tests/evaluation/test_eval_gap_plan_retrieval.py`
+  and `test_eval_plan_validity.py`.
+- **(Phase 12) Unverified against live systems:** the Anthropic adapter, record/replay and the agents'
+  LLM paths have only run with mocked HTTP / fakes; migration `0007` and the Phase 12 Postgres paths
+  were checked via offline SQL and FK-enforced SQLite, not a live Postgres; `docker compose up
+  --build` was not verified end to end (Docker Desktop's engine wedged mid-session). The Playwright
+  suite was not re-run (the frontend is unchanged except its Dockerfile).
+- **(Phase 12) Span offsets index the PII-scrubbed text** (documented contract of `scrub_pii`), not the
+  stored raw file; identical when a document has no contact PII.
+- **(Phase 12) Injection handling is conservative:** claims within `INJECTION_WINDOW_CHARS` (80) of a
+  flagged phrase are dropped and counted (`dropped_injection`), so legitimate skills next to an injected
+  sentence are lost, and ordinary phrases like "act as a liaison" can trigger it.
+- **(Phase 12) `DEFER` never fires for the seeded persona** (backpropagation is BLOCKED and never
+  scheduled) and `skill.chain_rule` has no `resolution-check` item; the scenario's expected operators are
+  `INSERT_REMEDIATION` + `ADD_PROBE` (`DEFER` optional).
+- **(Phase 12) `POST /api/demo/seed` is single-tenant** (fixed learner id; erases whatever holds it).
+  `/api/metrics` is unauthenticated (aggregates only). The session cookie is an unsigned user id and
+  `SESSION_SECRET` is unused. The SSE trace bus is in-process (one API worker).
+- **(Resolved, Phase 12)** the in-process-only replay cache (now `llm_replay_entries`); Phase 11's
+  "500s carry no CORS headers"; the `HTTP_422_UNPROCESSABLE_ENTITY` deprecation warning; `docker compose`
+  starting with an empty catalog; the Tutor's `search_resources` ignoring met prerequisites.
+
 ### Architectural Decisions
 
 - **ID format** (ARCHITECTURE_CONTRACTS.md §7 asks implementers to decide and
@@ -2220,6 +2325,12 @@ one.
 
 ### Contract Changes
 
+**Phase 12:** `docs/ARCHITECTURE_CONTRACTS.md` section 14 (record/replay now implemented) and a new
+section 22 (gateway resolution order and never-raises rule, run/step persistence and `X-Run-Id`, read APIs,
+DEMO_MODE contract, catalog bootstrap, CORS on 500s, test tiers). Additive: `LLMResponse` gained
+`tokens_in/out`, `model`, `latency_ms`, `error`; `ReplayCache.put` gained an optional `meta`; three tables;
+`app/profiling/intake.py` extracted from the learners route (no behavior change).
+
 `docs/ARCHITECTURE_CONTRACTS.md` §2, §5, and §9 updated this phase (see that
 file's diff for exact wording); Phase 3's entry above still stands for its
 own §5/§9 additions:
@@ -2348,6 +2459,13 @@ phase (Phase 9, Reflection & Re-planning):
 
 ### Next Phase
 
+**After Phase 12 (all phases implemented):** the recommended next task is the planner's segment
+splitting for long resources (see Known Issues, first Phase 12 bullet) - it is the largest remaining quality
+gap and the only limitation that visibly hurts the demo. After that: attach a real `LLM_PROVIDER` and tune
+prompts/schemas with the evaluation harness (`tests/evaluation`) as the regression net; replace the
+placeholder session cookie with real auth; run `scripts/validate_links.py`; human-review the curated
+content; run `docker compose up --build` and the Playwright suite on a healthy Docker.
+
 **After Phase 11:** the frontend is feature-complete for the journey. Known follow-ups: (1) the
 deterministic planner yields a thin week for the demo learner (most skills BLOCKED behind unmet
 prerequisites; a real LLM or richer candidate set would improve it); (2) Starlette's 500 responses
@@ -2451,30 +2569,25 @@ generic bucket rather than resolving it — the same class of limitation
 
 ### Exact Next Task
 
-Design §39.1's table has no unimplemented phase left except "Observability /
-evaluation / polish" (Phase 10 in design's own numbering — see "Next Phase"
-above). Suggested concrete first steps, in rough priority order:
+Every phase in design section 39.1 is implemented. The remaining work is quality and verification, in
+priority order (details and numbers: `docs/FINAL_IMPLEMENTATION_STATUS.md`):
 
-1. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
-   now significantly overdue with all five agents making real calls) — the
-   design doc calls this "a first-class requirement, not an afterthought"
-   (ARCHITECTURE_CONTRACTS.md §14).
-2. Build an evaluation harness (design §32) that can score, at minimum:
-   Plan Validator soft-violation rates (design §17.3), citation-existence
-   rate (design §33's "100% verified in code" target — already true by
-   construction per-turn via `verify_citations`, but nothing aggregates it
-   across a labeled question set yet), and reflection false-positive rate
-   (design §20's "false-positive reflection rate" metric).
-3. Run the human review pass over curated content (Phase 3, §11.5) and the
-   live link-validation sweep (`scripts/validate_links.py`, Phase 6) before
-   trusting the graph in a live demo.
-4. Wire Reflection's `cognitive_overload` path into the Plan Validator's V9
-   `overload_active` flag for the *next* `create_plan` call, and implement
-   design §20.8's "deferred items reinstated" step on misconception
-   resolution (see "Known Issues" — carried over from Phase 9, still open).
-5. If a real chat UI is built: add chat-turn/session persistence (design
-   §21) and switch `/chat` to the SSE stream design §27 describes, reusing
-   `app/sse/trace.py`'s existing `TraceBus`.
+1. **Verify deployment on a healthy Docker Desktop:** `docker compose up --build`, then
+   `docker compose exec api python scripts/run_journey.py --iterations 3` (add `--demo-seed` with
+   `DEMO_MODE=true`), then the Playwright suite. This was the one Phase 12 item that could not be verified.
+2. **Planner segment splitting** for resources longer than the session cap (coverage at the 45-minute
+   default is 56%; a 20 h/week learner gets ~45 minutes). Touches `retrieval/ranker.py`'s `duration_ok`, the
+   fallback planner, and V2/V6/duplicate rules in `planning/validator.py`. Re-run
+   `tests/evaluation` - the utilization and coverage rows are the acceptance test.
+3. **Attach a real `LLM_PROVIDER`** and tune the five agents' prompts/schemas against the evaluation
+   harness; record a demo run (`DEMO_MODE=true` records) and verify `REPLAY_MODE=true` reproduces it.
+4. **Real authentication** (signed session, login, CSRF) replacing the placeholder cookie.
+5. Run `python scripts/validate_links.py` (needs network), and do the human review pass over the curated
+   graph/catalog/item bank; extend the item bank (23 of 158 skills; 8 of 18 misconceptions cannot be
+   confirmed; `skill.chain_rule` has no `resolution-check` item).
+6. Carry-overs: design 20.8 "deferred items reinstated", Reflection plan-critique mode, Tutor-drafted
+   overrides + `POST /plans/{id}/override`, skill-dispute endpoint, `DELETE /learners/me`, streamed chat and
+   chat-turn persistence, `est_minutes_low/high` on objectives, the `no_open_misconceptions_for` acceptance clause.
 
 ### Commands To Verify Current State
 
@@ -2497,6 +2610,11 @@ python scripts/seed_catalog.py
 
 # Live link-validation sweep (Phase 6; requires network access and a seeded DB)
 python scripts/validate_links.py
+
+# Phase 12: evaluation report, security suite, journey smoke/benchmark against a running stack
+cd backend && python -m pytest tests/evaluation tests/security tests/integration -q   # writes reports/evaluation_metrics.md
+python scripts/run_journey.py --base-url http://localhost:8000 --iterations 3            # add --demo-seed with DEMO_MODE=true
+DEMO_MODE=true python scripts/seed_demo.py --preflight
 
 # Full stack (from repo root; requires Docker Desktop running)
 docker compose up -d --build
