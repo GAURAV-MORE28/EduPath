@@ -32,13 +32,19 @@
 | **Planner** | draft / patch | No — writes only via validated commit nodes | ✅ Phase 5 (`backend/app/agents/planner.py`) |
 | **Assessor** | generation (strong) / grading & validation (small) | No | ✅ Phase 8 (`backend/app/agents/assessor.py`) |
 | **Reflection** | (a) plan critique, (b) evidence-triggered | No — emits operators only | ✅ Phase 9, mode (b) only (`backend/app/agents/reflection.py`); mode (a) plan critique ❌ |
-| **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ❌ |
+| **Tutor** | read-only | No — cannot mutate the plan; may only propose an override the user confirms | ✅ Phase 10 (`backend/app/agents/tutor.py`) — proposing/applying an override is still ❌, see §19 |
 
 Everything else (Gap Engine, Skill Normalizer\*, Skill Graph Service, Resource
 Retriever/Ranker, Plan Validator, Fallback Planner, Mastery Updater, Struggle
 Classifier, Reflection Validator, Report Builder, Provenance Service, Trace Emitter)
 is a **deterministic service**. No new LLM agents may be added without updating this
 file and justifying the addition against design §8.1's role-by-role table.
+
+**Report Builder and Provenance Service implemented (Phase 10):**
+`backend/app/tutor/report_builder.py`'s `build_progress_report()` and
+`backend/app/provenance/citations.py`'s `verify_citations()` — both pure
+functions, no LLM call in either module (see §19 below). All five LLM agents
+now exist.
 
 \* Skill Normalizer uses a small LLM only for ambiguous-alias disambiguation; it is
 not counted among the 5 agents. **Implemented (Phase 2):**
@@ -203,7 +209,11 @@ specified, not a gap.
   single `practice_set_id?` (see §16 below for why). **`AssessmentResult`/
   `StruggleSignal` implemented (Phase 8):** same file, real §25.2 field
   lists — `AssessmentResult` also gained a supporting `AssessmentItemResult`
-  sub-model for its `items[]` entries (see §17 below).
+  sub-model for its `items[]` entries (see §17 below). **`ProgressReport`
+  implemented (Phase 10):** same file, real §25.2 field list, plus
+  `ProgressSkillEntry`/`StruggleAreaEntry`/`ProgressActivityEntry` supporting
+  sub-models for its `acquired`/`in_progress`/`struggle_areas`/
+  `completed_work`/`next_steps` entries (see §19 below).
 
 ## 7. IDs
 
@@ -740,3 +750,91 @@ design §10.4, §18, §19, §20.8)
   nodes would have, as plain async orchestration for the same reason Phase
   8 already gave (interleaved DB writes/reads, no Postgres-backed LangGraph
   checkpointer).
+
+## 19. Tutor & Provenance conventions (Phase 10, design §8.2, §9.6, §14.5,
+§23, §24)
+
+- **Packages:** `backend/app/tutor/` and `backend/app/provenance/` — both
+  already named in §12's convention list (design §35). `tutor/context.py`
+  (the shared per-turn `TutorContext`), `tools.py` (the nine-tool read-only
+  inventory), `intent.py` (pure `classify_intent`/`plan_tools`),
+  `prompting.py`/`draft.py` (the Tutor Agent's prompt/parse),
+  `conservative.py` (the deterministic fallback answer), `report_builder.py`
+  (the deterministic Report Builder — pure `build_progress_report` plus an
+  async `compute_progress_report` wrapper, the same pure/impure split
+  `app/gap/engine.py`/`app/retrieval/ranker.py`/`app/planning/validator.py`
+  already established), `service.py` (async orchestration: builds
+  `TutorContext`, compiles and runs G4). `provenance/citations.py`:
+  `verify_citations` — the Provenance Service's citation-existence check,
+  pure, no LLM/DB import.
+- **G4 Tutor is a real, bounded LangGraph**
+  (`app/orchestration/graphs.py::build_tutor_graph`), unlike G3. G3's plain
+  async orchestration was forced by interleaved DB *writes* the next step's
+  read depends on (§17/§18's existing framing) — G4 has no writes at all
+  (every tool call and the agent call are pure reads), so that reason does
+  not apply here, and the graph is a real `StateGraph`:
+  `classify_intent -> plan_tools -> [refuse | call_tools -> compose_answer
+  -> verify_citations -> [regenerate once, then conservative_answer] ->
+  finalize]`.
+- **`classify_intent`/`plan_tools` are rule-based, not LLM-driven** — design
+  §9.6 explicitly allows either ("small model or rule-based"). This project
+  picks rule-based so the phase brief's "maximum tool steps must be bounded"
+  holds *by construction*: a fixed, deterministic tool plan (every branch of
+  `app/tutor/intent.py::plan_tools` names at most 2 tools, well under
+  `TUTOR_MAX_TOOL_STEPS = 4`) can never spiral into an open-ended
+  LLM-driven tool-calling loop. Skill-mention extraction
+  (`_find_mentioned_skill_id`) is a word-boundary, catalog-anchored
+  literal scan — the same approach `app/profiling/claim_extraction.py`'s
+  `DeterministicClaimExtractor` (Phase 2) already uses, for the same
+  reason: no LLM needed, and a matched `skill_id` is always a real one
+  (§7).
+- **Citation verification is a separate step from the agent's own
+  schema-validation retry**, deliberately. `app/tutor/prompting.py`'s
+  parser only rejects malformed JSON (the same retry-then-degrade policy
+  every other agent's parser uses, §6/§11) — it does *not* check whether a
+  citation actually exists in the given context blocks. That check is
+  `app/provenance/citations.py::verify_citations`, called by the G4 graph's
+  own `verify_citations` node, with its own distinct failure behavior
+  (design §9.6): if it fails, `compose_answer` is retried exactly once with
+  the invalid IDs fed back (`TUTOR_MAX_COMPOSE_ATTEMPTS = 2` total
+  attempts); if it fails again, or the gateway was degraded from the
+  start, the graph falls through to `conservative_answer` — never a third
+  LLM call, and never an answer whose citations were not actually checked.
+- **The conservative answer is not a summary of the LLM's answer** — it is
+  built directly from the same `ToolCallResult.data` the LLM was given
+  (`app/tutor/conservative.py::build_conservative_answer`), narrating
+  nothing. Its citations are exactly the `citable_ids` of whichever tool
+  calls returned usable data, so it is grounded by construction and can
+  never fail its own verification. This is also the path
+  `LLM_PROVIDER=none` (this project's permanent default) actually exercises
+  end to end — every other agent's test file makes the same point about its
+  own always-live fallback.
+- **The Tutor never proposes or applies a plan override this phase.**
+  Design §23.3's "it can offer an override... which becomes an explicit API
+  call after the user confirms" is not implemented — the Tutor here is
+  read-only in the stronger sense of "cannot even draft an override," not
+  just "cannot commit one." `app/reflection/operators.py`'s
+  `apply_operators()` pipeline remains the only way a plan actually changes
+  (§18). Revisit if a later phase wants the Tutor to draft
+  `POST /api/plans/{id}/override` requests for user confirmation.
+- **`POST /api/learners/me/chat` is a plain JSON request/response, not
+  design §27's SSE stream.** The phase brief asks for the grounded answer +
+  citation verification + conservative fallback, not a streaming transport;
+  `app/sse/trace.py`'s existing `TraceBus` is available for a later phase to
+  wire token-by-token streaming onto once a UI needs it. The response body
+  is the same complete, citation-verified answer a stream would have ended
+  with.
+- **`GET /api/learners/me/progress` narration reuses the Tutor Agent**
+  (`app/tutor/service.py::narrate_progress`) rather than a separate
+  narration agent (design's own "no separate Summary Agent — folded into
+  Tutor" decision) — it collapses the G4 graph's
+  `compose_answer -> verify_citations -> [regenerate once] -> conservative`
+  ladder down to its essentials, since there is exactly one tool result
+  (the report itself) rather than a rule-based tool plan to run first.
+- **Addition:** `ReflectionRepository.get_decision_record(learner_id,
+  decision_id)` (learner-scoped `DecisionRecord` lookup) — backs both the
+  Tutor's `get_decision` tool and the new `GET /api/decisions/{id}` route.
+  No new tables this phase — the Tutor reads exclusively from tables every
+  earlier phase already owns (`LearnerSkillState`/`Evidence`/`WeeklyPlan`/
+  `PlanRevision`/`PlanItem`/`StruggleSignal`/`LearnerMisconception`/
+  `DecisionRecord`).

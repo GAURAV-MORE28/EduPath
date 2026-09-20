@@ -8,6 +8,77 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 10 | 2026-09-20] Tutor, Progress Reports and Provenance
+
+- Added `backend/app/tutor/` (design §8.2, §9.6, §23; ARCHITECTURE_CONTRACTS.md
+  §2, new §19 — the fifth and last LLM agent, read-only):
+  - `context.py`: `TutorContext` — the per-turn bundle of already-built
+    deterministic services (graph, catalog, repos, retrieval service, one
+    precomputed `GapAnalysisResult`) every tool call and the agent share.
+  - `tools.py`: the nine-tool read-only inventory (`get_learner_state`,
+    `get_gaps`, `get_current_plan`, `get_revisions`, `get_evidence`,
+    `explain_skill_path`, `search_resources`, `get_progress`,
+    `get_decision`) — none can mutate anything, and every `citable_ids`
+    entry is copied from a real row/graph node the call just read, never
+    invented.
+  - `intent.py`: rule-based `classify_intent`/`plan_tools` (design §23.1's
+    question-type table) — deterministic by design choice, so "maximum tool
+    steps must be bounded" (the phase brief) holds by construction rather
+    than by a runtime guard against an LLM-driven tool loop. Skill mentions
+    are matched via the same word-boundary catalog scan
+    `DeterministicClaimExtractor` (Phase 2) already established.
+  - `prompting.py`/`draft.py` + `agents/tutor.py` (real `TutorAgent`,
+    replacing the Phase 1 placeholder): `compose_answer`'s prompt/parse —
+    strong-tier LLM, JSON `{answer, citations}`, retried on malformed JSON
+    up to 2× then degrades. Citation *existence* checking is deliberately
+    not this agent's job (see below).
+  - `conservative.py`: the deterministic, LLM-free answer built directly
+    from tool-call data — always grounded by construction, and what
+    `LLM_PROVIDER=none` (this project's permanent default) actually
+    exercises end to end.
+  - `report_builder.py`: the deterministic **Report Builder** — buckets the
+    Gap Engine's own already-computed statuses (`MET` -> acquired, `WEAK`
+    -> in progress, everything else -> remaining gaps), plus open struggle
+    signals/misconceptions and plan-item completion/next-steps. A pure
+    function (`build_progress_report`) plus an async DB-fetch wrapper
+    (`compute_progress_report`), same pure/impure split every other phase's
+    deterministic core uses. The LLM only narrates its output afterward
+    (`service.py::narrate_progress`) — it never computes any of the buckets
+    itself (the phase brief's explicit requirement).
+  - `service.py`: `run_chat` (builds `TutorContext`, compiles and runs the
+    new G4 graph) and `narrate_progress`.
+- Added `backend/app/provenance/citations.py`: `verify_citations` — the
+  Provenance Service's citation-existence check (design §14.5: "may
+  reference only IDs present in their context... every cited ID exists"), a
+  pure function over an answer's claimed citations and the pool of IDs this
+  turn's tool calls actually surfaced.
+- **G4 Tutor** (`backend/app/orchestration/graphs.py::build_tutor_graph`,
+  replacing the Phase 1 placeholder) is a real, bounded LangGraph — unlike
+  G3, every step here is a read, so there was no interleaved-DB-write reason
+  to fall back to plain async orchestration: `classify_intent -> plan_tools
+  -> [refuse | call_tools -> compose_answer -> verify_citations ->
+  [regenerate once] -> finalize | conservative_answer]`.
+- `ReflectionRepository.get_decision_record(learner_id, decision_id)` added
+  (learner-scoped lookup — the Tutor's `get_decision` tool and the new
+  `GET /api/decisions/{id}` route both use it).
+- `ProgressReport` (`app/schemas/common.py`) got its real design §25.2 field
+  list this phase (previously `{learner_id, data: dict}`), plus three new
+  supporting models (`ProgressSkillEntry`, `StruggleAreaEntry`,
+  `ProgressActivityEntry`).
+- New endpoints (`backend/app/api/v1/tutor.py`, design §27):
+  `POST /api/learners/me/chat` (plain JSON request/response, not the SSE
+  stream design describes — see that module's docstring for why),
+  `GET /api/learners/me/progress`, `GET /api/decisions/{id}`.
+- New thresholds: `TUTOR_MAX_TOOL_STEPS` (4), `TUTOR_MAX_COMPOSE_ATTEMPTS`
+  (2 — "regenerated once"), `TUTOR_SEARCH_RESOURCES_TOP_K`,
+  `PROGRESS_REPORT_NEXT_STEPS_LIMIT`.
+- Tests: 49 new (`test_provenance_citations.py`, `test_report_builder.py`,
+  `test_tutor_tools.py`, `test_tutor_intent.py`, `test_tutor_agent.py`,
+  `test_tutor_service.py`, `test_tutor_api.py`) — every tool's citable-ID
+  set checked against real curated-graph IDs, the conservative-answer path
+  (the one `LLM_PROVIDER=none` actually exercises end to end), and the full
+  HTTP-layer flow via `app_client`. **455 tests total, all passing.**
+
 ## [Phase 9 | 2026-09-20] Reflection & Re-planning
 
 - Added `backend/app/reflection/` (design §20, §21; ARCHITECTURE_CONTRACTS.md

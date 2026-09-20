@@ -49,6 +49,18 @@ class ReflectionRepository:
         result = await self.session.execute(stmt.order_by(DecisionRecord.created_at.desc()))
         return list(result.scalars().all())
 
+    async def get_decision_record(self, learner_id: str, decision_id: str) -> DecisionRecord | None:
+        """design §27's `GET /api/decisions/{id}` / the Tutor's `get_decision`
+        tool (design §26.2) -- learner-scoped so a decision record can never
+        be resolved across learners (ARCHITECTURE_CONTRACTS.md §9's row-level
+        isolation)."""
+        result = await self.session.execute(
+            select(DecisionRecord).where(
+                DecisionRecord.decision_id == decision_id, DecisionRecord.learner_id == learner_id
+            )
+        )
+        return result.scalar_one_or_none()
+
 
 def within_cooldown(last_at: datetime | None, *, cooldown_hours: int) -> bool:
     if last_at is None:

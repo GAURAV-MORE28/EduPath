@@ -60,6 +60,18 @@ adds one-click Revert. `POST /api/practice/{set_id}/submit`'s response now
 carries a `ReflectionOutcome` in place of Phase 8's narrower
 `RemediationOutcome`; `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
 is new.
+**Phase 10 — Tutor, Progress Reports and Provenance. Implemented** (design's
+"Phase 9", this project's Phase 10: the fifth and last LLM agent, a
+read-only `TutorAgent` with a nine-tool inventory; a real, bounded G4
+LangGraph — `classify_intent -> plan_tools -> call_tools -> compose_answer
+-> verify_citations -> [regenerate once] -> finalize/conservative`, every
+node deterministic except `compose_answer`; `app/provenance/citations.py`'s
+`verify_citations`; and a deterministic `Report Builder`
+(`app/tutor/report_builder.py`) that buckets the Gap Engine's own
+already-computed statuses into `ProgressReport`'s acquired/in-progress/
+remaining-gaps/struggle-areas/next-steps — narrated but never computed by
+an LLM). `POST /api/learners/me/chat`, `GET /api/learners/me/progress`,
+`GET /api/decisions/{id}` are new. All five LLM agents now exist.
 
 ### Overall Project Status
 
@@ -143,7 +155,7 @@ never presented as measured quantities.
 | 6 — Resource retrieval | ✅ Implemented (hybrid retrieval, deterministic ranking, MMR, link validation job). Landed ahead of Phase 5 at the operator's direction. See "Completed Work" below. |
 | 7 — Practice + assessment | ✅ Implemented (Assessor Agent, MCQ + short-answer grading, Mastery Updater, Struggle Classifier, scoped-down deterministic resolution loop). Landed as this project's "Phase 8" per the operator's own numbering — see "Completed Work" below. |
 | 8 — Reflection / re-planning (core differentiator) | ✅ Implemented (real `ReflectionAgent` bounded to a closed operator set, deterministic `ReflectionValidator`, deterministic root-cause/operator policy, layered fallback, `PlanRevision`/`ReflectionRecord`/`DecisionRecord`, one-click Revert). Landed as this project's "Phase 9" per the operator's own numbering — see "Completed Work" below. |
-| 9 — Tutor | ❌ Not started |
+| 9 — Tutor | ✅ Implemented (read-only `TutorAgent`, nine-tool inventory, rule-based `classify_intent`/`plan_tools`, a real bounded G4 LangGraph, citation verification via the Provenance Service, a deterministic Report Builder). Landed as this project's "Phase 10" per the operator's own numbering — see "Completed Work" below. |
 | 10 — Observability / evaluation / polish | ❌ Not started |
 
 ### Current Phase Status
@@ -1148,6 +1160,125 @@ differentiator; package `backend/app/reflection/`):
   contrast with the wow scenario's cross-skill case).
   **406 tests total, all passing** (375 from Phase 1-8, 31 new).
 
+**Phase 10 — Tutor, Progress Reports and Provenance** (design §8.2, §9.6,
+§14.5, §23, §24, §25.2, §27; ARCHITECTURE_CONTRACTS.md §2, new §19; this
+project's own numbering — design calls this "Phase 9"):
+
+- **Tutor Agent** (`backend/app/agents/tutor.py`, real, replacing the Phase
+  1 placeholder): `compose_answer` only — strong-tier LLM, strict JSON
+  `{answer, citations}` parsing (`app/tutor/prompting.py`), retried on
+  malformed JSON up to 2× then degrades. Deliberately does **not** itself
+  check whether a citation exists (see "Architectural Decisions" below) —
+  that is the Provenance Service's job, one layer up.
+- **Tool inventory** (`backend/app/tutor/tools.py`): the nine read-only
+  tools design §26.2/§8.2 name for the Tutor — `get_learner_state`,
+  `get_gaps`, `get_current_plan`, `get_revisions` (design's
+  `get_plan_revisions`), `get_evidence`, `explain_skill_path`,
+  `search_resources`, `get_progress`, `get_decision`. Every tool returns a
+  `ToolCallResult{data, citable_ids}`; `citable_ids` is always copied from
+  real rows/graph nodes the call just read — no tool can invent an ID
+  (ARCHITECTURE_CONTRACTS.md §7), and none has any side effect
+  (`commit_*` tools are never in this inventory, §13). A tool given a bad
+  argument (e.g. a hallucinated `skill_id`) returns an error-flagged, empty
+  result rather than raising — a chat turn can never crash on a bad tool
+  call.
+- **Intent classification and tool planning** (`backend/app/tutor/intent.py`):
+  rule-based `classify_intent`/`plan_tools` implementing design §23.1's
+  question-type -> tools table (`current_skills`/`gaps`/`plan`/
+  `why_recommended`/`why_changed`/`concept_explanation`/`progress`/
+  `out_of_scope`). Chosen over an LLM-driven tool loop specifically so the
+  phase brief's "maximum tool steps must be bounded" holds by construction
+  (see "Architectural Decisions"). Skill mentions in free text are matched
+  via the same word-boundary, catalog-anchored literal scan
+  `app/profiling/claim_extraction.py`'s `DeterministicClaimExtractor`
+  (Phase 2) already established — `ChatRequest.skill_id_hint`/
+  `decision_id_hint` let a real UI's "Why?" drawer (design §24.3) skip the
+  text-scan step entirely by supplying the ID it already knows.
+- **Citation verification** (`backend/app/provenance/citations.py`):
+  `verify_citations(cited_ids, valid_ids)` — a pure function checking every
+  ID an answer cites was actually surfaced by this turn's own tool calls
+  (design §14.5). Called by the G4 graph's `verify_citations` node, not
+  folded into the agent's own parser (see "Architectural Decisions").
+- **Conservative fallback answer** (`backend/app/tutor/conservative.py`):
+  `build_conservative_answer` — built directly from tool-call data, no LLM
+  narration at all, so it is grounded by construction and can never fail
+  its own citation check. This is the path `LLM_PROVIDER=none` (this
+  project's permanent default) actually exercises end to end, exactly like
+  every other agent's own "what really runs in this environment" fallback.
+- **G4 Tutor graph** (`backend/app/orchestration/graphs.py::build_tutor_graph`,
+  replacing the Phase 1 placeholder): a real, bounded LangGraph —
+  `classify_intent -> plan_tools -> [refuse | call_tools -> compose_answer
+  -> verify_citations -> [regenerate once, attempt <= 2] ->
+  finalize_verified | conservative_answer]`. Unlike G3, this graph has no
+  interleaved DB *writes* forcing plain async orchestration instead (every
+  step here is a read), so it is a real `StateGraph`, same as G1/G2.
+- **Report Builder** (`backend/app/tutor/report_builder.py`): the phase
+  brief's explicit requirement — `build_progress_report()` is a **pure
+  function** (no DB/gateway import) that deterministically buckets the Gap
+  Engine's own already-computed `SkillGapEntry.status` values: `MET` ->
+  `acquired` (reusing the Gap Engine's own `strengths[]` output directly,
+  never re-deriving mastery/evidence), `WEAK` -> `in_progress`, everything
+  else (`MISSING`/`BLOCKED`/`UNVERIFIED`) -> `remaining_gaps`; open
+  `StruggleSignal`s and active `LearnerMisconception`s -> `struggle_areas`;
+  `PlanItem.status` `done`/`planned` -> `completed_work`/`next_steps`
+  (sorted by `day_slot`, capped at `PROGRESS_REPORT_NEXT_STEPS_LIMIT`). An
+  async `compute_progress_report()` wrapper fetches the real rows and calls
+  straight through — it never recalculates a bucket itself. The LLM only
+  narrates the finished report afterward (`app/tutor/service.py::narrate_progress`,
+  reusing the Tutor Agent rather than a separate narration agent, matching
+  design's own "no separate Summary Agent" decision) — it never computes
+  any of `ProgressReport`'s statistics (the phase brief's explicit
+  requirement).
+- **Orchestration glue** (`backend/app/tutor/service.py`,
+  `backend/app/tutor/context.py`): `build_tutor_context()` assembles the
+  per-turn `TutorContext` (learner's role, a precomputed `GapAnalysisResult`,
+  every repo/service a tool might need) the same way `app/planning/service.py`
+  builds its own per-run services; `run_chat()` compiles and runs the G4
+  graph; `narrate_progress()` collapses the graph's
+  `compose_answer -> verify_citations -> [retry once] -> conservative`
+  ladder down to its essentials for the one-tool-result progress-narration
+  case.
+- **Schemas**: `ProgressReport` (`backend/app/schemas/common.py`) got its
+  real design §25.2 field list this phase (previously
+  `{learner_id, data: dict}`), plus three new supporting sub-models
+  (`ProgressSkillEntry`, `StruggleAreaEntry`, `ProgressActivityEntry`).
+  `backend/app/schemas/tutor.py` (new, response/request-only, same latitude
+  `schemas/gap.py`/`schemas/planning.py`/`schemas/assessment.py` already
+  used): `ChatRequest`, `ChatResponse`, `DecisionRecordOut`.
+- **API routes** (`backend/app/api/v1/tutor.py`, design §27):
+  `POST /api/learners/me/chat` (plain JSON request/response, **not** design
+  §27's SSE stream — see "Architectural Decisions" for why),
+  `GET /api/learners/me/progress` (`?period=`), `GET /api/decisions/{id}`.
+  `learner_id` always resolved from the session
+  (`get_current_learner_id`), matching every other learner-scoped route.
+- **Addition**: `ReflectionRepository.get_decision_record(learner_id,
+  decision_id)` — a learner-scoped `DecisionRecord` lookup, backing both
+  the `get_decision` tool and `GET /api/decisions/{id}`.
+- **No new database tables.** The Tutor reads exclusively from tables every
+  earlier phase already owns (`LearnerSkillState`/`Evidence`/`WeeklyPlan`/
+  `PlanRevision`/`PlanItem`/`StruggleSignal`/`LearnerMisconception`/
+  `DecisionRecord`) — read-only by construction, so there was nothing new
+  to persist.
+- **New `core/thresholds.py` constants**: `TUTOR_MAX_TOOL_STEPS` (4, design
+  P6's "tutor tool steps ≤ 4"), `TUTOR_MAX_COMPOSE_ATTEMPTS` (2 — the first
+  draft plus exactly one citation-failure regeneration),
+  `TUTOR_SEARCH_RESOURCES_TOP_K`, `PROGRESS_REPORT_NEXT_STEPS_LIMIT`.
+- **Tests**: 49 new — `tests/test_provenance_citations.py` (5, pure),
+  `tests/test_report_builder.py` (7, pure, hand-built `GapAnalysisResult`
+  fixtures mirroring `test_gap_engine.py`'s style), `tests/test_tutor_tools.py`
+  (11, against the real curated dataset via `catalog_session`: every tool's
+  `citable_ids` checked to be a subset of real, resolvable IDs, learner
+  scoping on `get_decision`), `tests/test_tutor_intent.py` (10, pure
+  `plan_tools` mapping plus real-catalog skill-mention matching),
+  `tests/test_tutor_agent.py` (5, mirroring `test_reflection_agent.py`'s
+  `ScriptedLLMGateway` pattern), `tests/test_tutor_service.py` (4, the real,
+  always-live conservative-answer path end to end against the real
+  catalog — LLM_PROVIDER=none means this is what actually runs, not a
+  mocked LLM response), `tests/test_tutor_api.py` (7, full HTTP-layer flow
+  via the existing `app_client` fixture: chat/progress/decisions,
+  intake-required 404s, out-of-scope refusal). **455 tests total, all
+  passing** (406 from Phase 1-9, 49 new).
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -1302,7 +1433,27 @@ differentiator; package `backend/app/reflection/`):
   `tests/test_practice_api.py` (all new, Phase 8);
   `tests/test_reflection_operators.py`, `tests/test_reflection_validator.py`,
   `tests/test_reflection_agent.py`, `tests/test_reflection_service.py` (all
-  new, Phase 9)
+  new, Phase 9);
+  `app/tutor/__init__.py`, `app/tutor/context.py`, `app/tutor/tools.py`,
+  `app/tutor/intent.py`, `app/tutor/draft.py`, `app/tutor/prompting.py`,
+  `app/tutor/conservative.py`, `app/tutor/report_builder.py`,
+  `app/tutor/service.py` (new package, Phase 10);
+  `app/provenance/__init__.py`, `app/provenance/citations.py` (new package,
+  Phase 10); `app/agents/tutor.py` (extended, Phase 10: real `TutorAgent`,
+  replacing the placeholder); `app/orchestration/graphs.py` (extended,
+  Phase 10: real `build_tutor_graph`, replacing the placeholder);
+  `app/repositories/reflection_repository.py` (extended, Phase 10:
+  `get_decision_record`); `app/schemas/common.py` (extended, Phase 10: real
+  `ProgressReport` field list, new `ProgressSkillEntry`/`StruggleAreaEntry`/
+  `ProgressActivityEntry`); `app/schemas/tutor.py` (new, Phase 10);
+  `app/api/v1/tutor.py` (new, Phase 10); `app/api/v1/router.py` (extended,
+  Phase 10); `app/core/thresholds.py` (extended, Phase 10:
+  `TUTOR_MAX_TOOL_STEPS`/`TUTOR_MAX_COMPOSE_ATTEMPTS`/
+  `TUTOR_SEARCH_RESOURCES_TOP_K`/`PROGRESS_REPORT_NEXT_STEPS_LIMIT`);
+  `tests/test_provenance_citations.py`, `tests/test_report_builder.py`,
+  `tests/test_tutor_tools.py`, `tests/test_tutor_intent.py`,
+  `tests/test_tutor_agent.py`, `tests/test_tutor_service.py`,
+  `tests/test_tutor_api.py` (all new, Phase 10)
 
 **Frontend** (`frontend/`): scaffolded by `create-next-app` (TypeScript,
 Tailwind v4, App Router, ESLint), then customized:
@@ -1449,7 +1600,7 @@ Current state: **validates with 0 errors and 0 warnings.**
 
 ### API Status
 
-Twelve endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
+Fifteen endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 (SSE), `POST /api/learners` (intake), `POST /api/learners/me/documents`
 (multipart file or `github_url`), `GET /api/learners/me/claims/pending`,
 `POST /api/learners/me/claims/confirm`, `GET /api/learners/me/gaps` (Phase
@@ -1459,75 +1610,93 @@ Twelve endpoints implemented: `GET /api/health`, `GET /api/runs/{run_id}/events`
 purpose?}`), `POST /api/practice/{set_id}/submit` (Phase 8, response field
 renamed `remediation` -> `reflection` in Phase 9),
 `POST /api/learners/me/plans/{plan_id}/revisions/{revision_id}/revert`
-(new, Phase 9 — design §20.7's one-click Revert; only the plan's current
-revision may be reverted). The rest of design §27's table (target-role
-change, plan override, revisions listing, chat, dispute, progress,
-decisions, demo seed) is not implemented yet.
+(Phase 9 — design §20.7's one-click Revert; only the plan's current
+revision may be reverted), `POST /api/learners/me/chat` (new, Phase 10 —
+plain JSON, not design §27's SSE stream, see ARCHITECTURE_CONTRACTS.md §19),
+`GET /api/learners/me/progress` (new, Phase 10 — `?period=`),
+`GET /api/decisions/{id}` (new, Phase 10 — learner-scoped `DecisionRecord`
+resolution). The rest of design §27's table (target-role change, plan
+override, revisions listing, dispute, demo seed) is not implemented yet.
 `POST /api/plans/{id}/override` in particular is design's own surface for
 `patch_existing_plan`, which Phase 5 implements as a service-layer
 capability (`app/planning/service.py`) without an HTTP route of its own —
 Reflection (Phase 9) does not add that route either, since it applies its
 own operator pipeline directly rather than calling `patch_existing_plan`
-(see ARCHITECTURE_CONTRACTS.md §18). `GET /api/plans/{id}/revisions` (a
+(see ARCHITECTURE_CONTRACTS.md §18); the Tutor (Phase 10) doesn't add it
+either — it never drafts an override at all this phase (see
+ARCHITECTURE_CONTRACTS.md §19). `GET /api/plans/{id}/revisions` (a
 plain listing) is also still unimplemented, even though Revert itself now
 exists.
 `SkillGraphService`/`CatalogRepository` (Phase 3) are still internal
 services with no direct HTTP surface of their own beyond `/gaps`/`/plans`/
-`/practice`; the intake route reads `CatalogRepository.get_role` for role
-validation, but nothing exposes `/skills/{id}` or similar yet. **The
-Resource Retriever/Ranker (Phase 6) still has no HTTP surface of its
-own** — by design (ARCHITECTURE_CONTRACTS.md §15: design §27's table has
-no row for it; it's Planner-internal) — but it is now a real, exercised
-dependency of `/plans` (Phase 5, its first intended caller).
+`/practice`/`/chat`/`/progress`/`/decisions`; the intake route reads
+`CatalogRepository.get_role` for role validation, but nothing exposes
+`/skills/{id}` or similar yet. **The Resource Retriever/Ranker (Phase 6)
+still has no HTTP surface of its own** — by design (ARCHITECTURE_CONTRACTS.md
+§15: design §27's table has no row for it; it's Planner-internal) — but it
+is now a real, exercised dependency of both `/plans` (Phase 5) and the
+Tutor's `search_resources` tool (Phase 10).
 
 ### Agent Status
 
-Four of the five LLM agents are now real: the Profiler Agent (A1,
+**All five LLM agents are now real**: the Profiler Agent (A1,
 `app/agents/profiler.py`, Phase 2), the Planner Agent (A2,
 `app/agents/planner.py`, Phase 5 — draft/patch modes), the Assessor
 Agent (A3, `app/agents/assessor.py`, Phase 8 — item generation + blind-solver
-validation), and the Reflection Agent (A4, `app/agents/reflection.py`, Phase
+validation), the Reflection Agent (A4, `app/agents/reflection.py`, Phase
 9 — mode (b) evidence reflection only; mode (a) plan-critique is not
-implemented, see "Known Issues" below). Only the Tutor (A5) remains a
-placeholder class raising `NotImplementedError`. Two LangGraph business
-graphs exist for real: G1 Onboarding (`build_onboarding_graph`) and G2
-Planning (`build_planning_graph`, Phase 5 — `build_objectives ->
+implemented, see "Known Issues" below), and the Tutor Agent (A5,
+`app/agents/tutor.py`, Phase 10 — `compose_answer` only; `classify_intent`/
+`plan_tools` are deliberately rule-based, not the agent's own job, see
+ARCHITECTURE_CONTRACTS.md §19). Three LangGraph business graphs exist for
+real: G1 Onboarding (`build_onboarding_graph`), G2 Planning
+(`build_planning_graph`, Phase 5 — `build_objectives ->
 retrieve_candidates -> plan_draft -> validate_plan -> [retry <= 2] ->
 fallback_plan`, no `critique` node since Reflection mode (a) is out of
-scope); **G3 Evidence-Response is implemented only as plain async
-orchestration**, split across `app/assessment/service.py`'s
+scope), and **G4 Tutor** (`build_tutor_graph`, Phase 10 — `classify_intent
+-> plan_tools -> [refuse | call_tools -> compose_answer -> verify_citations
+-> [regenerate once] -> finalize | conservative_answer]`); **G3
+Evidence-Response is implemented only as plain async orchestration**, split
+across `app/assessment/service.py`'s
 `submit_practice_set` (`record_evidence -> grade -> update_mastery ->
 detect_struggle -> route`) and `app/reflection/service.py`'s
 `run_reflection` (`reflect -> validate_reflection -> [retry <= 2] ->
 deterministic patch -> commit`), not as an explicit LangGraph `StateGraph`
-the way G1/G2 are — each step needs a DB write the next step's read depends
-on (a materialized probe session before `ADD_PROBE` can reference real item
-IDs; mastery written before struggle classification reads it), and no
-Postgres-backed LangGraph checkpointer exists to pause a graph mid-run for
-that (see "Known Issues"). G4 remains a placeholder naming its owning phase
-(this project's Phase 10, design's Phase 9 — Tutor). No agent other than the
-Profiler, Planner, Assessor, and Reflection has tool access; none has any
+the way G1/G2/G4 are — each step needs a DB write the next step's read
+depends on (a materialized probe session before `ADD_PROBE` can reference
+real item IDs; mastery written before struggle classification reads it),
+and no Postgres-backed LangGraph checkpointer exists to pause a graph
+mid-run for that (see "Known Issues"). G4 has no such interleaved-write
+problem — every one of its steps is a read — which is exactly why it *is* a
+real `StateGraph` unlike G3. No agent other than the Profiler, Planner,
+Assessor, Reflection, and Tutor has tool access; none has any
 *side-effect* tool exposed to it — the Reflection Agent chooses among a
 pre-resolved candidate ID set (root-cause skill, remediation resources,
 probe items) and never calls `commit_*`/writes anything itself, per
 ARCHITECTURE_CONTRACTS.md §13; the actual `PlanRevision`/`ReflectionRecord`/
 `DecisionRecord` writes happen in `app/reflection/service.py` after the
-deterministic Reflection Validator approves. The Gap Engine (Phase 4), the
+deterministic Reflection Validator approves. The Tutor's nine tools are
+*all* reads (`app/tutor/tools.py`) — no `commit_*` tool is in its inventory
+at all, and it cannot even draft a plan override this phase (see
+ARCHITECTURE_CONTRACTS.md §19). The Gap Engine (Phase 4), the
 Resource Retriever/Ranker (Phase 6), the Plan Validator and Fallback Planner
 (Phase 5), the Mastery Updater, Struggle Classifier, and misconception
-resolution state machine (Phase 8), and the Reflection Validator +
-deterministic root-cause/operator policy (Phase 9) are **not** LLM agents —
-all nine are deterministic services ARCHITECTURE_CONTRACTS.md §2 explicitly
+resolution state machine (Phase 8), the Reflection Validator +
+deterministic root-cause/operator policy (Phase 9), and the Report Builder
++ citation verifier (Phase 10) are **not** LLM agents —
+all eleven are deterministic services ARCHITECTURE_CONTRACTS.md §2 explicitly
 excludes from that list; no LLM call exists anywhere in `app/gap/`,
 `app/retrieval/`,
 `app/planning/validator.py`, `app/planning/fallback.py`,
 `app/assessment/mastery.py`, `app/assessment/struggle.py`,
 `app/assessment/resolution.py`, `app/reflection/validator.py`,
-`app/reflection/operators.py`, or `app/reflection/deterministic.py`.
+`app/reflection/operators.py`, `app/reflection/deterministic.py`,
+`app/tutor/report_builder.py`, `app/tutor/intent.py`,
+`app/tutor/conservative.py`, or `app/provenance/citations.py`.
 
 ### Tests Status
 
-Backend: **406 tests, all passing** (`backend/tests/`) — run with
+Backend: **455 tests, all passing** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
 shape; DB session + `UserRepository` round-trip; LangGraph bootstrap graph
 compiles and runs to `status="completed"`) plus Phase 3's 49 (graph
@@ -1559,7 +1728,13 @@ Work" above) plus Phase 9's 31 (every closed-set operator individually, the
 Reflection Validator's five checks, the Reflection Agent's degrade/valid-
 draft/invented-ID-retry behavior, and the real-catalog chain_rule ->
 backpropagation wow scenario end to end — see the Phase 9 "Tests" bullet
-under "Completed Work" above). All run against SQLite (`tests/conftest.py`'s existing
+under "Completed Work" above) plus Phase 10's 49 (citation verification,
+the Report Builder's deterministic bucketing, every Tutor tool's
+citable-ID-is-always-real property against the real curated dataset,
+rule-based intent classification, the Tutor Agent's degrade/valid-draft/
+malformed-JSON-retry behavior, the real always-live conservative-answer
+path end to end, and the full `/chat`/`/progress`/`/decisions` HTTP-layer
+flow — see the Phase 10 "Tests" bullet under "Completed Work" above). All run against SQLite (`tests/conftest.py`'s existing
 dialect-portability convention); the Postgres-only catalog paths
 (`CatalogRepository.search_resources_by_text`/`search_resources_by_vector`,
 the generated `search_vector` column), the full learner-profiling flow, the
@@ -1608,6 +1783,22 @@ one.
   pull them back to an earlier `day_slot`. Would need either a new column
   linking a deferred `PlanItem`/objective back to its `ReflectionRecord`, or
   a lookup through `PlanRevision.diff`'s `"deferred"` list.
+- **(Phase 10) `POST /api/learners/me/chat` is not the SSE stream design §27
+  describes** — it returns the complete, citation-verified answer as one
+  JSON body. `app/sse/trace.py`'s `TraceBus` already exists for a later
+  phase to wire token-by-token streaming onto once a UI needs it.
+- **(Phase 10) no chat-turn persistence.** Design §21's "session memory"
+  (chat window, last N turns) is not stored anywhere — each `/chat` call is
+  independently grounded in its own fresh tool calls (design §23.3's "not
+  cached across learners" is honored; multi-turn conversational memory
+  across separate HTTP requests is not). A real chat UI would need a
+  `ChatTurn`-shaped table (or per-`run_id` state) to show history back to
+  the user; nothing in this phase reads or writes one.
+- **(Phase 10) the Tutor never drafts a plan override.** Design §23.3's
+  "it can offer an override... which becomes an explicit API call after the
+  user confirms" is not implemented at all this phase — not even the
+  drafting half. `POST /api/plans/{id}/override` remains unimplemented (see
+  "API Status" above).
 - The session/auth boundary (`app/api/deps.py`) is a placeholder: a bare
   cookie value with a dev-mode fallback (`session=None` → `"dev-user"` only
   when `env=dev`). There is no real login/signup flow. This is intentional
@@ -2098,19 +2289,36 @@ phase (Phase 9, Reflection & Re-planning):
   fresh-`item_id`-on-carry-forward rule, the four-rung fallback ladder, the
   generalized trigger set, and the new Revert endpoint.
 
+`docs/ARCHITECTURE_CONTRACTS.md` §2, §6, and a new §19 added this phase
+(Phase 10, Tutor, Progress Reports and Provenance):
+- §2: recorded the Tutor Agent (A5) as now implemented — all five LLM
+  agents now exist — and the Report Builder/Provenance Service as now
+  implemented, deterministic services.
+- §6: noted `ProgressReport` now has a real field list (plus its three new
+  supporting sub-models).
+- New §19 (this file's own numbering, not design's §19): the full set of
+  Phase 10 decisions — G4 as a real bounded LangGraph (unlike G3, since it
+  has no interleaved-write problem), rule-based `classify_intent`/
+  `plan_tools` over an LLM-driven tool loop and why that makes "bounded tool
+  steps" a construction guarantee, citation verification as a distinct step
+  from the agent's own schema-validation retry, the conservative answer's
+  grounded-by-construction design, why the Tutor never drafts a plan
+  override this phase, and why `/chat` is plain JSON rather than SSE.
+
 ### Next Phase
 
-**Tutor** (design §39.1's Phase 9, this project's Phase 10): a read-only
-conversational agent (design §8.2, the fifth and last LLM agent) that
-answers "why did my plan change?" (now genuinely answerable — Phase 9 wrote
-real `PlanRevision`/`ReflectionRecord`/`DecisionRecord` chains with graph
-paths and evidence refs), "why do I need skill X for my role?" (via
-`SkillGraphService.explain_skill_path`, already implemented, Phase 3), and
-general graph/progress questions grounded in the learner's own structured
-state — never inventing a fact, never mutating the plan directly (it may
-only propose an override the user confirms, per ARCHITECTURE_CONTRACTS.md
-§2). The G4 Tutor graph (`app/orchestration/graphs.py::build_tutor_graph`)
-is still a placeholder.
+**Observability / evaluation / polish** (design §39.1's Phase 10 — this
+project has no separate number for it, since this project's own Phase 10
+was "Tutor," design's Phase 9). With all five LLM agents now real, this is
+the last unimplemented phase in design §39.1's table. Candidates per design
+§32/§33/the Agent Trace panel notes: a CI/nightly job scoring validator
+soft-violation rates, reflection false-positive rate, and citation-existence
+rate as evaluation metrics (needs an evaluation harness that doesn't exist
+yet); the Postgres-backed LLM Gateway replay cache (Phase 1's open item, now
+overdue with five real agent calls); a frontend Agent Trace panel /
+gap-graph visualization consuming the trace events and graph data every
+backend phase already exposes; the human review pass over curated content
+(Phase 3) and the live link-validation sweep (Phase 6) before any live demo.
 
 Still open on **Phase 3**: a human review pass over the curated content
 (§11.5) — every edge/resource/misconception/item still shows
@@ -2183,35 +2391,42 @@ harness that doesn't exist yet); high-impact-change user confirmation
 confirmation") is not implemented — every approved patch commits
 immediately.
 
+Still open on **Phase 10**: the Tutor never drafts a plan override at all
+(design §23.3's "offer an override... explicit API call after the user
+confirms" — not implemented, see "Known Issues"); no chat-turn/session
+memory persistence (design §21's "session memory," see "Known Issues");
+`/chat` is plain JSON, not design §27's SSE stream; `classify_intent`'s
+skill-mention matching is a literal (word-boundary) scan, so a question that
+names a skill only by an unlisted synonym falls back to `out_of_scope` or a
+generic bucket rather than resolving it — the same class of limitation
+`DeterministicClaimExtractor` (Phase 2) already accepts for the same reason.
+
 ### Exact Next Task
 
-1. Implement the Tutor Agent (`app/agents/tutor.py`, currently a
-   placeholder) per design §8.2: read-only, grounded in structured learner
-   state (never free-form graph/DB access) — `SkillGraphService.explain_skill_path`
-   (Phase 3, already implemented) for "why do I need X," and the
-   `PlanRevision`/`ReflectionRecord`/`DecisionRecord` chain (Phase 9, now
-   real) for "why did my plan change."
-2. Build the G4 Tutor graph (`app/orchestration/graphs.py::build_tutor_graph`,
-   currently `NotImplementedError`) and its read-only tool surface (design
-   §14's `skill_lookup`/`explain_skill_path`/`get_learner_state`/`get_gaps`/
-   `get_current_plan`/`get_plan_revisions`/`get_evidence`/`get_progress`/
-   `get_decision` — all read-only, `learner_id` from the session per
-   ARCHITECTURE_CONTRACTS.md §7, never an LLM argument).
-3. Add the chat endpoint (design §27) and, if the Tutor proposes a plan
-   override, route it through the same Reflection Validator +
-   `apply_operators()` pipeline (Phase 9) rather than a new commit path —
-   "may only propose an override the user confirms" per
-   ARCHITECTURE_CONTRACTS.md §2.
+Design §39.1's table has no unimplemented phase left except "Observability /
+evaluation / polish" (Phase 10 in design's own numbering — see "Next Phase"
+above). Suggested concrete first steps, in rough priority order:
+
+1. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
+   now significantly overdue with all five agents making real calls) — the
+   design doc calls this "a first-class requirement, not an afterthought"
+   (ARCHITECTURE_CONTRACTS.md §14).
+2. Build an evaluation harness (design §32) that can score, at minimum:
+   Plan Validator soft-violation rates (design §17.3), citation-existence
+   rate (design §33's "100% verified in code" target — already true by
+   construction per-turn via `verify_citations`, but nothing aggregates it
+   across a labeled question set yet), and reflection false-positive rate
+   (design §20's "false-positive reflection rate" metric).
+3. Run the human review pass over curated content (Phase 3, §11.5) and the
+   live link-validation sweep (`scripts/validate_links.py`, Phase 6) before
+   trusting the graph in a live demo.
 4. Wire Reflection's `cognitive_overload` path into the Plan Validator's V9
    `overload_active` flag for the *next* `create_plan` call, and implement
    design §20.8's "deferred items reinstated" step on misconception
-   resolution (see "Known Issues").
-5. Add the Postgres-backed LLM Gateway replay cache (Phase 1's open item,
-   now overdue with four real agent calls) before adding the fifth (Tutor)
-   on top of the same gap.
-6. Before trusting the graph in a live demo: run the human review pass
-   (Phase 3) and the live link-validation sweep (`scripts/validate_links.py`,
-   Phase 6).
+   resolution (see "Known Issues" — carried over from Phase 9, still open).
+5. If a real chat UI is built: add chat-turn/session persistence (design
+   §21) and switch `/chat` to the SSE stream design §27 describes, reusing
+   `app/sse/trace.py`'s existing `TraceBus`.
 
 ### Commands To Verify Current State
 

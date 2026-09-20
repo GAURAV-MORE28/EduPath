@@ -17,7 +17,13 @@ from langgraph.graph import END, StateGraph
 
 from app.agents.planner import PlannerAgent
 from app.agents.profiler import ProfilerAgent
-from app.core.thresholds import DEFAULT_SESSION_CAP_MINUTES, NEW_SKILL_CONCURRENCY_CAP, PLANNER_MAX_DRAFT_ATTEMPTS
+from app.agents.tutor import TutorAgent
+from app.core.thresholds import (
+    DEFAULT_SESSION_CAP_MINUTES,
+    NEW_SKILL_CONCURRENCY_CAP,
+    PLANNER_MAX_DRAFT_ATTEMPTS,
+    TUTOR_MAX_COMPOSE_ATTEMPTS,
+)
 from app.gap.engine import GapAnalysisResult, analyze_gaps
 from app.gateway.vlm_gateway import VLMGateway, VLMPageReadRequest
 from app.graph.queries import SkillGraphService
@@ -29,10 +35,15 @@ from app.profiling.document_parser import extract_text
 from app.profiling.evidence_verifier import EvidenceVerifier
 from app.profiling.pii import scrub_pii
 from app.profiling.skill_normalizer import SkillNormalizer
+from app.provenance.citations import verify_citations
 from app.repositories.catalog_repository import CatalogRepository
 from app.retrieval.service import ResourceRetrievalService
 from app.schemas.common import PlanItem, PlanItemReason
 from app.schemas.profiling import ExtractedClaim, VerifiedClaim
+from app.tutor.conservative import build_conservative_answer
+from app.tutor.context import TutorContext
+from app.tutor.intent import OUT_OF_SCOPE, classify_intent, plan_tools
+from app.tutor.tools import ToolCallResult, call_tool
 
 
 async def _start_node(state: RunState) -> dict[str, Any]:
@@ -382,6 +393,150 @@ def build_evidence_response_graph():
     )
 
 
-def build_tutor_graph():
-    """G4 Tutor — placeholder. Implemented in Phase 9."""
-    raise NotImplementedError("G4 Tutor graph is implemented in Phase 9 (Tutor).")
+def build_tutor_graph(*, ctx: TutorContext, tutor_agent: TutorAgent):
+    """G4 Tutor (design §9.6): `classify_intent -> plan_tools -> call_tools
+    (<= TUTOR_MAX_TOOL_STEPS) -> compose_answer -> verify_citations ->
+    [regenerate once] -> stream`.
+
+    Unlike G3 Evidence-Response, this graph has no interleaved DB *writes* to
+    force plain async orchestration instead (ARCHITECTURE_CONTRACTS.md §18's
+    reasoning for G3 doesn't apply here) -- every tool call and the agent
+    call are pure reads, so this is a real, bounded LangGraph state machine,
+    same as G1/G2.
+
+    `classify_intent`/`plan_tools` are rule-based, not LLM-driven (design
+    §9.6 allows either; see `app/tutor/intent.py`'s module docstring for why
+    this project picks rule-based) -- the only LLM call in this graph is
+    `compose_answer`. `ctx`/`tutor_agent` are built once per chat turn by
+    `app/tutor/service.py::run_chat`, the same per-request-closure shape
+    `build_planning_graph` already uses for `graph_service`/`catalog`/
+    `retrieval_service`.
+
+    Expects `state["data"]` to already contain: `message`, and optionally
+    `skill_id_hint`/`decision_id_hint` (a UI "Why?" drawer already knows the
+    ID it's asking about, design §24.3). Terminates with `status="completed"`
+    and `state["data"]["final_answer"]`/`"final_citations"`/`"final_degraded"`/
+    `"conservative"` populated either way -- a chat turn can never fail to
+    produce *some* grounded answer.
+    """
+
+    async def classify_intent_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        intent = await classify_intent(
+            ctx, d["message"], skill_id_hint=d.get("skill_id_hint"), decision_id_hint=d.get("decision_id_hint")
+        )
+        d["intent"] = intent
+        return {"data": d, "status": "running"}
+
+    async def plan_tools_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        d["tool_calls"] = plan_tools(d["intent"])
+        return {"data": d}
+
+    def route_after_plan_tools(state: RunState) -> str:
+        d = state["data"]
+        if d["intent"].name == OUT_OF_SCOPE or not d["tool_calls"]:
+            return "refuse"
+        return "call_tools"
+
+    async def refuse_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        d["final_answer"] = (
+            "I can only answer questions about your own learning journey -- your skills, gaps, plan, "
+            "or progress. Could you rephrase your question around one of those?"
+        )
+        d["final_citations"] = []
+        d["final_degraded"] = False
+        d["conservative"] = False
+        return {"data": d, "status": "completed"}
+
+    async def call_tools_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        results: list[ToolCallResult] = []
+        for call in d["tool_calls"]:
+            results.append(await call_tool(ctx, call.tool, call.args))
+        d["tool_results"] = results
+        d["valid_ids"] = {cid for r in results for cid in r.citable_ids}
+        return {"data": d}
+
+    async def compose_answer_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        counters = dict(state.get("counters") or {})
+        counters["tool_steps"] = len(d["tool_calls"])
+        compose_attempts = counters.get("compose_attempts", 0) + 1
+        counters["compose_attempts"] = compose_attempts
+
+        context_blocks = {r.tool: r.data for r in d["tool_results"] if r.data}
+        result = await tutor_agent.run(
+            state["run_id"],
+            {
+                "question": d["message"],
+                "context_blocks": context_blocks,
+                "missing_ids": d.get("last_invalid_citations"),
+            },
+        )
+        d["draft"] = result["draft"]
+        d["agent_degraded"] = result["degraded"]
+        return {"data": d, "counters": counters}
+
+    async def verify_citations_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        if d["agent_degraded"] or d["draft"] is None:
+            d["citation_check_passed"] = False
+            d["last_invalid_citations"] = []
+            return {"data": d}
+        check = verify_citations(d["draft"].citations, d["valid_ids"])
+        d["citation_check_passed"] = check.passed
+        d["last_invalid_citations"] = check.invalid_ids
+        return {"data": d}
+
+    def route_after_verify(state: RunState) -> str:
+        d = state["data"]
+        if d["citation_check_passed"]:
+            return "end"
+        if d["agent_degraded"]:
+            return "conservative_answer"  # LLM unavailable -- won't change on retry
+        if state["counters"].get("compose_attempts", 0) < TUTOR_MAX_COMPOSE_ATTEMPTS:
+            return "compose_answer"
+        return "conservative_answer"
+
+    async def finalize_verified_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        d["final_answer"] = d["draft"].answer
+        d["final_citations"] = d["draft"].citations
+        d["final_degraded"] = False
+        d["conservative"] = False
+        return {"data": d, "status": "completed"}
+
+    async def conservative_answer_node(state: RunState) -> dict[str, Any]:
+        d = dict(state["data"])
+        answer, citations = build_conservative_answer(d["tool_results"])
+        d["final_answer"] = answer
+        d["final_citations"] = citations
+        d["final_degraded"] = True
+        d["conservative"] = True
+        return {"data": d, "status": "completed"}
+
+    graph = StateGraph(RunState)
+    graph.add_node("classify_intent", classify_intent_node)
+    graph.add_node("plan_tools", plan_tools_node)
+    graph.add_node("refuse", refuse_node)
+    graph.add_node("call_tools", call_tools_node)
+    graph.add_node("compose_answer", compose_answer_node)
+    graph.add_node("verify_citations", verify_citations_node)
+    graph.add_node("finalize_verified", finalize_verified_node)
+    graph.add_node("conservative_answer", conservative_answer_node)
+    graph.set_entry_point("classify_intent")
+    graph.add_edge("classify_intent", "plan_tools")
+    graph.add_conditional_edges("plan_tools", route_after_plan_tools, {"refuse": "refuse", "call_tools": "call_tools"})
+    graph.add_edge("refuse", END)
+    graph.add_edge("call_tools", "compose_answer")
+    graph.add_edge("compose_answer", "verify_citations")
+    graph.add_conditional_edges(
+        "verify_citations",
+        route_after_verify,
+        {"end": "finalize_verified", "compose_answer": "compose_answer", "conservative_answer": "conservative_answer"},
+    )
+    graph.add_edge("finalize_verified", END)
+    graph.add_edge("conservative_answer", END)
+    return graph.compile()

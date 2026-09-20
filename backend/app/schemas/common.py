@@ -207,6 +207,57 @@ class ReplanRequest(BaseModel):
     reason: str
 
 
+class ProgressSkillEntry(BaseModel):
+    """design §25.2's `acquired: [skill+evidence]` / `in_progress: [skill+band]`
+    entries -- one shape covers both (Phase 10's Report Builder,
+    `app/tutor/report_builder.py`)."""
+
+    skill_id: str
+    label: str
+    status: str  # MET (acquired) | WEAK/UNVERIFIED/MISSING/BLOCKED (in progress / remaining)
+    mastery: float = 0.0
+    band: str = "unknown"
+    tier_max: str = ""
+    evidence_ids: list[str] = []
+
+
+class StruggleAreaEntry(BaseModel):
+    """design §25.2's `struggle_areas: [signal+misconception]`."""
+
+    skill_id: str
+    status: str
+    signal_id: str | None = None
+    signal_class: str | None = None
+    confidence: str | None = None
+    misconception_id: str | None = None
+
+
+class ProgressActivityEntry(BaseModel):
+    """design §25.2's `completed_work: [activities]` / `next_steps: [PlanItem
+    refs]` -- both are just plan items at different `status` values."""
+
+    item_id: str
+    skill_id: str
+    type: str
+    est_minutes: int
+    day_slot: int
+    status: str
+
+
 class ProgressReport(BaseModel):
+    """design §25.2. Computed deterministically by the Report Builder
+    (`app/tutor/report_builder.py::build_progress_report`) -- an LLM may only
+    narrate `narrative` afterward; it never calculates any of the other
+    fields (Phase 10 brief's explicit requirement)."""
+
     learner_id: str
-    data: dict[str, Any] = {}
+    role_id: str
+    period: str
+    graph_version: str
+    acquired: list[ProgressSkillEntry] = []
+    in_progress: list[ProgressSkillEntry] = []
+    remaining_gaps: list[SkillGap] = []
+    struggle_areas: list[StruggleAreaEntry] = []
+    completed_work: list[ProgressActivityEntry] = []
+    next_steps: list[ProgressActivityEntry] = []
+    narrative: str = ""  # display-only

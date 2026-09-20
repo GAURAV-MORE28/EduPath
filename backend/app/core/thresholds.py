@@ -191,3 +191,21 @@ REFLECTION_REVISION_COOLDOWN_HOURS = STRUGGLE_REVISION_COOLDOWN_HOURS
 # `app/assessment/resolution.py`'s existing `min(max_day_slot + 1, 5)` convention).
 REFLECTION_DEFER_DAYS = 2
 PLAN_WEEK_MAX_DAY_SLOT = 5
+
+
+# design §8.2/§9.6/ARCHITECTURE_CONTRACTS.md P6: Tutor Agent (Phase 10 in this
+# project's numbering -- design's Phase 9). "max 4 tool steps" per turn, and
+# "if verification fails, the answer is regenerated once" -- i.e. at most 2
+# `compose_answer` attempts total (the first draft plus exactly one retry)
+# before falling through to the deterministic conservative answer.
+TUTOR_MAX_TOOL_STEPS = 4
+TUTOR_MAX_COMPOSE_ATTEMPTS = 2
+
+# design §14.3/§26.2: how many resource candidates `search_resources` surfaces
+# per tool call -- small enough to stay inside a chat answer's context block.
+TUTOR_SEARCH_RESOURCES_TOP_K = 3
+
+# design §25.2's `ProgressReport { next_steps: [PlanItem refs] ... }` -- caps
+# how many upcoming plan items the Report Builder surfaces, not a scheduling
+# decision of its own (the Planner already ordered them by `day_slot`).
+PROGRESS_REPORT_NEXT_STEPS_LIMIT = 5
