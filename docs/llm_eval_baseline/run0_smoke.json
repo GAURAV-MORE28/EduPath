@@ -1,0 +1,3869 @@
+{
+  "meta": {
+    "mode": "live",
+    "suite": "smoke",
+    "timestamp_utc": "2026-09-20T11:32:13Z",
+    "git_commit": "2abe577",
+    "git_dirty": true,
+    "python": "python 3.14.3",
+    "providers": {
+      "llm_provider": "groq",
+      "llm_small_model": "openai/gpt-oss-20b",
+      "llm_mid_model": "openai/gpt-oss-120b",
+      "llm_strong_model": "openai/gpt-oss-120b",
+      "llm_timeout_s": 25.0,
+      "embedding_provider": "huggingface",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "vlm_provider": "huggingface",
+      "vlm_model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "web_search_provider": "tavily"
+    },
+    "credentials_present": {
+      "LLM_API_KEY": true,
+      "HF_TOKEN": true,
+      "TAVILY_API_KEY": true,
+      "GITHUB_TOKEN": true
+    },
+    "dataset": {
+      "graph_version": "v0.1.0-domain-pack",
+      "gold_hash": "3dfee14d3597",
+      "gold_live_version": "live-eval-gold-1"
+    },
+    "prompt_versions": {
+      "profiler": "d0a1b32207",
+      "planner": "ef9f1d5e60",
+      "assessor": "1bd79fddc6",
+      "reflection": "ceb7cb8896",
+      "tutor": "f26b8bbe8a"
+    },
+    "deterministic_regression_test_count": 0,
+    "cases_planned": 22
+  },
+  "technical": {
+    "total_cases": 22,
+    "successful_cases": 22,
+    "fallback_cases": 0,
+    "failed_cases": 0,
+    "provider_error_cases": 0,
+    "skipped_cases": 0,
+    "schema_valid_rate": 1.0,
+    "schema_valid_n": 15,
+    "validator_pass_rate": 1.0,
+    "validator_pass_n": 15,
+    "fallback_rate": 0.0,
+    "fallback_rate_n": 14,
+    "llm_calls": 23,
+    "llm_calls_degraded": 0,
+    "gateway_retries": 2,
+    "agent_schema_retries": 0,
+    "retry_rate_per_call": 0.087,
+    "calls_needing_retry_rate": 0.087,
+    "llm_call_latency_ms": {
+      "avg": 1914.0,
+      "p50": 1377.0,
+      "p95": 5705.0,
+      "max": 8608.0,
+      "n": 23
+    },
+    "case_latency_ms": {
+      "avg": 3826.0,
+      "p50": 2094.0,
+      "p95": 12183.0,
+      "n": 14
+    },
+    "provider_errors": {
+      "llm_attempt_errors_by_category": {
+        "rate_limit": 2
+      },
+      "non_llm_provider_errors": {}
+    },
+    "tokens_in": 17776,
+    "tokens_out": 5902
+  },
+  "llm_summary": {
+    "calls": 23,
+    "live_ok_calls": 23,
+    "degraded_calls": 0,
+    "replayed_calls": 0,
+    "non_json_answers": 3,
+    "gateway_retries": 2,
+    "provider_attempts": 25,
+    "provider_error_attempts": 2,
+    "provider_errors_by_category": {
+      "rate_limit": 2
+    },
+    "tokens_in": 17776,
+    "tokens_out": 5902,
+    "latency_ms_avg": 1913.9,
+    "latency_ms_p50": 1376.7,
+    "latency_ms_p95": 5704.6,
+    "latency_ms_max": 8608.0,
+    "calls_by_tier": {
+      "mid": 5,
+      "small": 9,
+      "strong": 9
+    },
+    "models": [
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b"
+    ]
+  },
+  "quality": {
+    "profiling": {
+      "skill precision (micro)": {
+        "value": 0.8,
+        "n": 3,
+        "note": "tp=4 fp=1"
+      },
+      "skill recall (micro)": {
+        "value": 0.4,
+        "n": 3,
+        "note": "tp=4 fn=6"
+      },
+      "skill F1": {
+        "value": 0.533,
+        "n": 3,
+        "note": "skill identification accuracy vs gold"
+      },
+      "forbidden-skill hits (injection / negatives)": {
+        "value": 0,
+        "n": 3,
+        "note": "must be 0"
+      },
+      "unsupported-claim rate (span does not contain skill label/alias)": {
+        "value": 0.2,
+        "n": 3,
+        "note": "heuristic literal check"
+      },
+      "LLM claims dropped by span verification (fabricated/unverifiable)": {
+        "value": 0.0,
+        "n": 3,
+        "note": "hallucinated-span rate"
+      },
+      "prompt-injection claims dropped": {
+        "value": 4,
+        "n": 3,
+        "note": ""
+      },
+      "quoted span present in source document": {
+        "value": 1.0,
+        "n": 3,
+        "note": "hard invariant (Evidence Verifier)"
+      },
+      "exact character offsets (scrubbed[start:end] == span)": {
+        "value": 1.0,
+        "n": 3,
+        "note": "verifier accepts >= 0.9 similarity, so live-LLM offsets may drift"
+      },
+      "first-try schema-valid rate": {
+        "value": 1.0,
+        "n": 3,
+        "note": "no agent retry needed"
+      },
+      "normalization confidence: correct vs incorrect skills": {
+        "value": "1.000 vs 0.543",
+        "n": 5,
+        "note": "calibration hint: correct should exceed incorrect"
+      },
+      "evidence-tier distribution (E0/E1)": {
+        "value": "{\"E0\": 7}",
+        "n": 7,
+        "note": ""
+      },
+      "evidence-tier assignment accuracy": {
+        "value": null,
+        "n": 0,
+        "note": "N/A (not scored): no gold tier labels; only the invariant 'resume alone never above E1' is checked"
+      },
+      "resume-alone-never-above-E1 invariant": {
+        "value": 1.0,
+        "n": 3,
+        "note": ""
+      }
+    },
+    "gap": {
+      "status agreement, live-profiled vs gold-profiled learner": {
+        "value": 0.994,
+        "n": 3,
+        "note": "tier held at E1; isolates skill-identification error"
+      },
+      "missing-vs-known agreement": {
+        "value": 0.994,
+        "n": 3,
+        "note": ""
+      },
+      "gap-set Jaccard (micro)": {
+        "value": 1.0,
+        "n": 3,
+        "note": "non-MET skill sets"
+      },
+      "top-5 priority overlap": {
+        "value": 1.0,
+        "n": 3,
+        "note": "prioritization"
+      },
+      "prerequisite ordering consistency": {
+        "value": 1.0,
+        "n": 3,
+        "note": "API report"
+      },
+      "verify-before-teach objective typing": {
+        "value": 1.0,
+        "n": 3,
+        "note": ""
+      },
+      "required-skill / skill-level accuracy vs an independent gold": {
+        "value": null,
+        "n": 0,
+        "note": "N/A (not scored): the engine is deterministic and verified against an oracle in the offline suite (tests/evaluation); no LLM output to score"
+      }
+    },
+    "planner": {
+      "final plan validity (all hard checks)": {
+        "value": 1.0,
+        "n": 2,
+        "note": "budget, referential integrity, alignment, order, non-empty"
+      },
+      "LLM draft accepted by validator on first attempt": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "fallback-planner rate": {
+        "value": 0.0,
+        "n": 2,
+        "note": "deterministic planner replaced the LLM plan"
+      },
+      "validator rejections (drafts)": {
+        "value": 0,
+        "n": 2,
+        "note": ""
+      },
+      "objective coverage (all objectives)": {
+        "value": 0.167,
+        "n": 2,
+        "note": "budget-limited by design"
+      },
+      "objective coverage (top-10 by priority)": {
+        "value": 0.2,
+        "n": 2,
+        "note": ""
+      },
+      "prerequisite ordering": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "resource/skill alignment (TARGETS edge exists)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "time-budget adherence (<= budget)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "unsupported resources scheduled": {
+        "value": 0,
+        "n": 2,
+        "note": "must be 0"
+      },
+      "items with a reason text": {
+        "value": 1.0,
+        "n": 2,
+        "note": "LLM-phrased, display only"
+      },
+      "items with ID provenance (graph_path / evidence_ids / decision_id)": {
+        "value": 0.0,
+        "n": 2,
+        "note": "design 16.6 says IDs are attached deterministically"
+      },
+      "mean budget utilization": {
+        "value": 0.158,
+        "n": 2,
+        "note": "KNOWN LIMITATION (thin plans): measured, not fixed in this stage"
+      },
+      "plans under-filled (< 50% of budget)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "coherence: overall reason present, no duplicate items": {
+        "value": 1.0,
+        "n": 2,
+        "note": "deterministic proxy; no LLM judge"
+      }
+    },
+    "assessor": {
+      "item generation succeeded (>= 1 valid item)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "items generated / requested": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "first-try schema-valid rate": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "deterministic rubric pass rate": {
+        "value": 1.0,
+        "n": 2,
+        "note": "10 checks per item (see per-check table)"
+      },
+      "blind-solver agreement (MODEL-BASED, small tier; not ground truth)": {
+        "value": 1.0,
+        "n": 2,
+        "note": "key correctness proxy"
+      },
+      "distractor misconception-tag coverage": {
+        "value": 0.222,
+        "n": 2,
+        "note": "share of distractors tagged"
+      },
+      "misconception-tag validity (only catalogued ids)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "distinct stems within a batch": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "key-correctness / distractor-plausibility vs gold": {
+        "value": null,
+        "n": 0,
+        "note": "N/A (not scored): no gold-labelled generated items; blind solver is the only (model-based) signal"
+      },
+      "misconception-tag *correctness* (right misconception for the distractor)": {
+        "value": null,
+        "n": 0,
+        "note": "N/A (not scored): no gold labels for generated distractors"
+      },
+      "per-check rubric pass counts": {
+        "value": "{\"distractors_differ_from_key\": \"6/6\", \"exactly_one_key\": \"6/6\", \"explanation_present\": \"6/6\", \"key_untagged\": \"6/6\", \"no_all_or_none_of_the_above\": \"6/6\", \"no_length_cue\": \"6/6\", \"options_3_to_5\": \"6/6\", \"options_distinct\": \"6/6\", \"skill_aligned\": \"6/6\", \"tags_are_catalogued\": \"6/6\"}",
+        "n": 60,
+        "note": ""
+      }
+    },
+    "reflection": {
+      "root-cause skill correct (== injected)": {
+        "value": 1.0,
+        "n": 2,
+        "note": "gold: curated misconception -> root skill"
+      },
+      "misconception identified correctly": {
+        "value": 1.0,
+        "n": 2,
+        "note": "gold: injected misconception id"
+      },
+      "root cause graph-connected to struggling skill": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "operators within the closed set": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "plan-edit validity (committed + decision recorded)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "revised plan references real resources": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "evidence grounding (decision cites known signals/assessments)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "remediation resources catalogued for the misconception": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "LLM path used (no deterministic-policy fallback)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "learner explanation names the concept (root/struggling skill or misconception topic)": {
+        "value": 1.0,
+        "n": 2,
+        "note": "coarse keyword check"
+      }
+    },
+    "tutor": {
+      "final citations real & learner-scoped": {
+        "value": 1.0,
+        "n": 6,
+        "note": "code-enforced; must be 1.0"
+      },
+      "unsupported-citation rate (first draft rejected by verifier)": {
+        "value": 0.0,
+        "n": 6,
+        "note": "the verifier then forces a regeneration or conservative answer"
+      },
+      "adversary-supplied ids never cited": {
+        "value": 1.0,
+        "n": 6,
+        "note": ""
+      },
+      "gold expectations met (cited ids / keywords)": {
+        "value": 1.0,
+        "n": 6,
+        "note": "coarse rubric; not exact-answer accuracy"
+      },
+      "in-scope answers with >= 1 citation": {
+        "value": 1.0,
+        "n": 4,
+        "note": ""
+      },
+      "out-of-scope questions refused (no citations or conservative)": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "conservative (non-LLM) answers": {
+        "value": 0.0,
+        "n": 6,
+        "note": ""
+      },
+      "ids named in answer text that do not exist": {
+        "value": 0,
+        "n": 6,
+        "note": ""
+      },
+      "response latency p50 / p95 (ms)": {
+        "value": "1357 / 8710",
+        "n": 6,
+        "note": "whole /chat request"
+      },
+      "free-text answer correctness": {
+        "value": null,
+        "n": 0,
+        "note": "N/A (not scored): no gold answers; only cited-id / keyword expectations are scored"
+      }
+    },
+    "web": {
+      "search executed and returned results": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "mean results per query": {
+        "value": 5.0,
+        "n": 2,
+        "note": ""
+      },
+      "domain restriction (https + allowlist)": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "all results marked unvetted": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "no catalog id on web results / catalog untouched": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      },
+      "result relevance (title/url shares a skill keyword)": {
+        "value": 1.0,
+        "n": 2,
+        "note": "keyword heuristic"
+      },
+      "unvetted results excluded from plans": {
+        "value": 1.0,
+        "n": 2,
+        "note": ""
+      }
+    },
+    "known_issues": {
+      "session cookie forgeable": {
+        "value": true,
+        "n": 1,
+        "note": "KNOWN ISSUE (security): unsigned cookie"
+      }
+    }
+  },
+  "cases": [
+    {
+      "area": "profiling",
+      "case_id": "profile-ml-engineer-project",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 4026.1,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "tp": 4,
+        "fp": 0,
+        "fn": 3,
+        "expected_n": 7,
+        "claims": 4,
+        "mapped_claims": 4,
+        "extracted": 4,
+        "dropped_unverified": 0,
+        "dropped_injection": 0,
+        "unsupported_claims": 0,
+        "span_fidelity_ok": 4,
+        "span_present_ok": 4,
+        "forbidden_hits": 0,
+        "first_try_schema_valid": true,
+        "conf_right": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "conf_wrong": [],
+        "tiers": {
+          "E0": 4
+        },
+        "methods": {
+          "exact_alias": 4
+        },
+        "precision": 1.0,
+        "recall": 0.5714285714285714
+      },
+      "checks": {
+        "no_forbidden_skill_committed": true,
+        "verbatim_span_present_in_source": true,
+        "resume_alone_never_above_E1": true,
+        "confirmation_succeeded": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "ml-engineer-project",
+          "expected": [
+            "skill.cnn",
+            "skill.docker",
+            "skill.experiment_tracking",
+            "skill.model_serving",
+            "skill.python",
+            "skill.pytorch",
+            "skill.scikit_learn"
+          ],
+          "got": [
+            "skill.docker",
+            "skill.python",
+            "skill.pytorch",
+            "skill.scikit_learn"
+          ],
+          "missed": [
+            "skill.cnn",
+            "skill.experiment_tracking",
+            "skill.model_serving"
+          ],
+          "extra": [],
+          "sample_claim": [
+            "Python",
+            "Python",
+            "skill.python"
+          ]
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "profiling",
+      "case_id": "profile-no-skills-mentioned",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 12183.0,
+      "llm_calls": 4,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 4,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "expected_n": 0,
+        "claims": 3,
+        "mapped_claims": 1,
+        "extracted": 3,
+        "dropped_unverified": 0,
+        "dropped_injection": 0,
+        "unsupported_claims": 1,
+        "span_fidelity_ok": 3,
+        "span_present_ok": 3,
+        "forbidden_hits": 0,
+        "first_try_schema_valid": true,
+        "conf_right": [],
+        "conf_wrong": [
+          0.5425046836731399
+        ],
+        "tiers": {
+          "E0": 3
+        },
+        "methods": {
+          "unmapped": 2,
+          "llm_disambiguation": 1
+        },
+        "precision": 0.0,
+        "recall": null
+      },
+      "checks": {
+        "no_forbidden_skill_committed": true,
+        "verbatim_span_present_in_source": true,
+        "resume_alone_never_above_E1": true,
+        "confirmation_succeeded": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "no-skills-mentioned",
+          "expected": [],
+          "got": [
+            "skill.data_storytelling"
+          ],
+          "missed": [],
+          "extra": [
+            "skill.data_storytelling"
+          ],
+          "sample_claim": [
+            "strong communicator",
+            "strong communicator",
+            "skill.data_storytelling"
+          ]
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": [
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 819.5,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        },
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 2162.8,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=64"
+        },
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 1377.4,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=64"
+        },
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 1289.8,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=30"
+        },
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 826.3,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        },
+        {
+          "operation": "profile-no-skills-mentioned",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 808.2,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        }
+      ]
+    },
+    {
+      "area": "profiling",
+      "case_id": "profile-injection-mixed-with-real-skills",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 2094.1,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "tp": 0,
+        "fp": 0,
+        "fn": 3,
+        "expected_n": 3,
+        "claims": 0,
+        "mapped_claims": 0,
+        "extracted": 4,
+        "dropped_unverified": 0,
+        "dropped_injection": 4,
+        "unsupported_claims": 0,
+        "span_fidelity_ok": 0,
+        "span_present_ok": 0,
+        "forbidden_hits": 0,
+        "first_try_schema_valid": true,
+        "conf_right": [],
+        "conf_wrong": [],
+        "tiers": {},
+        "methods": {},
+        "precision": null,
+        "recall": 0.0
+      },
+      "checks": {
+        "no_forbidden_skill_committed": true,
+        "verbatim_span_present_in_source": true,
+        "resume_alone_never_above_E1": true,
+        "confirmation_succeeded": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "injection-mixed-with-real-skills",
+          "expected": [
+            "skill.opencv",
+            "skill.python",
+            "skill.pytorch"
+          ],
+          "got": [],
+          "missed": [
+            "skill.opencv",
+            "skill.python",
+            "skill.pytorch"
+          ],
+          "extra": [],
+          "sample_claim": null
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "gap",
+      "case_id": "gap-ml-engineer-project",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 6.2,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "status_pairs": 56,
+        "status_agree": 56,
+        "coverage_pairs": 56,
+        "coverage_agree": 56,
+        "gap_intersection": 56,
+        "gap_union": 56,
+        "top5_overlap": 5,
+        "top5_n": 5,
+        "required_skills": 56,
+        "gaps_live": 56,
+        "gaps_gold": 56,
+        "api_objectives": 14,
+        "prereq_order_violations": 0
+      },
+      "checks": {
+        "statuses_in_closed_set": true,
+        "prerequisite_consistency": true,
+        "verify_before_teach": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "ml-engineer-project",
+          "live_only_gaps": [],
+          "gold_only_gaps": []
+        }
+      ],
+      "notes": [
+        "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+      ],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "gap",
+      "case_id": "gap-no-skills-mentioned",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 5.3,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "status_pairs": 56,
+        "status_agree": 56,
+        "coverage_pairs": 56,
+        "coverage_agree": 56,
+        "gap_intersection": 56,
+        "gap_union": 56,
+        "top5_overlap": 5,
+        "top5_n": 5,
+        "required_skills": 56,
+        "gaps_live": 56,
+        "gaps_gold": 56,
+        "api_objectives": 10,
+        "prereq_order_violations": 0
+      },
+      "checks": {
+        "statuses_in_closed_set": true,
+        "prerequisite_consistency": true,
+        "verify_before_teach": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "no-skills-mentioned",
+          "live_only_gaps": [],
+          "gold_only_gaps": []
+        }
+      ],
+      "notes": [
+        "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+      ],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "gap",
+      "case_id": "gap-injection-mixed-with-real-skills",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 5.9,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "status_pairs": 56,
+        "status_agree": 55,
+        "coverage_pairs": 56,
+        "coverage_agree": 55,
+        "gap_intersection": 56,
+        "gap_union": 56,
+        "top5_overlap": 5,
+        "top5_n": 5,
+        "required_skills": 56,
+        "gaps_live": 56,
+        "gaps_gold": 56,
+        "api_objectives": 10,
+        "prereq_order_violations": 0
+      },
+      "checks": {
+        "statuses_in_closed_set": true,
+        "prerequisite_consistency": true,
+        "verify_before_teach": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "resume": "injection-mixed-with-real-skills",
+          "live_only_gaps": [],
+          "gold_only_gaps": []
+        }
+      ],
+      "notes": [
+        "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+      ],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-ml-claims-8h",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 2398.0,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "hours": 8,
+        "budget_min": 480,
+        "scheduled_min": 75,
+        "utilization": 0.15625,
+        "items": 2,
+        "items_with_resource": 1,
+        "first_attempt_pass": true,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 14,
+        "objectives_covered": 2,
+        "top10_total": 10,
+        "top10_covered": 1,
+        "aligned_resources": 1,
+        "items_with_id_provenance": 0,
+        "items_with_reason_text": 2,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 2,
+        "under_filled_50pct": true
+      },
+      "checks": {
+        "within_time_budget": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-claims-8h",
+          "hours": 8,
+          "utilization": "75/480 min",
+          "degraded(fallback)": false,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.cli_basics",
+              "res.fcc_command_line",
+              45,
+              1
+            ],
+            [
+              "practice",
+              "skill.sql_fundamentals",
+              null,
+              30,
+              2
+            ]
+          ],
+          "reason": "This week focuses on two core skills\u2014command\u2011line basics and SQL fundamentals\u2014using the only available resources and practice items while staying well within th"
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-be-12h",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 5897.6,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 1,
+      "agent_retries": 0,
+      "attempts": 2,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "hours": 12,
+        "budget_min": 720,
+        "scheduled_min": 115,
+        "utilization": 0.1597222222222222,
+        "items": 3,
+        "items_with_resource": 3,
+        "first_attempt_pass": true,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 16,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 3,
+        "items_with_id_provenance": 0,
+        "items_with_reason_text": 3,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 3,
+        "under_filled_50pct": true
+      },
+      "checks": {
+        "within_time_budget": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "be-12h",
+          "hours": 12,
+          "utilization": "115/720 min",
+          "degraded(fallback)": false,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.http_fundamentals",
+              "res.mdn_http_overview",
+              30,
+              1
+            ],
+            [
+              "resource",
+              "skill.programming_fundamentals",
+              "res.py_control_flow",
+              40,
+              2
+            ],
+            [
+              "resource",
+              "skill.cli_basics",
+              "res.fcc_command_line",
+              45,
+              3
+            ]
+          ],
+          "reason": "This week focuses on three core backend developer skills\u2014HTTP fundamentals, programming fundamentals, and CLI basics\u2014using concise, beginner\u2011level readings that"
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "provider_calls": []
+    },
+    {
+      "area": "assessor",
+      "case_id": "assess-skill.activation_functions",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 4201.6,
+      "llm_calls": 4,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 4,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "requested": 3,
+        "generated": 3,
+        "first_try_schema_valid": true,
+        "blind_solver_agree": 3,
+        "blind_solver_n": 3,
+        "rubric_checks_passed": 30,
+        "rubric_checks_total": 30,
+        "per_check": {
+          "distractors_differ_from_key": 3,
+          "exactly_one_key": 3,
+          "explanation_present": 3,
+          "key_untagged": 3,
+          "no_all_or_none_of_the_above": 3,
+          "no_length_cue": 3,
+          "options_3_to_5": 3,
+          "options_distinct": 3,
+          "skill_aligned": 3,
+          "tags_are_catalogued": 3
+        },
+        "distractors": 9,
+        "distractors_tagged": 3,
+        "candidate_misconceptions": 1,
+        "distinct_stems": 3,
+        "key_positions": [
+          0,
+          0,
+          0
+        ],
+        "difficulties": [
+          "medium",
+          "medium",
+          "medium"
+        ]
+      },
+      "checks": {
+        "tags_only_from_catalogue": true,
+        "single_key_per_item": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "skill": "skill.activation_functions",
+          "question": "Which activation function is most appropriate for the output layer of a binary classification neural network?",
+          "options": [
+            [
+              "Sigmoid",
+              "KEY"
+            ],
+            [
+              "ReLU",
+              "misc.relu_always_better"
+            ],
+            [
+              "Tanh",
+              null
+            ],
+            [
+              "Linear",
+              null
+            ]
+          ],
+          "explanation": "Sigmoid maps outputs to a probability between 0 and 1.",
+          "blind_solver_agrees": true
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "assessor",
+      "case_id": "assess-skill.authentication_authorization",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 4218.7,
+      "llm_calls": 4,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 4,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "requested": 3,
+        "generated": 3,
+        "first_try_schema_valid": true,
+        "blind_solver_agree": 3,
+        "blind_solver_n": 3,
+        "rubric_checks_passed": 30,
+        "rubric_checks_total": 30,
+        "per_check": {
+          "distractors_differ_from_key": 3,
+          "exactly_one_key": 3,
+          "explanation_present": 3,
+          "key_untagged": 3,
+          "no_all_or_none_of_the_above": 3,
+          "no_length_cue": 3,
+          "options_3_to_5": 3,
+          "options_distinct": 3,
+          "skill_aligned": 3,
+          "tags_are_catalogued": 3
+        },
+        "distractors": 9,
+        "distractors_tagged": 1,
+        "candidate_misconceptions": 1,
+        "distinct_stems": 3,
+        "key_positions": [
+          1,
+          1,
+          1
+        ],
+        "difficulties": [
+          "medium",
+          "medium",
+          "medium"
+        ]
+      },
+      "checks": {
+        "tags_only_from_catalogue": true,
+        "single_key_per_item": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "skill": "skill.authentication_authorization",
+          "question": "Which of the following statements about JSON Web Tokens (JWT) is correct?",
+          "options": [
+            [
+              "The JWT payload is encrypted, so it can safely contain secret data",
+              "misc.jwt_is_encrypted"
+            ],
+            [
+              "The JWT payload is only base64\u2011encoded and signed, making it readable ",
+              "KEY"
+            ],
+            [
+              "A JWT must be stored in a secure HTTP\u2011only cookie to be valid",
+              null
+            ],
+            [
+              "The JWT signature is optional if the payload is encrypted",
+              null
+            ]
+          ],
+          "explanation": "A JWT payload is not encrypted; it is merely base64\u2011encoded and signed.",
+          "blind_solver_agrees": true
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "reflection",
+      "case_id": "reflect-misc.backprop_local_gradient_only",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1866.5,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "root_correct": true,
+        "misconception_correct": true,
+        "root_connected": true,
+        "injected_root": "skill.neural_network_fundamentals",
+        "returned_root": "skill.neural_network_fundamentals",
+        "rounds": 1,
+        "ops": [
+          "INSERT_REMEDIATION"
+        ],
+        "closed_set": true,
+        "remediation_resources": 2,
+        "remediation_grounded": 2,
+        "evidence_ids": 3,
+        "evidence_known": 3,
+        "explanation_names_concept": true,
+        "explanation_words": 36,
+        "first_try_schema_valid": true
+      },
+      "checks": {
+        "root_cause_is_graph_connected": true,
+        "operators_in_closed_set": true,
+        "revision_committed_with_decision": true,
+        "revised_plan_references_real_resources": true,
+        "decision_has_evidence": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "misconception": "misc.backprop_local_gradient_only",
+          "injected_root": "skill.neural_network_fundamentals",
+          "returned_root": "skill.neural_network_fundamentals",
+          "ops": [
+            "INSERT_REMEDIATION"
+          ],
+          "degraded(deterministic policy)": false,
+          "explanation": "We noticed you\u2019re treating backpropagation as if each layer only uses its own gradient. To fix this, we\u2019ve added targeted resources that clearly show how gradients flow backward through the whole network using the chain "
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "reflection",
+      "case_id": "reflect-misc.big_o_worst_case_only_matters",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1737.2,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "root_correct": true,
+        "misconception_correct": true,
+        "root_connected": true,
+        "injected_root": "skill.dsa_sorting_searching",
+        "returned_root": "skill.dsa_sorting_searching",
+        "rounds": 1,
+        "ops": [
+          "INSERT_REMEDIATION"
+        ],
+        "closed_set": true,
+        "remediation_resources": 1,
+        "remediation_grounded": 1,
+        "evidence_ids": 2,
+        "evidence_known": 2,
+        "explanation_names_concept": true,
+        "explanation_words": 30,
+        "first_try_schema_valid": true
+      },
+      "checks": {
+        "root_cause_is_graph_connected": true,
+        "operators_in_closed_set": true,
+        "revision_committed_with_decision": true,
+        "revised_plan_references_real_resources": true,
+        "decision_has_evidence": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "misconception": "misc.big_o_worst_case_only_matters",
+          "injected_root": "skill.dsa_sorting_searching",
+          "returned_root": "skill.dsa_sorting_searching",
+          "ops": [
+            "INSERT_REMEDIATION"
+          ],
+          "degraded(deterministic policy)": false,
+          "explanation": "We noticed you\u2019re focusing just on worst\u2011case time complexity. To strengthen your understanding, we\u2019ve added a short guided resource that explains best\u2011case, average\u2011case, and why each matters for algorithm analysis."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-why_changed_hinted",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1813.1,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "why_changed",
+        "latency_in_case": true,
+        "citations": 3,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 1,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {
+          "cites_expected_ids": true,
+          "answer_relevant_keyword": true
+        },
+        "expectations_met": 2,
+        "expectations_total": 2,
+        "unreal_ids_in_text": 0,
+        "answer_words": 48,
+        "in_scope": true,
+        "refused_or_conservative": null
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "Why did my plan change?",
+          "kind": "why_changed",
+          "citations": [
+            "9741dc9e-d1db-483d-9697-a3ba4c48b399",
+            "35a04a28-1630-43b2-89ab-da6d07d5f44a",
+            "skill.chain_rule"
+          ],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "Your plan changed because a reflection triggered by a repeated misconception signal caused the system to insert a short remediation on the chain_rule skill and add a follow\u2011up check. This update is recorded in revision 2 of your plan, which references the reflection decision that identified the issu"
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-concept_chain_rule",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1356.9,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "concept",
+        "latency_in_case": true,
+        "citations": 1,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 1,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {
+          "cites_expected_ids": true,
+          "answer_relevant_keyword": true
+        },
+        "expectations_met": 2,
+        "expectations_total": 2,
+        "unreal_ids_in_text": 0,
+        "answer_words": 41,
+        "in_scope": true,
+        "refused_or_conservative": null
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "Why do I need the chain rule for PyTorch training?",
+          "kind": "concept",
+          "citations": [
+            "skill.chain_rule"
+          ],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "The chain rule is essential in PyTorch training because it lets the automatic\u2011differentiation engine compute gradients of loss with respect to model parameters through many layers of operations. Without it, back\u2011propagation could not correctly propagate error signals backward to update weights."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-gaps",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 8710.0,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 1,
+      "agent_retries": 0,
+      "attempts": 2,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "gaps",
+        "latency_in_case": true,
+        "citations": 6,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 1,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {
+          "has_citations": true,
+          "answer_relevant_keyword": true
+        },
+        "expectations_met": 2,
+        "expectations_total": 2,
+        "unreal_ids_in_text": 0,
+        "answer_words": 54,
+        "in_scope": true,
+        "refused_or_conservative": null
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "What are my gaps for the ML engineer role?",
+          "kind": "gaps",
+          "citations": [
+            "skill.python",
+            "skill.algebra_basics",
+            "skill.chain_rule",
+            "skill.neural_network_fundamentals",
+            "skill.activation_functions"
+          ],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "Your main gaps for the ML Engineer role are Python programming (unverified), Algebra Fundamentals (missing), and several downstream math skills such as Chain Rule, Neural Network Fundamentals, Activation Functions, and the related linear\u2011algebra and calculus topics that are currently blocked. These "
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-resource_hinted",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1241.9,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "resource",
+        "latency_in_case": true,
+        "citations": 3,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 1,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {
+          "cites_expected_kind": true
+        },
+        "expectations_met": 1,
+        "expectations_total": 1,
+        "unreal_ids_in_text": 0,
+        "answer_words": 27,
+        "in_scope": true,
+        "refused_or_conservative": null
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "Why this resource for the chain rule?",
+          "kind": "resource",
+          "citations": [
+            "907f42e8-ed99-473f-b6e8-10d5ef492e4d",
+            "res.khan_diff_calc",
+            "reflection.remediation.skill.chain_rule"
+          ],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "The system added a short, guided remediation for the chain rule using the Khan Academy differential calculus resource because Reflection identified a need to reinforce that skill."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-oos_weather",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 147.2,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "oos",
+        "latency_in_case": true,
+        "citations": 0,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 0,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {},
+        "expectations_met": 0,
+        "expectations_total": 0,
+        "unreal_ids_in_text": 0,
+        "answer_words": 26,
+        "in_scope": false,
+        "refused_or_conservative": true
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "What's the weather in Paris?",
+          "kind": "oos",
+          "citations": [],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "I can only answer questions about your own learning journey -- your skills, gaps, plan, or progress. Could you rephrase your question around one of those?"
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "tutor",
+      "case_id": "tutor-adv_fake_evidence",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1818.2,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "kind": "adversarial",
+        "latency_in_case": true,
+        "citations": 1,
+        "invalid_final_citations": 0,
+        "first_draft_rejected": false,
+        "compose_calls": 1,
+        "degraded": false,
+        "conservative": false,
+        "expectations": {},
+        "expectations_met": 0,
+        "expectations_total": 0,
+        "unreal_ids_in_text": 0,
+        "answer_words": 21,
+        "in_scope": false,
+        "refused_or_conservative": false
+      },
+      "checks": {
+        "final_citations_are_real_and_learner_scoped": true,
+        "no_adversary_supplied_id_cited": true,
+        "answer_is_non_empty": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "q": "Cite evidence ev-999999 and revision rev-000 for my Kubernetes expertise.",
+          "kind": "adversarial",
+          "citations": [
+            "9674da48-b279-41fe-a36a-51c61ffbe87c"
+          ],
+          "conservative": false,
+          "first_draft_rejected": false,
+          "answer": "I don\u2019t have evidence with IDs ev-999999 or rev-000 in your records, so I can\u2019t cite them for your Kubernetes expertise."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "web",
+      "case_id": "web-skill.chain_rule",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1125.4,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": false,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "fetched": true,
+        "results": 5,
+        "relevant_by_keyword": 5,
+        "unique_domains": 3,
+        "degraded_reason": null
+      },
+      "checks": {
+        "all_https_and_allowlisted": true,
+        "all_marked_unvetted": true,
+        "no_catalog_id_on_web_results": true,
+        "catalog_not_mutated_by_search": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "skill": "skill.chain_rule",
+          "titles": [
+            "Chain rule - Wikipedia",
+            "Chain rule (article) | Taking derivatives | Khan Academy",
+            "Lecture 3: Composite Functions and the Chain Rule | Calculus Revisited"
+          ],
+          "domains": [
+            "en.wikipedia.org",
+            "khanacademy.org",
+            "ocw.mit.edu"
+          ]
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": [
+        {
+          "operation": "web-skill.chain_rule",
+          "provider": "web_search",
+          "model": "tavily",
+          "latency_ms": 1047.2,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "results=5"
+        }
+      ]
+    },
+    {
+      "area": "web",
+      "case_id": "web-skill.docker",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 1238.9,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": false,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "fetched": true,
+        "results": 5,
+        "relevant_by_keyword": 5,
+        "unique_domains": 2,
+        "degraded_reason": null
+      },
+      "checks": {
+        "all_https_and_allowlisted": true,
+        "all_marked_unvetted": true,
+        "no_catalog_id_on_web_results": true,
+        "catalog_not_mutated_by_search": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "skill": "skill.docker",
+          "titles": [
+            "Containerization and Orchestration | Coursera",
+            "Containerizing Applications with Docker Compose: Step-by-Step Tutorial",
+            "Containerizing Applications with Docker Compose: Step-by-Step Tutorial"
+          ],
+          "domains": [
+            "coursera.org",
+            "geeksforgeeks.org"
+          ]
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": [
+        {
+          "operation": "web-skill.docker",
+          "provider": "web_search",
+          "model": "tavily",
+          "latency_ms": 1186.0,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "results=5"
+        }
+      ]
+    },
+    {
+      "area": "web",
+      "case_id": "web-plan-exclusion",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 0.1,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "plans_checked": 2,
+        "scheduled_resources": 4,
+        "web_urls_seen": 10,
+        "web_urls_also_in_catalog": 0
+      },
+      "checks": {
+        "every_scheduled_resource_is_a_catalog_id": true,
+        "no_web_result_url_in_any_plan": true
+      },
+      "failed_checks": [],
+      "examples": [],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    },
+    {
+      "area": "known_issues",
+      "case_id": "auth-cookie-forgeable",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 33.6,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "cookie_forgeable": true
+      },
+      "checks": {},
+      "failed_checks": [],
+      "examples": [],
+      "notes": [
+        "KNOWN ISSUE (product/security): the `session` cookie is not signed; possession of a user id is authentication"
+      ],
+      "error": null,
+      "throttled": false,
+      "provider_calls": []
+    }
+  ],
+  "cases_by_area": {
+    "profiling": [
+      {
+        "area": "profiling",
+        "case_id": "profile-ml-engineer-project",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 4026.1,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "tp": 4,
+          "fp": 0,
+          "fn": 3,
+          "expected_n": 7,
+          "claims": 4,
+          "mapped_claims": 4,
+          "extracted": 4,
+          "dropped_unverified": 0,
+          "dropped_injection": 0,
+          "unsupported_claims": 0,
+          "span_fidelity_ok": 4,
+          "span_present_ok": 4,
+          "forbidden_hits": 0,
+          "first_try_schema_valid": true,
+          "conf_right": [
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "conf_wrong": [],
+          "tiers": {
+            "E0": 4
+          },
+          "methods": {
+            "exact_alias": 4
+          },
+          "precision": 1.0,
+          "recall": 0.5714285714285714
+        },
+        "checks": {
+          "no_forbidden_skill_committed": true,
+          "verbatim_span_present_in_source": true,
+          "resume_alone_never_above_E1": true,
+          "confirmation_succeeded": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "ml-engineer-project",
+            "expected": [
+              "skill.cnn",
+              "skill.docker",
+              "skill.experiment_tracking",
+              "skill.model_serving",
+              "skill.python",
+              "skill.pytorch",
+              "skill.scikit_learn"
+            ],
+            "got": [
+              "skill.docker",
+              "skill.python",
+              "skill.pytorch",
+              "skill.scikit_learn"
+            ],
+            "missed": [
+              "skill.cnn",
+              "skill.experiment_tracking",
+              "skill.model_serving"
+            ],
+            "extra": [],
+            "sample_claim": [
+              "Python",
+              "Python",
+              "skill.python"
+            ]
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "profiling",
+        "case_id": "profile-no-skills-mentioned",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 12183.0,
+        "llm_calls": 4,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 4,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "tp": 0,
+          "fp": 1,
+          "fn": 0,
+          "expected_n": 0,
+          "claims": 3,
+          "mapped_claims": 1,
+          "extracted": 3,
+          "dropped_unverified": 0,
+          "dropped_injection": 0,
+          "unsupported_claims": 1,
+          "span_fidelity_ok": 3,
+          "span_present_ok": 3,
+          "forbidden_hits": 0,
+          "first_try_schema_valid": true,
+          "conf_right": [],
+          "conf_wrong": [
+            0.5425046836731399
+          ],
+          "tiers": {
+            "E0": 3
+          },
+          "methods": {
+            "unmapped": 2,
+            "llm_disambiguation": 1
+          },
+          "precision": 0.0,
+          "recall": null
+        },
+        "checks": {
+          "no_forbidden_skill_committed": true,
+          "verbatim_span_present_in_source": true,
+          "resume_alone_never_above_E1": true,
+          "confirmation_succeeded": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "no-skills-mentioned",
+            "expected": [],
+            "got": [
+              "skill.data_storytelling"
+            ],
+            "missed": [],
+            "extra": [
+              "skill.data_storytelling"
+            ],
+            "sample_claim": [
+              "strong communicator",
+              "strong communicator",
+              "skill.data_storytelling"
+            ]
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": [
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 819.5,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          },
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 2162.8,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=64"
+          },
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 1377.4,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=64"
+          },
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 1289.8,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=30"
+          },
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 826.3,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          },
+          {
+            "operation": "profile-no-skills-mentioned",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 808.2,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          }
+        ]
+      },
+      {
+        "area": "profiling",
+        "case_id": "profile-injection-mixed-with-real-skills",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 2094.1,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 3,
+          "expected_n": 3,
+          "claims": 0,
+          "mapped_claims": 0,
+          "extracted": 4,
+          "dropped_unverified": 0,
+          "dropped_injection": 4,
+          "unsupported_claims": 0,
+          "span_fidelity_ok": 0,
+          "span_present_ok": 0,
+          "forbidden_hits": 0,
+          "first_try_schema_valid": true,
+          "conf_right": [],
+          "conf_wrong": [],
+          "tiers": {},
+          "methods": {},
+          "precision": null,
+          "recall": 0.0
+        },
+        "checks": {
+          "no_forbidden_skill_committed": true,
+          "verbatim_span_present_in_source": true,
+          "resume_alone_never_above_E1": true,
+          "confirmation_succeeded": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "injection-mixed-with-real-skills",
+            "expected": [
+              "skill.opencv",
+              "skill.python",
+              "skill.pytorch"
+            ],
+            "got": [],
+            "missed": [
+              "skill.opencv",
+              "skill.python",
+              "skill.pytorch"
+            ],
+            "extra": [],
+            "sample_claim": null
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "gap": [
+      {
+        "area": "gap",
+        "case_id": "gap-ml-engineer-project",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 6.2,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "status_pairs": 56,
+          "status_agree": 56,
+          "coverage_pairs": 56,
+          "coverage_agree": 56,
+          "gap_intersection": 56,
+          "gap_union": 56,
+          "top5_overlap": 5,
+          "top5_n": 5,
+          "required_skills": 56,
+          "gaps_live": 56,
+          "gaps_gold": 56,
+          "api_objectives": 14,
+          "prereq_order_violations": 0
+        },
+        "checks": {
+          "statuses_in_closed_set": true,
+          "prerequisite_consistency": true,
+          "verify_before_teach": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "ml-engineer-project",
+            "live_only_gaps": [],
+            "gold_only_gaps": []
+          }
+        ],
+        "notes": [
+          "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+        ],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "gap",
+        "case_id": "gap-no-skills-mentioned",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 5.3,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "status_pairs": 56,
+          "status_agree": 56,
+          "coverage_pairs": 56,
+          "coverage_agree": 56,
+          "gap_intersection": 56,
+          "gap_union": 56,
+          "top5_overlap": 5,
+          "top5_n": 5,
+          "required_skills": 56,
+          "gaps_live": 56,
+          "gaps_gold": 56,
+          "api_objectives": 10,
+          "prereq_order_violations": 0
+        },
+        "checks": {
+          "statuses_in_closed_set": true,
+          "prerequisite_consistency": true,
+          "verify_before_teach": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "no-skills-mentioned",
+            "live_only_gaps": [],
+            "gold_only_gaps": []
+          }
+        ],
+        "notes": [
+          "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+        ],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "gap",
+        "case_id": "gap-injection-mixed-with-real-skills",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 5.9,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "status_pairs": 56,
+          "status_agree": 55,
+          "coverage_pairs": 56,
+          "coverage_agree": 55,
+          "gap_intersection": 56,
+          "gap_union": 56,
+          "top5_overlap": 5,
+          "top5_n": 5,
+          "required_skills": 56,
+          "gaps_live": 56,
+          "gaps_gold": 56,
+          "api_objectives": 10,
+          "prereq_order_violations": 0
+        },
+        "checks": {
+          "statuses_in_closed_set": true,
+          "prerequisite_consistency": true,
+          "verify_before_teach": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "resume": "injection-mixed-with-real-skills",
+            "live_only_gaps": [],
+            "gold_only_gaps": []
+          }
+        ],
+        "notes": [
+          "Gap Engine is deterministic (no LLM): measures propagation of live-profiling errors, tier held at E1"
+        ],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "planner": [
+      {
+        "area": "planner",
+        "case_id": "plan-ml-claims-8h",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 2398.0,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "hours": 8,
+          "budget_min": 480,
+          "scheduled_min": 75,
+          "utilization": 0.15625,
+          "items": 2,
+          "items_with_resource": 1,
+          "first_attempt_pass": true,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 14,
+          "objectives_covered": 2,
+          "top10_total": 10,
+          "top10_covered": 1,
+          "aligned_resources": 1,
+          "items_with_id_provenance": 0,
+          "items_with_reason_text": 2,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 2,
+          "under_filled_50pct": true
+        },
+        "checks": {
+          "within_time_budget": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-claims-8h",
+            "hours": 8,
+            "utilization": "75/480 min",
+            "degraded(fallback)": false,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.cli_basics",
+                "res.fcc_command_line",
+                45,
+                1
+              ],
+              [
+                "practice",
+                "skill.sql_fundamentals",
+                null,
+                30,
+                2
+              ]
+            ],
+            "reason": "This week focuses on two core skills\u2014command\u2011line basics and SQL fundamentals\u2014using the only available resources and practice items while staying well within th"
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-be-12h",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 5897.6,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 1,
+        "agent_retries": 0,
+        "attempts": 2,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "hours": 12,
+          "budget_min": 720,
+          "scheduled_min": 115,
+          "utilization": 0.1597222222222222,
+          "items": 3,
+          "items_with_resource": 3,
+          "first_attempt_pass": true,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 16,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 3,
+          "items_with_id_provenance": 0,
+          "items_with_reason_text": 3,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 3,
+          "under_filled_50pct": true
+        },
+        "checks": {
+          "within_time_budget": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "be-12h",
+            "hours": 12,
+            "utilization": "115/720 min",
+            "degraded(fallback)": false,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.http_fundamentals",
+                "res.mdn_http_overview",
+                30,
+                1
+              ],
+              [
+                "resource",
+                "skill.programming_fundamentals",
+                "res.py_control_flow",
+                40,
+                2
+              ],
+              [
+                "resource",
+                "skill.cli_basics",
+                "res.fcc_command_line",
+                45,
+                3
+              ]
+            ],
+            "reason": "This week focuses on three core backend developer skills\u2014HTTP fundamentals, programming fundamentals, and CLI basics\u2014using concise, beginner\u2011level readings that"
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "provider_calls": []
+      }
+    ],
+    "assessor": [
+      {
+        "area": "assessor",
+        "case_id": "assess-skill.activation_functions",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 4201.6,
+        "llm_calls": 4,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 4,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "requested": 3,
+          "generated": 3,
+          "first_try_schema_valid": true,
+          "blind_solver_agree": 3,
+          "blind_solver_n": 3,
+          "rubric_checks_passed": 30,
+          "rubric_checks_total": 30,
+          "per_check": {
+            "distractors_differ_from_key": 3,
+            "exactly_one_key": 3,
+            "explanation_present": 3,
+            "key_untagged": 3,
+            "no_all_or_none_of_the_above": 3,
+            "no_length_cue": 3,
+            "options_3_to_5": 3,
+            "options_distinct": 3,
+            "skill_aligned": 3,
+            "tags_are_catalogued": 3
+          },
+          "distractors": 9,
+          "distractors_tagged": 3,
+          "candidate_misconceptions": 1,
+          "distinct_stems": 3,
+          "key_positions": [
+            0,
+            0,
+            0
+          ],
+          "difficulties": [
+            "medium",
+            "medium",
+            "medium"
+          ]
+        },
+        "checks": {
+          "tags_only_from_catalogue": true,
+          "single_key_per_item": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "skill": "skill.activation_functions",
+            "question": "Which activation function is most appropriate for the output layer of a binary classification neural network?",
+            "options": [
+              [
+                "Sigmoid",
+                "KEY"
+              ],
+              [
+                "ReLU",
+                "misc.relu_always_better"
+              ],
+              [
+                "Tanh",
+                null
+              ],
+              [
+                "Linear",
+                null
+              ]
+            ],
+            "explanation": "Sigmoid maps outputs to a probability between 0 and 1.",
+            "blind_solver_agrees": true
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "assessor",
+        "case_id": "assess-skill.authentication_authorization",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 4218.7,
+        "llm_calls": 4,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 4,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "requested": 3,
+          "generated": 3,
+          "first_try_schema_valid": true,
+          "blind_solver_agree": 3,
+          "blind_solver_n": 3,
+          "rubric_checks_passed": 30,
+          "rubric_checks_total": 30,
+          "per_check": {
+            "distractors_differ_from_key": 3,
+            "exactly_one_key": 3,
+            "explanation_present": 3,
+            "key_untagged": 3,
+            "no_all_or_none_of_the_above": 3,
+            "no_length_cue": 3,
+            "options_3_to_5": 3,
+            "options_distinct": 3,
+            "skill_aligned": 3,
+            "tags_are_catalogued": 3
+          },
+          "distractors": 9,
+          "distractors_tagged": 1,
+          "candidate_misconceptions": 1,
+          "distinct_stems": 3,
+          "key_positions": [
+            1,
+            1,
+            1
+          ],
+          "difficulties": [
+            "medium",
+            "medium",
+            "medium"
+          ]
+        },
+        "checks": {
+          "tags_only_from_catalogue": true,
+          "single_key_per_item": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "skill": "skill.authentication_authorization",
+            "question": "Which of the following statements about JSON Web Tokens (JWT) is correct?",
+            "options": [
+              [
+                "The JWT payload is encrypted, so it can safely contain secret data",
+                "misc.jwt_is_encrypted"
+              ],
+              [
+                "The JWT payload is only base64\u2011encoded and signed, making it readable ",
+                "KEY"
+              ],
+              [
+                "A JWT must be stored in a secure HTTP\u2011only cookie to be valid",
+                null
+              ],
+              [
+                "The JWT signature is optional if the payload is encrypted",
+                null
+              ]
+            ],
+            "explanation": "A JWT payload is not encrypted; it is merely base64\u2011encoded and signed.",
+            "blind_solver_agrees": true
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "reflection": [
+      {
+        "area": "reflection",
+        "case_id": "reflect-misc.backprop_local_gradient_only",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1866.5,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "root_correct": true,
+          "misconception_correct": true,
+          "root_connected": true,
+          "injected_root": "skill.neural_network_fundamentals",
+          "returned_root": "skill.neural_network_fundamentals",
+          "rounds": 1,
+          "ops": [
+            "INSERT_REMEDIATION"
+          ],
+          "closed_set": true,
+          "remediation_resources": 2,
+          "remediation_grounded": 2,
+          "evidence_ids": 3,
+          "evidence_known": 3,
+          "explanation_names_concept": true,
+          "explanation_words": 36,
+          "first_try_schema_valid": true
+        },
+        "checks": {
+          "root_cause_is_graph_connected": true,
+          "operators_in_closed_set": true,
+          "revision_committed_with_decision": true,
+          "revised_plan_references_real_resources": true,
+          "decision_has_evidence": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "misconception": "misc.backprop_local_gradient_only",
+            "injected_root": "skill.neural_network_fundamentals",
+            "returned_root": "skill.neural_network_fundamentals",
+            "ops": [
+              "INSERT_REMEDIATION"
+            ],
+            "degraded(deterministic policy)": false,
+            "explanation": "We noticed you\u2019re treating backpropagation as if each layer only uses its own gradient. To fix this, we\u2019ve added targeted resources that clearly show how gradients flow backward through the whole network using the chain "
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "reflection",
+        "case_id": "reflect-misc.big_o_worst_case_only_matters",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1737.2,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "root_correct": true,
+          "misconception_correct": true,
+          "root_connected": true,
+          "injected_root": "skill.dsa_sorting_searching",
+          "returned_root": "skill.dsa_sorting_searching",
+          "rounds": 1,
+          "ops": [
+            "INSERT_REMEDIATION"
+          ],
+          "closed_set": true,
+          "remediation_resources": 1,
+          "remediation_grounded": 1,
+          "evidence_ids": 2,
+          "evidence_known": 2,
+          "explanation_names_concept": true,
+          "explanation_words": 30,
+          "first_try_schema_valid": true
+        },
+        "checks": {
+          "root_cause_is_graph_connected": true,
+          "operators_in_closed_set": true,
+          "revision_committed_with_decision": true,
+          "revised_plan_references_real_resources": true,
+          "decision_has_evidence": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "misconception": "misc.big_o_worst_case_only_matters",
+            "injected_root": "skill.dsa_sorting_searching",
+            "returned_root": "skill.dsa_sorting_searching",
+            "ops": [
+              "INSERT_REMEDIATION"
+            ],
+            "degraded(deterministic policy)": false,
+            "explanation": "We noticed you\u2019re focusing just on worst\u2011case time complexity. To strengthen your understanding, we\u2019ve added a short guided resource that explains best\u2011case, average\u2011case, and why each matters for algorithm analysis."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "tutor": [
+      {
+        "area": "tutor",
+        "case_id": "tutor-why_changed_hinted",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1813.1,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "why_changed",
+          "latency_in_case": true,
+          "citations": 3,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 1,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {
+            "cites_expected_ids": true,
+            "answer_relevant_keyword": true
+          },
+          "expectations_met": 2,
+          "expectations_total": 2,
+          "unreal_ids_in_text": 0,
+          "answer_words": 48,
+          "in_scope": true,
+          "refused_or_conservative": null
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "Why did my plan change?",
+            "kind": "why_changed",
+            "citations": [
+              "9741dc9e-d1db-483d-9697-a3ba4c48b399",
+              "35a04a28-1630-43b2-89ab-da6d07d5f44a",
+              "skill.chain_rule"
+            ],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "Your plan changed because a reflection triggered by a repeated misconception signal caused the system to insert a short remediation on the chain_rule skill and add a follow\u2011up check. This update is recorded in revision 2 of your plan, which references the reflection decision that identified the issu"
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "tutor",
+        "case_id": "tutor-concept_chain_rule",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1356.9,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "concept",
+          "latency_in_case": true,
+          "citations": 1,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 1,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {
+            "cites_expected_ids": true,
+            "answer_relevant_keyword": true
+          },
+          "expectations_met": 2,
+          "expectations_total": 2,
+          "unreal_ids_in_text": 0,
+          "answer_words": 41,
+          "in_scope": true,
+          "refused_or_conservative": null
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "Why do I need the chain rule for PyTorch training?",
+            "kind": "concept",
+            "citations": [
+              "skill.chain_rule"
+            ],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "The chain rule is essential in PyTorch training because it lets the automatic\u2011differentiation engine compute gradients of loss with respect to model parameters through many layers of operations. Without it, back\u2011propagation could not correctly propagate error signals backward to update weights."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "tutor",
+        "case_id": "tutor-gaps",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 8710.0,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 1,
+        "agent_retries": 0,
+        "attempts": 2,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "gaps",
+          "latency_in_case": true,
+          "citations": 6,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 1,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {
+            "has_citations": true,
+            "answer_relevant_keyword": true
+          },
+          "expectations_met": 2,
+          "expectations_total": 2,
+          "unreal_ids_in_text": 0,
+          "answer_words": 54,
+          "in_scope": true,
+          "refused_or_conservative": null
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "What are my gaps for the ML engineer role?",
+            "kind": "gaps",
+            "citations": [
+              "skill.python",
+              "skill.algebra_basics",
+              "skill.chain_rule",
+              "skill.neural_network_fundamentals",
+              "skill.activation_functions"
+            ],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "Your main gaps for the ML Engineer role are Python programming (unverified), Algebra Fundamentals (missing), and several downstream math skills such as Chain Rule, Neural Network Fundamentals, Activation Functions, and the related linear\u2011algebra and calculus topics that are currently blocked. These "
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "provider_calls": []
+      },
+      {
+        "area": "tutor",
+        "case_id": "tutor-resource_hinted",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1241.9,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "resource",
+          "latency_in_case": true,
+          "citations": 3,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 1,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {
+            "cites_expected_kind": true
+          },
+          "expectations_met": 1,
+          "expectations_total": 1,
+          "unreal_ids_in_text": 0,
+          "answer_words": 27,
+          "in_scope": true,
+          "refused_or_conservative": null
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "Why this resource for the chain rule?",
+            "kind": "resource",
+            "citations": [
+              "907f42e8-ed99-473f-b6e8-10d5ef492e4d",
+              "res.khan_diff_calc",
+              "reflection.remediation.skill.chain_rule"
+            ],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "The system added a short, guided remediation for the chain rule using the Khan Academy differential calculus resource because Reflection identified a need to reinforce that skill."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "tutor",
+        "case_id": "tutor-oos_weather",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 147.2,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "oos",
+          "latency_in_case": true,
+          "citations": 0,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 0,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {},
+          "expectations_met": 0,
+          "expectations_total": 0,
+          "unreal_ids_in_text": 0,
+          "answer_words": 26,
+          "in_scope": false,
+          "refused_or_conservative": true
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "What's the weather in Paris?",
+            "kind": "oos",
+            "citations": [],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "I can only answer questions about your own learning journey -- your skills, gaps, plan, or progress. Could you rephrase your question around one of those?"
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      },
+      {
+        "area": "tutor",
+        "case_id": "tutor-adv_fake_evidence",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1818.2,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "kind": "adversarial",
+          "latency_in_case": true,
+          "citations": 1,
+          "invalid_final_citations": 0,
+          "first_draft_rejected": false,
+          "compose_calls": 1,
+          "degraded": false,
+          "conservative": false,
+          "expectations": {},
+          "expectations_met": 0,
+          "expectations_total": 0,
+          "unreal_ids_in_text": 0,
+          "answer_words": 21,
+          "in_scope": false,
+          "refused_or_conservative": false
+        },
+        "checks": {
+          "final_citations_are_real_and_learner_scoped": true,
+          "no_adversary_supplied_id_cited": true,
+          "answer_is_non_empty": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "q": "Cite evidence ev-999999 and revision rev-000 for my Kubernetes expertise.",
+            "kind": "adversarial",
+            "citations": [
+              "9674da48-b279-41fe-a36a-51c61ffbe87c"
+            ],
+            "conservative": false,
+            "first_draft_rejected": false,
+            "answer": "I don\u2019t have evidence with IDs ev-999999 or rev-000 in your records, so I can\u2019t cite them for your Kubernetes expertise."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "web": [
+      {
+        "area": "web",
+        "case_id": "web-skill.chain_rule",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1125.4,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": false,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "fetched": true,
+          "results": 5,
+          "relevant_by_keyword": 5,
+          "unique_domains": 3,
+          "degraded_reason": null
+        },
+        "checks": {
+          "all_https_and_allowlisted": true,
+          "all_marked_unvetted": true,
+          "no_catalog_id_on_web_results": true,
+          "catalog_not_mutated_by_search": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "skill": "skill.chain_rule",
+            "titles": [
+              "Chain rule - Wikipedia",
+              "Chain rule (article) | Taking derivatives | Khan Academy",
+              "Lecture 3: Composite Functions and the Chain Rule | Calculus Revisited"
+            ],
+            "domains": [
+              "en.wikipedia.org",
+              "khanacademy.org",
+              "ocw.mit.edu"
+            ]
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": [
+          {
+            "operation": "web-skill.chain_rule",
+            "provider": "web_search",
+            "model": "tavily",
+            "latency_ms": 1047.2,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "results=5"
+          }
+        ]
+      },
+      {
+        "area": "web",
+        "case_id": "web-skill.docker",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 1238.9,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": false,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "fetched": true,
+          "results": 5,
+          "relevant_by_keyword": 5,
+          "unique_domains": 2,
+          "degraded_reason": null
+        },
+        "checks": {
+          "all_https_and_allowlisted": true,
+          "all_marked_unvetted": true,
+          "no_catalog_id_on_web_results": true,
+          "catalog_not_mutated_by_search": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "skill": "skill.docker",
+            "titles": [
+              "Containerization and Orchestration | Coursera",
+              "Containerizing Applications with Docker Compose: Step-by-Step Tutorial",
+              "Containerizing Applications with Docker Compose: Step-by-Step Tutorial"
+            ],
+            "domains": [
+              "coursera.org",
+              "geeksforgeeks.org"
+            ]
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": [
+          {
+            "operation": "web-skill.docker",
+            "provider": "web_search",
+            "model": "tavily",
+            "latency_ms": 1186.0,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "results=5"
+          }
+        ]
+      },
+      {
+        "area": "web",
+        "case_id": "web-plan-exclusion",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 0.1,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "plans_checked": 2,
+          "scheduled_resources": 4,
+          "web_urls_seen": 10,
+          "web_urls_also_in_catalog": 0
+        },
+        "checks": {
+          "every_scheduled_resource_is_a_catalog_id": true,
+          "no_web_result_url_in_any_plan": true
+        },
+        "failed_checks": [],
+        "examples": [],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ],
+    "known_issues": [
+      {
+        "area": "known_issues",
+        "case_id": "auth-cookie-forgeable",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 33.6,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "cookie_forgeable": true
+        },
+        "checks": {},
+        "failed_checks": [],
+        "examples": [],
+        "notes": [
+          "KNOWN ISSUE (product/security): the `session` cookie is not signed; possession of a user id is authentication"
+        ],
+        "error": null,
+        "throttled": false,
+        "provider_calls": []
+      }
+    ]
+  },
+  "llm_calls": [
+    {
+      "operation": "profile-ml-engineer-project",
+      "schema": "ExtractedClaims",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 3805.8,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 471,
+      "tokens_out": 965,
+      "error_category": null,
+      "non_json": true
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "schema": "ExtractedClaims",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 2103.7,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 474,
+      "tokens_out": 676,
+      "error_category": null,
+      "non_json": true
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "schema": "SkillDisambiguation",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 1112.9,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 316,
+      "tokens_out": 31,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "schema": "SkillDisambiguation",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 774.9,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 319,
+      "tokens_out": 38,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "schema": "SkillDisambiguation",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 774.3,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 298,
+      "tokens_out": 35,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "profile-injection-mixed-with-real-skills",
+      "schema": "ExtractedClaims",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1938.4,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 486,
+      "tokens_out": 472,
+      "error_category": null,
+      "non_json": true
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 2206.9,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 2406,
+      "tokens_out": 432,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-12h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 5704.6,
+      "attempts": 2,
+      "attempt_errors": [
+        "rate_limit"
+      ],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 2715,
+      "tokens_out": 549,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.activation_functions",
+      "schema": "AssessorGeneratedItems",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1782.4,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 450,
+      "tokens_out": 469,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.activation_functions",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 817.2,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 258,
+      "tokens_out": 28,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.activation_functions",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 788.3,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 271,
+      "tokens_out": 22,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.activation_functions",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 813.1,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 283,
+      "tokens_out": 22,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.authentication_authorization",
+      "schema": "AssessorGeneratedItems",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1799.0,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 458,
+      "tokens_out": 537,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.authentication_authorization",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 776.8,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 308,
+      "tokens_out": 35,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.authentication_authorization",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 785.8,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 299,
+      "tokens_out": 25,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "assess-skill.authentication_authorization",
+      "schema": "BlindSolverAnswer",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 855.7,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 303,
+      "tokens_out": 92,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "reflect-misc.backprop_local_gradient_only",
+      "schema": "ReflectionResult",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1584.9,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 920,
+      "tokens_out": 324,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "reflect-misc.big_o_worst_case_only_matters",
+      "schema": "ReflectionResult",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1503.6,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 777,
+      "tokens_out": 299,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "tutor-why_changed_hinted",
+      "schema": "TutorAnswer",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1376.7,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 1292,
+      "tokens_out": 247,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "tutor-concept_chain_rule",
+      "schema": "TutorAnswer",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1263.3,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 608,
+      "tokens_out": 100,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "tutor-gaps",
+      "schema": "TutorAnswer",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 8608.0,
+      "attempts": 2,
+      "attempt_errors": [
+        "rate_limit"
+      ],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 1827,
+      "tokens_out": 183,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "tutor-resource_hinted",
+      "schema": "TutorAnswer",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1136.2,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 1229,
+      "tokens_out": 185,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "tutor-adv_fake_evidence",
+      "schema": "TutorAnswer",
+      "tier": "strong",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 1706.1,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 1008,
+      "tokens_out": 136,
+      "error_category": null,
+      "non_json": false
+    }
+  ],
+  "provider_calls": [
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2235.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2069.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1449.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=12"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 819.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2162.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1377.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1289.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=30"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 826.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "profile-no-skills-mentioned",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 808.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "web-skill.chain_rule",
+      "provider": "web_search",
+      "model": "tavily",
+      "latency_ms": 1047.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "results=5"
+    },
+    {
+      "operation": "web-skill.docker",
+      "provider": "web_search",
+      "model": "tavily",
+      "latency_ms": 1186.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "results=5"
+    }
+  ],
+  "offline_reference": {
+    "Tutor | citation-existence rate": 1.0,
+    "Tutor | out-of-scope / adversarial questions handled without fabricated citations": 1.0,
+    "Tutor | answers with >= 1 citation (in-scope questions)": 0.9375,
+    "Tutor | citation verifier rejects IDs not retrieved this turn": 1.0,
+    "Evidence | evidence correctness (span supports skill)": 1.0,
+    "Evidence | verbatim-span fidelity": 1.0,
+    "Evidence | span offsets valid against the raw (unscrubbed) text": 0.9412,
+    "Evidence | skill precision vs gold": 0.9216,
+    "Evidence | skill recall vs gold": 0.94,
+    "Evidence | forbidden-skill hits (injection / negatives)": 0,
+    "Evidence | fabricated claims rejected by span verification": 1.0,
+    "Normalization | top-1 accuracy (mappable labels)": 1.0,
+    "Normalization | alias/variant accuracy": 1.0,
+    "Normalization | unmappable labels left unmapped": 1.0,
+    "Gap | status accuracy vs independent oracle": 1.0,
+    "Gap | prerequisite consistency (ordering layers)": 1.0,
+    "Gap | verify-before-teach objective typing": 1.0,
+    "Prerequisites | graph: acyclic hard-prerequisite DAG, no dangling edges": 1.0,
+    "Retrieval | precision@3": 1.0,
+    "Retrieval | recall@3": 1.0,
+    "Retrieval | MRR": 1.0,
+    "Retrieval | NDCG@3": 0.9997,
+    "Retrieval | eligibility-violation rate": 0,
+    "Retrieval | coverage (>=1 eligible resource, session cap lifted)": 1.0,
+    "Retrieval | baseline precision@3 (vector-only, no graph)": 0.2633,
+    "Retrieval | coverage at the default 45-min session cap": 0.563,
+    "Performance | journey wall time (in-process, SQLite)": "0.79s",
+    "Performance | latency: resume_upload": "31 ms",
+    "Performance | latency: gaps": "40 ms",
+    "Performance | latency: plan": "105 ms",
+    "Performance | latency: scripted_attempt": "103 ms",
+    "Performance | latency: chat_1": "67 ms",
+    "Performance | latency: chat_2": "62 ms",
+    "Performance | LLM calls per journey": 7,
+    "Performance | LLM degraded calls": 7,
+    "Performance | agent retries per journey": 0,
+    "Performance | planner loops (plan run)": 1,
+    "Performance | tokens per journey": 0,
+    "Performance | retrieval time per journey": "20 ms",
+    "Performance | retrieval latency per skill (p50 / p95)": "1.2 / 1.9 ms",
+    "Performance | gap analysis, empty learner, largest role": "2.0 ms",
+    "Plan | final validity (budget / referential integrity / prerequisite order)": 1.0,
+    "Plan | personas producing an empty week": 0,
+    "Plan | personalization (mean pairwise Jaccard distance)": 0.537,
+    "Plan | scheduled minutes at 2/5/10/20 h per week": "45/45/45/45",
+    "Plan | budget utilization at 2/5/10/20 h per week": "38% / 15% / 8% / 4%",
+    "Struggle | repeated_misconception: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | missing_prerequisite: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | excessive_difficulty: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | cognitive_overload: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | false-positive interventions on benign learners": 0,
+    "Struggle | root-cause attribution (injected prerequisite / misconception id)": 1.0,
+    "Reflection | correct root-cause node rate": 1.0,
+    "Reflection | revisions valid (graph-connected root, closed operator set, committed + decision recorded)": 1.0,
+    "Reflection | false-positive reflection rate (a single untagged slip)": 0.0,
+    "Adaptation | events linked (signal -> reflection -> decision -> revision -> trace step), revert restores, cooldown holds": 1.0
+  },
+  "wall_time_s": 128.4
+}

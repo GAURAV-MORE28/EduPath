@@ -967,3 +967,15 @@ Full design rules: `docs/FRONTEND_DESIGN_SYSTEM.md`.
   allowed citation set (Tutor). Tool output handed to a model is bounded (`MAX_GAPS_SHOWN` etc.).
 - Tests never use live providers: `tests/conftest.py` pins every provider to `none` and blanks every key.
 
+### 22.2 Live LLM evaluation contract (Stage 1)
+
+- Evaluation is **measurement only**: it wraps the gateways (`LLMGateway.complete`, the provider call, the agents' `note_retry`, the embedding / VLM /
+  web-search gateways) and never alters a request or response. No mocks in live mode; `LLM_PROVIDER=none` in live mode is a `LiveConfigError`.
+- The evaluation app runs in-process on in-memory SQLite (`DATABASE_URL` overridden by the harness); `DEMO_MODE`, `REPLAY_MODE` and `LLM_RECORD` are
+  forced off so a recorded response can never stand in for a live one.
+- `setup_mode()` is the only place the LLM is refused on purpose (scaffolding that is not under test); such calls are `setup=True` and excluded from all
+  metrics. Anything evaluated must not run inside it.
+- Hard invariants (deterministic-layer guarantees) fail a case; quality metrics never do. A metric with no gold/oracle is reported `N/A (not scored)`,
+  never 0. Provider throttling is `provider_error`/`skipped`, excluded from model-behaviour rates. The harness never prints or stores secrets (only
+  credential *names*; errors pass through `redact`).
+- Reports are generated under `backend/reports/llm_eval/` (gitignored); the committed baseline lives in `docs/llm_eval_baseline/`.

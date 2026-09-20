@@ -96,6 +96,16 @@ Qwen3-Embedding + VLM, Tavily web-search endpoint, GitHub token. `python scripts
 models (8 LLM calls, 0 degraded on the user path). Running real models exposed and fixed Planner-constraint, Tutor-citation and context-size
 problems (FINAL_IMPLEMENTATION_STATUS.md section 4b). Tests: 601. `LLM_PROVIDER=none` remains the default; the suite pins all providers to `none`.
 
+**Stage 1 — Live LLM evaluation & quality baseline. Implemented** (after Phase 12b; measurement only, no product change).
+`python scripts/evaluate_llm.py --mode live --suite smoke|full` runs the real journey behaviours (profiling, gap, planner, assessor,
+reflection, tutor, web search, vision, known-issue probes) through the live providers with every LLM call instrumented (latency, retries,
+error category, fallback); `--mode offline` is the existing deterministic evaluation, unchanged; `--merge` combines runs with per-case
+provenance. Baseline (2026-09-20, merged 3 runs): **63/71 cases measured and passing, 0 hard-check failures, 0 fallbacks; 3 provider-error and
+5 skipped Tutor cases because the Groq `gpt-oss-120b` daily token quota (200 K) ran out.** Headline: contract holds (schema-valid 45/45,
+plan drafts accepted first time 10/10, Reflection 10/10 correct, citations 100 % real); weak spots are live Profiler quality (F1 0.784 vs
+≈ 0.93 deterministic), thin plans (mean utilization 21.9 %, 20 h/week -> 6 %), no ID provenance on LLM plan items, first-page-only vision,
+forgeable cookie. Full analysis: `docs/LLM_EVALUATION.md`; raw results: `docs/llm_eval_baseline/`. Tests: 623 (601 + 22 harness tests).
+
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
@@ -1374,6 +1384,14 @@ ARCHITECTURE_CONTRACTS.md §20 backend read-model/trace, §21 frontend):
 
 ### Files Created / Modified
 
+**Stage 1 (live LLM evaluation) -- new files only; no application code changed:**
+- `backend/scripts/evaluate_llm.py` (CLI: `--mode live|offline`, `--suite smoke|full`, `--areas`, `--tpm`, `--merge`)
+- `backend/tests/evaluation/live/` -- `instrument.py` (call recorder, error categories, redaction, setup mode), `scenarios.py` (A-G + vision + known-issue
+  probes), `report.py` (aggregation, N/A discipline, Markdown), `runner.py` (bootstrap, pacing, cooldown re-run, merge), `gold_live.json` (suites, personas,
+  Tutor questions + expectations, vision gold)
+- `backend/tests/test_llm_eval_harness.py` (22 offline tests of the harness itself)
+- `docs/LLM_EVALUATION.md`, `docs/llm_eval_baseline/` (merged baseline + the 3 source runs)
+
 **Backend** (`backend/`):
 - `pyproject.toml`, `alembic.ini`, `pytest.ini`, `Dockerfile`, `.dockerignore`
 - `app/__init__.py`, `app/main.py` (extended, Phase 4: startup Skill Graph
@@ -1818,7 +1836,7 @@ excludes from that list; no LLM call exists anywhere in `app/gap/`,
 
 ### Tests Status
 
-Backend: **601 tests, all passing after Phase 12b** (466 before it; the per-phase breakdown
+Backend: **623 tests, all passing after Stage 1** (601 after Phase 12b + 22 in `tests/test_llm_eval_harness.py`; 466 before Phase 12b; the per-phase breakdown
 below stops at 455). Phase 12's tiers: `tests/integration`, `tests/evaluation` (writes
 `backend/reports/`), `tests/security`. Historic text: **455 tests** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
@@ -1879,6 +1897,25 @@ compose down`). Not yet wired into CI — add a CI workflow when the repo gets
 one.
 
 ### Known Issues
+
+- **(Stage 1, measured on live models — see `docs/LLM_EVALUATION.md` section 6)**
+  - *Thin plans, live:* mean budget utilization 21.9 % (50 / 22 / 16 / 6 % at 2 / 5 / 10 / 20 h); 9 of 10 personas under 50 %. Not model-caused:
+    the 45-minute session cap + no segment splitting. Still the top planner item.
+  - *No ID provenance on LLM plan items:* `orchestration/graphs.py::_drafts_to_plan_items` builds `PlanItemReason(text=...)` only, so
+    `evidence_ids` / `graph_path` / `decision_id` are empty on 100 % of live plan items (design 16.6 says they are attached deterministically).
+  - *Live Profiler is weaker than the deterministic extractor* on the gold set: precision 0.809 / recall 0.760 (offline 0.922 / 0.940);
+    under-extracts narrative-context skills, assigns E0 to 46 of 55 claims, and its LLM disambiguation step force-fit an unmappable soft skill
+    ("strong communicator" -> `skill.data_storytelling`). Gold lists were authored around the deterministic extractor, so precision is a lower bound.
+  - *Vision reads only page 1:* a 2-page image-only PDF produced exactly 1 VLM request; page-2 recall 0.
+  - *Forgeable session cookie confirmed:* a fresh client presenting another user's `session` value receives that user's profile.
+  - *Query embeddings fall back silently:* 3 runtime embedding requests used the deterministic vector with only a log line; nothing marks the
+    result as degraded. (Reason not captured in run 1; the harness now records it.)
+  - *Provider quota:* Groq free tier is 8 K tokens/min, 1 K requests/day, **200 K tokens/day on `gpt-oss-120b`**; a smoke + full evaluation uses
+    ~52 % of a day. The gateway's `Retry-After` cap (15 s) cannot help against a daily quota (waits are minutes) -- Tutor then answers conservatively.
+  - *Assessor tag correctness unverifiable:* all 9 distractors of `skill.docker` carried the single candidate misconception (possible
+    over-tagging); 3 of 18 items show a length cue.
+  - *Unmeasured:* 8 of 17 Tutor questions (quota) -- re-run `--areas tutor` and `--merge`; evidence-tier accuracy, skill levels, Assessor key/tag
+    correctness, free-text Tutor correctness, short-answer rubric grading and `narrate_progress` have no gold; run-to-run variance is uncharacterized.
 
 - `backend/app/core/errors.py` uses `status.HTTP_422_UNPROCESSABLE_ENTITY`,
   which current Starlette flags as deprecated in favor of
@@ -2574,6 +2611,14 @@ generic bucket rather than resolving it — the same class of limitation
 
 ### Exact Next Task
 
+**Stage 1 (live LLM evaluation baseline) is done. Recommended next stage: planner segment splitting / thin-plan fix** (item 2 below), with
+the live baseline as the acceptance test: `python scripts/evaluate_llm.py --mode live --suite smoke --areas planner` (and `full`) must show
+utilization rising well above 21.9 % mean (20 h/week: 6 %) with 0 hard-check failures and no rise in the fallback rate; the offline
+`tests/evaluation` utilization and coverage rows remain the deterministic acceptance test. Then, in measured priority: attach ID provenance to
+LLM plan items; raise live Profiler recall (prompt/context-type guidance, evidence-tier assignment) against the same gold; surface silent
+embedding fallback; multi-page vision; real auth. Re-measure the 8 unmeasured Tutor cases when the provider quota allows.
+
+
 Every phase in design section 39.1 is implemented. The remaining work is quality and verification, in
 priority order (details and numbers: `docs/FINAL_IMPLEMENTATION_STATUS.md`):
 
@@ -2620,6 +2665,13 @@ python scripts/validate_links.py
 cd backend && python -m pytest tests/evaluation tests/security tests/integration -q   # writes reports/evaluation_metrics.md
 python scripts/run_journey.py --base-url http://localhost:8000 --iterations 3            # add --demo-seed with DEMO_MODE=true
 DEMO_MODE=true python scripts/seed_demo.py --preflight
+
+# Stage 1: live LLM evaluation (real providers from backend/.env; in-memory SQLite; never prints secrets) -- see docs/LLM_EVALUATION.md
+cd backend && python scripts/live_smoke.py
+python scripts/evaluate_llm.py --mode live --suite smoke        # ~23 K tokens
+python scripts/evaluate_llm.py --mode live --suite full         # ~81 K tokens; watch the provider's daily quota
+python scripts/evaluate_llm.py --merge a.json b.json --out-name baseline_live
+python scripts/evaluate_llm.py --mode offline                   # the deterministic evaluation, providers off
 
 # Full stack (from repo root; requires Docker Desktop running)
 docker compose up -d --build

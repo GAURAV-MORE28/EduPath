@@ -1,0 +1,434 @@
+{
+  "meta": {
+    "mode": "live",
+    "suite": "full",
+    "timestamp_utc": "2026-09-20T12:00:03Z",
+    "git_commit": "2abe577",
+    "git_dirty": true,
+    "python": "python 3.14.3",
+    "providers": {
+      "llm_provider": "groq",
+      "llm_small_model": "openai/gpt-oss-20b",
+      "llm_mid_model": "openai/gpt-oss-120b",
+      "llm_strong_model": "openai/gpt-oss-120b",
+      "llm_timeout_s": 25.0,
+      "embedding_provider": "huggingface",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "vlm_provider": "huggingface",
+      "vlm_model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "web_search_provider": "tavily"
+    },
+    "credentials_present": {
+      "LLM_API_KEY": true,
+      "HF_TOKEN": true,
+      "TAVILY_API_KEY": true,
+      "GITHUB_TOKEN": true
+    },
+    "dataset": {
+      "graph_version": "v0.1.0-domain-pack",
+      "gold_hash": "3dfee14d3597",
+      "gold_live_version": "live-eval-gold-1"
+    },
+    "prompt_versions": {
+      "profiler": "d0a1b32207",
+      "planner": "ef9f1d5e60",
+      "assessor": "1bd79fddc6",
+      "reflection": "ceb7cb8896",
+      "tutor": "f26b8bbe8a"
+    },
+    "deterministic_regression_test_count": 0,
+    "cases_planned": 1,
+    "pacing": {
+      "min_interval_s": 1.0,
+      "tpm_budget": 6000.0,
+      "cooldown_s": 75,
+      "rerun_after_cooldown": 1,
+      "breaker_trips_before_abort": 3
+    }
+  },
+  "technical": {
+    "total_cases": 1,
+    "successful_cases": 1,
+    "fallback_cases": 0,
+    "failed_cases": 0,
+    "provider_error_cases": 0,
+    "skipped_cases": 0,
+    "schema_valid_rate": null,
+    "schema_valid_n": 0,
+    "validator_pass_rate": null,
+    "validator_pass_n": 0,
+    "fallback_rate": 0.0,
+    "fallback_rate_n": 1,
+    "llm_calls": 2,
+    "llm_calls_degraded": 1,
+    "gateway_retries": 2,
+    "agent_schema_retries": 0,
+    "retry_rate_per_call": 1.0,
+    "calls_needing_retry_rate": 0.5,
+    "llm_call_latency_ms": {
+      "avg": 2573.0,
+      "p50": 2573.0,
+      "p95": 2573.0,
+      "max": 2573.0,
+      "n": 1
+    },
+    "case_latency_ms": {
+      "avg": 5243.0,
+      "p50": 5243.0,
+      "p95": 5243.0,
+      "n": 1
+    },
+    "provider_errors": {
+      "llm_attempt_errors_by_category": {
+        "rate_limit": 3
+      },
+      "non_llm_provider_errors": {}
+    },
+    "tokens_in": 464,
+    "tokens_out": 717
+  },
+  "llm_summary": {
+    "calls": 2,
+    "live_ok_calls": 1,
+    "degraded_calls": 1,
+    "replayed_calls": 0,
+    "non_json_answers": 1,
+    "gateway_retries": 2,
+    "provider_attempts": 4,
+    "provider_error_attempts": 3,
+    "provider_errors_by_category": {
+      "rate_limit": 3
+    },
+    "tokens_in": 464,
+    "tokens_out": 717,
+    "latency_ms_avg": 2573.4,
+    "latency_ms_p50": 2573.4,
+    "latency_ms_p95": 2573.4,
+    "latency_ms_max": 2573.4,
+    "calls_by_tier": {
+      "mid": 2
+    },
+    "models": [
+      "openai/gpt-oss-120b"
+    ]
+  },
+  "quality": {
+    "vision": {
+      "VLM requests for a 2-page image-only PDF": {
+        "value": 1,
+        "n": 1,
+        "note": "1 == only the first page is read"
+      },
+      "page-1 skill recall (image-only PDF)": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "page-2 skill recall (image-only PDF)": {
+        "value": 0.0,
+        "n": 1,
+        "note": "KNOWN LIMITATION: only the first page is read"
+      }
+    }
+  },
+  "cases": [
+    {
+      "area": "vision",
+      "case_id": "vision-first-page-only",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 5242.6,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {
+        "vlm_calls": 1,
+        "vlm_ok": 1,
+        "extraction_llm_degraded": false,
+        "page1_recall": 1.0,
+        "page2_recall": 0.0,
+        "pages_in_document": 2,
+        "page1_hits": [
+          "skill.opencv",
+          "skill.python",
+          "skill.pytorch"
+        ],
+        "page2_hits": []
+      },
+      "checks": {
+        "vision_path_was_exercised": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "got": [
+            "skill.opencv",
+            "skill.python",
+            "skill.pytorch"
+          ],
+          "page1": [
+            "skill.opencv",
+            "skill.python",
+            "skill.pytorch"
+          ],
+          "page2": []
+        }
+      ],
+      "notes": [
+        "KNOWN LIMITATION probe: only page 1 of an image-only PDF is sent to the VLM; page-2 recall is expected to be 0"
+      ],
+      "error": null,
+      "throttled": false,
+      "degraded_reasons": [],
+      "first_attempt_provider_error": true,
+      "provider_calls": [
+        {
+          "operation": "vision-first-page-only",
+          "provider": "vlm",
+          "model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+          "latency_ms": 2407.1,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "chars=49"
+        }
+      ]
+    }
+  ],
+  "cases_by_area": {
+    "vision": [
+      {
+        "area": "vision",
+        "case_id": "vision-first-page-only",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 5242.6,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {
+          "vlm_calls": 1,
+          "vlm_ok": 1,
+          "extraction_llm_degraded": false,
+          "page1_recall": 1.0,
+          "page2_recall": 0.0,
+          "pages_in_document": 2,
+          "page1_hits": [
+            "skill.opencv",
+            "skill.python",
+            "skill.pytorch"
+          ],
+          "page2_hits": []
+        },
+        "checks": {
+          "vision_path_was_exercised": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "got": [
+              "skill.opencv",
+              "skill.python",
+              "skill.pytorch"
+            ],
+            "page1": [
+              "skill.opencv",
+              "skill.python",
+              "skill.pytorch"
+            ],
+            "page2": []
+          }
+        ],
+        "notes": [
+          "KNOWN LIMITATION probe: only page 1 of an image-only PDF is sent to the VLM; page-2 recall is expected to be 0"
+        ],
+        "error": null,
+        "throttled": false,
+        "degraded_reasons": [],
+        "first_attempt_provider_error": true,
+        "provider_calls": [
+          {
+            "operation": "vision-first-page-only",
+            "provider": "vlm",
+            "model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+            "latency_ms": 2407.1,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "chars=49"
+          }
+        ]
+      }
+    ]
+  },
+  "throttle_events": [
+    {
+      "case_id": "vision-first-page-only",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 34393.6
+    }
+  ],
+  "breaker_trips": 0,
+  "llm_calls": [
+    {
+      "operation": "vision-first-page-only",
+      "schema": "ExtractedClaims",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31355.3,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "vision-first-page-only",
+      "schema": "ExtractedClaims",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 2573.4,
+      "attempts": 1,
+      "attempt_errors": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 464,
+      "tokens_out": 717,
+      "error_category": null,
+      "non_json": true
+    }
+  ],
+  "provider_calls": [
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2067.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1575.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1362.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=12"
+    },
+    {
+      "operation": "vision-first-page-only",
+      "provider": "vlm",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "latency_ms": 2665.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "chars=49"
+    },
+    {
+      "operation": "vision-first-page-only",
+      "provider": "vlm",
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "latency_ms": 2407.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "chars=49"
+    }
+  ],
+  "offline_reference": {
+    "Tutor | citation-existence rate": 1.0,
+    "Tutor | out-of-scope / adversarial questions handled without fabricated citations": 1.0,
+    "Tutor | answers with >= 1 citation (in-scope questions)": 0.9375,
+    "Tutor | citation verifier rejects IDs not retrieved this turn": 1.0,
+    "Evidence | evidence correctness (span supports skill)": 1.0,
+    "Evidence | verbatim-span fidelity": 1.0,
+    "Evidence | span offsets valid against the raw (unscrubbed) text": 0.9412,
+    "Evidence | skill precision vs gold": 0.9216,
+    "Evidence | skill recall vs gold": 0.94,
+    "Evidence | forbidden-skill hits (injection / negatives)": 0,
+    "Evidence | fabricated claims rejected by span verification": 1.0,
+    "Normalization | top-1 accuracy (mappable labels)": 1.0,
+    "Normalization | alias/variant accuracy": 1.0,
+    "Normalization | unmappable labels left unmapped": 1.0,
+    "Gap | status accuracy vs independent oracle": 1.0,
+    "Gap | prerequisite consistency (ordering layers)": 1.0,
+    "Gap | verify-before-teach objective typing": 1.0,
+    "Prerequisites | graph: acyclic hard-prerequisite DAG, no dangling edges": 1.0,
+    "Retrieval | precision@3": 1.0,
+    "Retrieval | recall@3": 1.0,
+    "Retrieval | MRR": 1.0,
+    "Retrieval | NDCG@3": 0.9997,
+    "Retrieval | eligibility-violation rate": 0,
+    "Retrieval | coverage (>=1 eligible resource, session cap lifted)": 1.0,
+    "Retrieval | baseline precision@3 (vector-only, no graph)": 0.2633,
+    "Retrieval | coverage at the default 45-min session cap": 0.563,
+    "Performance | journey wall time (in-process, SQLite)": "0.79s",
+    "Performance | latency: resume_upload": "31 ms",
+    "Performance | latency: gaps": "40 ms",
+    "Performance | latency: plan": "105 ms",
+    "Performance | latency: scripted_attempt": "103 ms",
+    "Performance | latency: chat_1": "67 ms",
+    "Performance | latency: chat_2": "62 ms",
+    "Performance | LLM calls per journey": 7,
+    "Performance | LLM degraded calls": 7,
+    "Performance | agent retries per journey": 0,
+    "Performance | planner loops (plan run)": 1,
+    "Performance | tokens per journey": 0,
+    "Performance | retrieval time per journey": "20 ms",
+    "Performance | retrieval latency per skill (p50 / p95)": "1.2 / 1.9 ms",
+    "Performance | gap analysis, empty learner, largest role": "2.0 ms",
+    "Plan | final validity (budget / referential integrity / prerequisite order)": 1.0,
+    "Plan | personas producing an empty week": 0,
+    "Plan | personalization (mean pairwise Jaccard distance)": 0.537,
+    "Plan | scheduled minutes at 2/5/10/20 h per week": "45/45/45/45",
+    "Plan | budget utilization at 2/5/10/20 h per week": "38% / 15% / 8% / 4%",
+    "Struggle | repeated_misconception: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | missing_prerequisite: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | excessive_difficulty: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | cognitive_overload: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | false-positive interventions on benign learners": 0,
+    "Struggle | root-cause attribution (injected prerequisite / misconception id)": 1.0,
+    "Reflection | correct root-cause node rate": 1.0,
+    "Reflection | revisions valid (graph-connected root, closed operator set, committed + decision recorded)": 1.0,
+    "Reflection | false-positive reflection rate (a single untagged slip)": 0.0,
+    "Adaptation | events linked (signal -> reflection -> decision -> revision -> trace step), revert restores, cooldown holds": 1.0
+  },
+  "wall_time_s": 129.0
+}

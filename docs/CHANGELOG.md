@@ -8,6 +8,27 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Stage 1 | 2026-09-20] Live LLM evaluation & quality baseline
+
+Measurement only -- no application code or API changed.
+
+- **Harness:** `backend/scripts/evaluate_llm.py` (`--mode live|offline`, `--suite smoke|full`, `--areas`, `--tpm`, `--merge`) over
+  `backend/tests/evaluation/live/`. Live mode drives the real app in-process (in-memory SQLite) against the configured Groq / Hugging Face / Tavily /
+  GitHub providers; it wraps (never mocks) the gateways and records per-call provider, model, latency, per-attempt error category + `Retry-After`,
+  retries, tokens, fallbacks (LLM, embeddings, vision, web). A disabled provider is a hard error; setup scaffolding runs in an explicit
+  `setup_mode()` (LLM refused, excluded from metrics). Offline mode is the existing deterministic suite, unchanged.
+- **Coverage:** profiling, gap (propagation of profiling error into the deterministic engine), planner, assessor, reflection, tutor, web search, plus a
+  vision first-page probe and a forged-cookie probe. Hard invariants fail a case; quality metrics are reported; unmeasurable metrics are `N/A (not scored)`.
+  No LLM-as-judge (the Assessor's existing blind solver is reported as model-based).
+- **Baseline (2026-09-20, base commit `2abe577`):** 71 cases, 63 measured & passing, 0 hard-check failures, 0 fallbacks; 3 provider-error + 5 skipped Tutor
+  cases (Groq `gpt-oss-120b` 200 K tokens/day quota exhausted). Schema-valid 45/45; plan drafts accepted first time 10/10; Reflection 10/10; citations
+  100 % real. Weak: live Profiler F1 0.784 (deterministic ~0.93), mean plan utilization 21.9 %, no ID provenance on LLM plan items, vision page 1 only,
+  forgeable cookie confirmed, 3 silent embedding fallbacks. Details: `docs/LLM_EVALUATION.md`, raw: `docs/llm_eval_baseline/`.
+- **Found while building it:** the Evidence Verifier accepts spans at >= 0.9 similarity, so live-LLM character offsets can drift while the span is present
+  in the source (invariant = presence; exact offsets are a quality metric).
+- **Tests:** 601 -> 623 (`tests/test_llm_eval_harness.py`: metric arithmetic, error categories, redaction, live-mode refusal, recorder wraps the real call
+  path, setup mode, merge semantics). `live_smoke.py`: 6/7 (`llm[mid]` 429 from the exhausted daily quota; provider-related).
+
 ## [Phase 12b | 2026-09-20] Live provider integration: Groq, Hugging Face, Tavily
 
 - **LLM:** OpenAI-compatible adapter (`call_openai_compatible`) for Groq and the Hugging Face router; JSON mode with one plain-text retry,
