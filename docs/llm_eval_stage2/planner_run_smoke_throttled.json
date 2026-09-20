@@ -1,0 +1,1116 @@
+{
+  "meta": {
+    "mode": "live",
+    "suite": "smoke",
+    "timestamp_utc": "2026-09-20T13:35:00Z",
+    "git_commit": "e528c6a",
+    "git_dirty": true,
+    "python": "python 3.14.3",
+    "providers": {
+      "llm_provider": "groq",
+      "llm_small_model": "openai/gpt-oss-20b",
+      "llm_mid_model": "openai/gpt-oss-120b",
+      "llm_strong_model": "openai/gpt-oss-120b",
+      "llm_timeout_s": 25.0,
+      "embedding_provider": "huggingface",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "vlm_provider": "huggingface",
+      "vlm_model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "web_search_provider": "tavily"
+    },
+    "credentials_present": {
+      "LLM_API_KEY": true,
+      "HF_TOKEN": true,
+      "TAVILY_API_KEY": true,
+      "GITHUB_TOKEN": true
+    },
+    "dataset": {
+      "graph_version": "v0.1.0-domain-pack",
+      "gold_hash": "3dfee14d3597",
+      "gold_live_version": "live-eval-gold-1"
+    },
+    "prompt_versions": {
+      "profiler": "d0a1b32207",
+      "planner": "33f740114c",
+      "assessor": "1bd79fddc6",
+      "reflection": "ceb7cb8896",
+      "tutor": "f26b8bbe8a"
+    },
+    "deterministic_regression_test_count": 0,
+    "cases_planned": 2,
+    "pacing": {
+      "min_interval_s": 2.0,
+      "tpm_budget": 6000.0,
+      "cooldown_s": 75,
+      "rerun_after_cooldown": 1,
+      "breaker_trips_before_abort": 3
+    }
+  },
+  "technical": {
+    "total_cases": 2,
+    "successful_cases": 0,
+    "fallback_cases": 0,
+    "failed_cases": 0,
+    "provider_error_cases": 2,
+    "skipped_cases": 0,
+    "schema_valid_rate": null,
+    "schema_valid_n": 0,
+    "validator_pass_rate": null,
+    "validator_pass_n": 0,
+    "fallback_rate": null,
+    "fallback_rate_n": 0,
+    "llm_calls": 4,
+    "llm_calls_degraded": 4,
+    "gateway_retries": 8,
+    "agent_schema_retries": 0,
+    "retry_rate_per_call": 2.0,
+    "calls_needing_retry_rate": 1.0,
+    "llm_call_latency_ms": {
+      "avg": null,
+      "p50": null,
+      "p95": null,
+      "max": null,
+      "n": 0
+    },
+    "case_latency_ms": {
+      "avg": null,
+      "p50": null,
+      "p95": null,
+      "n": 0
+    },
+    "provider_errors": {
+      "llm_attempt_errors_by_category": {
+        "rate_limit": 12
+      },
+      "non_llm_provider_errors": {
+        "embeddings": {
+          "fell_back_to_deterministic": 6
+        }
+      }
+    },
+    "tokens_in": 0,
+    "tokens_out": 0
+  },
+  "llm_summary": {
+    "calls": 4,
+    "live_ok_calls": 0,
+    "degraded_calls": 4,
+    "replayed_calls": 0,
+    "non_json_answers": 0,
+    "gateway_retries": 8,
+    "provider_attempts": 12,
+    "provider_error_attempts": 12,
+    "provider_errors_by_category": {
+      "rate_limit": 12
+    },
+    "tokens_in": 0,
+    "tokens_out": 0,
+    "latency_ms_avg": null,
+    "latency_ms_p50": null,
+    "latency_ms_p95": null,
+    "latency_ms_max": null,
+    "calls_by_tier": {
+      "mid": 4
+    },
+    "models": []
+  },
+  "quality": {},
+  "cases": [
+    {
+      "area": "planner",
+      "case_id": "plan-ml-claims-8h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 34866.7,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 8,
+        "budget_min": 480,
+        "scheduled_min": 309,
+        "utilization": 0.64375,
+        "utilization_effective": 0.7152777777777778,
+        "items": 7,
+        "items_with_resource": 7,
+        "items_with_session": 7,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 309,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 14,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 7,
+        "items_with_id_provenance": 7,
+        "items_with_reason_text": 7,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 4,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-claims-8h",
+          "hours": 8,
+          "utilization": "309/480 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.algebra_basics",
+              "res.khan_algebra",
+              43,
+              1
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              1
+            ],
+            [
+              "resource",
+              "skill.cli_basics",
+              "res.fcc_command_line",
+              45,
+              2
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": [
+        {
+          "operation": "plan-ml-claims-8h",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 927.8,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        },
+        {
+          "operation": "plan-ml-claims-8h",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 767.6,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        },
+        {
+          "operation": "plan-ml-claims-8h",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 807.7,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        },
+        {
+          "operation": "plan-ml-claims-8h",
+          "provider": "embeddings",
+          "model": "Qwen/Qwen3-Embedding-0.6B",
+          "latency_ms": 908.2,
+          "ok": true,
+          "fell_back": false,
+          "error_category": null,
+          "detail": "batch=1"
+        }
+      ]
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-be-12h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31378.1,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 12,
+        "budget_min": 720,
+        "scheduled_min": 490,
+        "utilization": 0.6805555555555556,
+        "utilization_effective": 0.7561728395061729,
+        "items": 12,
+        "items_with_resource": 11,
+        "items_with_session": 11,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 490,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 16,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 11,
+        "items_with_id_provenance": 12,
+        "items_with_reason_text": 12,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 4,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "be-12h",
+          "hours": 12,
+          "utilization": "490/720 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.http_fundamentals",
+              "res.mdn_http_overview",
+              30,
+              1
+            ],
+            [
+              "resource",
+              "skill.programming_fundamentals",
+              "res.py_tutorial",
+              45,
+              1
+            ],
+            [
+              "resource",
+              "skill.sql_fundamentals",
+              "res.sqlbolt",
+              45,
+              1
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    }
+  ],
+  "cases_by_area": {
+    "planner": [
+      {
+        "area": "planner",
+        "case_id": "plan-ml-claims-8h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 34866.7,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 8,
+          "budget_min": 480,
+          "scheduled_min": 309,
+          "utilization": 0.64375,
+          "utilization_effective": 0.7152777777777778,
+          "items": 7,
+          "items_with_resource": 7,
+          "items_with_session": 7,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 309,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 14,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 7,
+          "items_with_id_provenance": 7,
+          "items_with_reason_text": 7,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 4,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-claims-8h",
+            "hours": 8,
+            "utilization": "309/480 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.algebra_basics",
+                "res.khan_algebra",
+                43,
+                1
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                1
+              ],
+              [
+                "resource",
+                "skill.cli_basics",
+                "res.fcc_command_line",
+                45,
+                2
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": [
+          {
+            "operation": "plan-ml-claims-8h",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 927.8,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          },
+          {
+            "operation": "plan-ml-claims-8h",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 767.6,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          },
+          {
+            "operation": "plan-ml-claims-8h",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 807.7,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          },
+          {
+            "operation": "plan-ml-claims-8h",
+            "provider": "embeddings",
+            "model": "Qwen/Qwen3-Embedding-0.6B",
+            "latency_ms": 908.2,
+            "ok": true,
+            "fell_back": false,
+            "error_category": null,
+            "detail": "batch=1"
+          }
+        ]
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-be-12h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31378.1,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 12,
+          "budget_min": 720,
+          "scheduled_min": 490,
+          "utilization": 0.6805555555555556,
+          "utilization_effective": 0.7561728395061729,
+          "items": 12,
+          "items_with_resource": 11,
+          "items_with_session": 11,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 490,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 16,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 11,
+          "items_with_id_provenance": 12,
+          "items_with_reason_text": 12,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 4,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "be-12h",
+            "hours": 12,
+            "utilization": "490/720 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.http_fundamentals",
+                "res.mdn_http_overview",
+                30,
+                1
+              ],
+              [
+                "resource",
+                "skill.programming_fundamentals",
+                "res.py_tutorial",
+                45,
+                1
+              ],
+              [
+                "resource",
+                "skill.sql_fundamentals",
+                "res.sqlbolt",
+                45,
+                1
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      }
+    ]
+  },
+  "throttle_events": [
+    {
+      "case_id": "plan-ml-claims-8h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 40477.1
+    },
+    {
+      "case_id": "plan-be-12h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 146402.8
+    }
+  ],
+  "breaker_trips": 1,
+  "llm_calls": [
+    {
+      "operation": "plan-ml-claims-8h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31213.3,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        852.0,
+        844.0,
+        828.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-12h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31225.0,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        722.0,
+        680.0,
+        662.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31279.7,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        528.0,
+        525.0,
+        498.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-12h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31210.1,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        566.0,
+        557.0,
+        542.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    }
+  ],
+  "provider_calls": [
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2500.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1887.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1451.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=12"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 814.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 904.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 952.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 822.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 932.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1102.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 575.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 574.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 578.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 572.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 581.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 578.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 19326.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 17369.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 19057.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 19517.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 16813.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 14536.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 905.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1155.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1012.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1268.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1108.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 794.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 2122.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 927.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 767.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 807.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 908.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    }
+  ],
+  "offline_reference": {
+    "Tutor | citation-existence rate": 1.0,
+    "Tutor | out-of-scope / adversarial questions handled without fabricated citations": 1.0,
+    "Tutor | answers with >= 1 citation (in-scope questions)": 0.9375,
+    "Tutor | citation verifier rejects IDs not retrieved this turn": 1.0,
+    "Evidence | evidence correctness (span supports skill)": 1.0,
+    "Evidence | verbatim-span fidelity": 1.0,
+    "Evidence | span offsets valid against the raw (unscrubbed) text": 0.9412,
+    "Evidence | skill precision vs gold": 0.9216,
+    "Evidence | skill recall vs gold": 0.94,
+    "Evidence | forbidden-skill hits (injection / negatives)": 0,
+    "Evidence | fabricated claims rejected by span verification": 1.0,
+    "Normalization | top-1 accuracy (mappable labels)": 1.0,
+    "Normalization | alias/variant accuracy": 1.0,
+    "Normalization | unmappable labels left unmapped": 1.0,
+    "Gap | status accuracy vs independent oracle": 1.0,
+    "Gap | prerequisite consistency (ordering layers)": 1.0,
+    "Gap | verify-before-teach objective typing": 1.0,
+    "Prerequisites | graph: acyclic hard-prerequisite DAG, no dangling edges": 1.0,
+    "Retrieval | precision@3": 1.0,
+    "Retrieval | recall@3": 1.0,
+    "Retrieval | MRR": 1.0,
+    "Retrieval | NDCG@3": 0.9997,
+    "Retrieval | eligibility-violation rate": 0,
+    "Retrieval | coverage (>=1 eligible resource, session cap lifted)": 1.0,
+    "Retrieval | baseline precision@3 (vector-only, no graph)": 0.2633,
+    "Retrieval | coverage at the default 45-min session cap": 0.563,
+    "Performance | journey wall time (in-process, SQLite)": "0.75s",
+    "Performance | latency: resume_upload": "27 ms",
+    "Performance | latency: gaps": "40 ms",
+    "Performance | latency: plan": "107 ms",
+    "Performance | latency: scripted_attempt": "87 ms",
+    "Performance | latency: chat_1": "65 ms",
+    "Performance | latency: chat_2": "66 ms",
+    "Performance | LLM calls per journey": 7,
+    "Performance | LLM degraded calls": 7,
+    "Performance | agent retries per journey": 0,
+    "Performance | planner loops (plan run)": 1,
+    "Performance | tokens per journey": 0,
+    "Performance | retrieval time per journey": "18 ms",
+    "Performance | retrieval latency per skill (p50 / p95)": "1.5 / 2.3 ms",
+    "Performance | gap analysis, empty learner, largest role": "1.9 ms",
+    "Plan | final validity (budget / referential integrity / prerequisite order)": 1.0,
+    "Plan | personas producing an empty week": 0,
+    "Plan | personalization (mean pairwise Jaccard distance)": 0.748,
+    "Plan | scheduled minutes at 2/5/10/20 h per week": "88/176/397/705",
+    "Plan | budget utilization at 2/5/10/20 h per week": "73% / 59% / 66% / 59%",
+    "Struggle | repeated_misconception: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | missing_prerequisite: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | excessive_difficulty: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | cognitive_overload: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | false-positive interventions on benign learners": 0,
+    "Struggle | root-cause attribution (injected prerequisite / misconception id)": 1.0,
+    "Reflection | correct root-cause node rate": 1.0,
+    "Reflection | revisions valid (graph-connected root, closed operator set, committed + decision recorded)": 1.0,
+    "Reflection | false-positive reflection rate (a single untagged slip)": 0.0,
+    "Adaptation | events linked (signal -> reflection -> decision -> revision -> trace step), revert restores, cooldown holds": 1.0
+  },
+  "wall_time_s": 506.6
+}

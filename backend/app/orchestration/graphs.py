@@ -33,6 +33,7 @@ from app.sse.trace import emit
 from app.orchestration.state import RunState
 from app.planning.candidates import ObjectiveCandidateSet, build_candidate_sets
 from app.planning.fallback import FALLBACK_OVERALL_REASON, build_fallback_plan
+from app.planning.fill import attach_reason_provenance, extend_plan
 from app.planning.validator import validate_plan
 from app.profiling.document_parser import extract_text
 from app.profiling.evidence_verifier import EvidenceVerifier
@@ -41,7 +42,7 @@ from app.profiling.skill_normalizer import SkillNormalizer
 from app.provenance.citations import verify_citations
 from app.repositories.catalog_repository import CatalogRepository
 from app.retrieval.service import ResourceRetrievalService
-from app.schemas.common import PlanItem, PlanItemReason
+from app.schemas.common import PlanItem, PlanItemReason, PlanItemSession
 from app.schemas.profiling import ExtractedClaim, VerifiedClaim
 from app.tutor.conservative import build_conservative_answer
 from app.tutor.context import TutorContext
@@ -226,6 +227,7 @@ def _drafts_to_plan_items(raw_items: list[dict]) -> list[PlanItem]:
             day_slot=r["day_slot"],
             depends_on=list(r.get("depends_on") or []),
             reason=PlanItemReason(text=r.get("reason_text", "")),
+            session=PlanItemSession(**r["session"]) if r.get("session") else None,
         )
         for r in raw_items
     ]
@@ -279,6 +281,7 @@ def build_planning_graph(
             modality_order=d.get("modality_order"),
             language=d.get("language", ""),
             session_cap_minutes=d.get("session_cap_minutes", DEFAULT_SESSION_CAP_MINUTES),
+            consumed_session_ids=d.get("consumed_session_ids"),
         )
         d["candidate_sets"] = candidate_sets
         return {"data": d}
@@ -331,6 +334,7 @@ def build_planning_graph(
             hard_prereqs_by_skill=hard_prereqs_by_skill,
             hours_budget_minutes=d["hours_budget_minutes"],
             new_skill_cap=d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
+            enforce_sessions=True,
         )
         d["validation"] = result
         d["last_violation_messages"] = [v.message for v in result.hard_violations]
@@ -345,8 +349,40 @@ def build_planning_graph(
 
         status = "running"
         if result.passed and not d["draft_degraded"]:
-            d["final_items"] = items
-            d["final_overall_reason"] = d["draft_overall_reason"]
+            final_items, overall_reason = items, d["draft_overall_reason"]
+            d["topup_items"] = d["topup_minutes"] = 0
+            # The model chose and sequenced real sessions; if that leaves the budget below the acceptable utilization, add the
+            # *next in-order sessions of the objectives it already chose* deterministically (never a new skill), and keep the
+            # extension only if the whole plan still passes every hard rule.
+            extra = extend_plan(
+                items, d["candidate_sets"],
+                hours_budget_minutes=d["hours_budget_minutes"],
+                num_days=5,
+            )
+            if extra:
+                extended = items + extra
+                ext_result = validate_plan(
+                    extended,
+                    candidate_sets=d["candidate_sets"],
+                    gaps_by_skill=gaps_by_skill,
+                    hard_prereqs_by_skill=hard_prereqs_by_skill,
+                    hours_budget_minutes=d["hours_budget_minutes"],
+                    new_skill_cap=d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
+                    enforce_sessions=True,
+                )
+                if ext_result.passed:
+                    final_items, d["validation"] = extended, ext_result
+                    d["topup_items"], d["topup_minutes"] = len(extra), sum(i.est_minutes for i in extra)
+                    overall_reason = (
+                        f"{overall_reason} {len(extra)} further study session(s) of the same objectives were added "
+                        "automatically to use your remaining weekly time."
+                    ).strip()
+                else:
+                    logger.info("edupath.planning.topup_rejected", rules=sorted({v.rule for v in ext_result.hard_violations}))
+            d["final_items"] = attach_reason_provenance(
+                final_items, gaps_by_skill=gaps_by_skill, hard_prereqs_by_skill=hard_prereqs_by_skill
+            )
+            d["final_overall_reason"] = overall_reason
             d["final_degraded"] = False
             status = "completed"
         return {"data": d, "status": status}
@@ -371,7 +407,10 @@ def build_planning_graph(
             hours_budget_minutes=d["hours_budget_minutes"],
             new_skill_cap=d.get("new_skill_cap", NEW_SKILL_CONCURRENCY_CAP),
         )
-        d["final_items"] = items
+        hard_prereqs_by_skill = {s: graph_service.direct_prerequisites(s, include_soft=False) for s in gaps_by_skill}
+        d["final_items"] = attach_reason_provenance(
+            items, gaps_by_skill=gaps_by_skill, hard_prereqs_by_skill=hard_prereqs_by_skill
+        )
         d["final_overall_reason"] = FALLBACK_OVERALL_REASON
         d["final_degraded"] = True
         return {"data": d, "status": "completed"}

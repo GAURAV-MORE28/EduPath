@@ -14,6 +14,7 @@ from dataclasses import dataclass, field
 
 from app.core.thresholds import DEFAULT_SESSION_CAP_MINUTES, PROBE_ITEM_COUNT
 from app.gap.engine import MET, GapAnalysisResult
+from app.planning.sessions import ResourceSession, SessionizationPolicy, sessionize_resource
 from app.repositories.catalog_repository import CatalogRepository
 from app.retrieval.ranker import ResourceUsageRecord
 from app.retrieval.service import ResourceRetrievalService
@@ -35,6 +36,33 @@ class ResourceCandidateInfo:
     modality: str
     score: float
     score_breakdown: dict[str, float]
+    # Stage 2 (`app/planning/sessions.py`): the study sessions this resource offers *this week*, in study order (sessions
+    # already completed in an earlier week are absent; their ids/numbering stay stable). Left empty by hand-built
+    # candidates, in which case `__post_init__` derives them with the default policy from `duration_min` -- so every
+    # candidate always has sessions, and a whole short resource is simply one complete session.
+    sessions: tuple[ResourceSession, ...] = ()
+    provider: str = ""
+    difficulty: int = 1
+    curation_tier: str = ""
+
+    def __post_init__(self) -> None:
+        if not self.sessions:
+            object.__setattr__(
+                self,
+                "sessions",
+                sessionize_resource(
+                    resource_id=self.resource_id,
+                    title=self.title,
+                    duration_min=self.duration_min,
+                    policy=SessionizationPolicy(),
+                    provider=self.provider,
+                    url=self.url,
+                    modality=self.modality,
+                    resource_type=self.type,
+                    difficulty=self.difficulty,
+                    curation_tier=self.curation_tier,
+                ),
+            )
 
 
 @dataclass
@@ -57,6 +85,13 @@ class ObjectiveCandidateSet:
     resources: list[ResourceCandidateInfo] = field(default_factory=list)
     practice_item_ids: list[str] = field(default_factory=list)
 
+    def sessions_by_id(self) -> dict[str, ResourceSession]:
+        """Every real session this objective may schedule, keyed by session id -- the ID set the Planner selects from."""
+        return {sess.session_id: sess for r in self.resources for sess in r.sessions}
+
+    def resource(self, resource_id: str) -> ResourceCandidateInfo | None:
+        return next((r for r in self.resources if r.resource_id == resource_id), None)
+
 
 async def build_candidate_sets(
     *,
@@ -69,6 +104,8 @@ async def build_candidate_sets(
     excluded_modalities: set[str] | None = None,
     learner_history: list[ResourceUsageRecord] | None = None,
     top_k: int = 5,
+    sessionization_policy: SessionizationPolicy | None = None,
+    consumed_session_ids: set[str] | None = None,
 ) -> dict[str, ObjectiveCandidateSet]:
     """One `ObjectiveCandidateSet` per `gap_result.objectives` entry, keyed
     by `objective_id`. Never invents a resource/practice-item ID: resources
@@ -81,7 +118,14 @@ async def build_candidate_sets(
     (`app/planning/validator.py`) already treat "no candidates" as "skip
     this objective this week", not an error (this is also how the required
     "impossible candidate set" case behaves: nothing to schedule, still a
-    valid -- empty -- plan)."""
+    valid -- empty -- plan).
+
+    Stage 2: a resource longer than the learner's session cap is no longer dropped; it is offered as its study sessions
+    (`sessionization_policy`, default = the learner's `session_cap_minutes`). `consumed_session_ids` are sessions the
+    learner already completed in an earlier week; they are removed so a long resource continues where it left off, and a
+    resource with nothing left is dropped. Sessions are derived from the catalog row here, once, before any LLM call."""
+    policy = sessionization_policy or SessionizationPolicy.for_learner(session_cap_minutes)
+    consumed = consumed_session_ids or set()
     current_level_by_skill = {g.skill_id: g.current_level for g in gap_result.gaps}
     met_skill_ids = {g.skill_id for g in gap_result.gaps if g.status == MET}
 
@@ -102,6 +146,7 @@ async def build_candidate_sets(
                 excluded_modalities=excluded_modalities,
                 learner_history=learner_history,
                 top_k=top_k,
+                sessionizable=True,
             )
             if recommendations:
                 resource_rows = {
@@ -112,6 +157,25 @@ async def build_candidate_sets(
                     row = resource_rows.get(rec.resource_id)
                     if row is None:
                         continue  # stale ID (re-ingested catalog dropped it) -- skip, never invent
+                    sessions = tuple(
+                        sess
+                        for sess in sessionize_resource(
+                            resource_id=row.resource_id,
+                            title=row.title,
+                            duration_min=row.duration_min,
+                            policy=policy,
+                            provider=row.provider,
+                            url=row.url,
+                            modality=row.modality,
+                            resource_type=row.type,
+                            difficulty=row.difficulty,
+                            skill_id=objective.skill_id,
+                            curation_tier=row.curation_tier,
+                        )
+                        if sess.session_id not in consumed
+                    )
+                    if not sessions:
+                        continue  # finished in an earlier week (or a non-positive duration): nothing left to schedule
                     resources.append(
                         ResourceCandidateInfo(
                             resource_id=row.resource_id,
@@ -122,6 +186,10 @@ async def build_candidate_sets(
                             modality=row.modality,
                             score=rec.score,
                             score_breakdown=rec.score_breakdown,
+                            sessions=sessions,
+                            provider=row.provider,
+                            difficulty=row.difficulty,
+                            curation_tier=row.curation_tier,
                         )
                     )
 

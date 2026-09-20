@@ -79,6 +79,7 @@ async def _run_graph(
     planner_agent = PlannerAgent(llm_gateway)
 
     skill_records, evidence_records = await _build_records(profiling_repo, learner_id)
+    consumed_session_ids = await PlanningRepository(session).list_completed_session_ids(learner_id)
 
     graph = build_planning_graph(
         graph_service=graph_service,
@@ -106,6 +107,7 @@ async def _run_graph(
             "language": language,
             "session_cap_minutes": session_cap_minutes,
             "new_skill_cap": new_skill_cap,
+            "consumed_session_ids": consumed_session_ids,
         },
     }
     final_state = await graph.ainvoke(initial_state)
@@ -174,6 +176,7 @@ async def _persist_plan(
             depends_on=item.depends_on,
             reason=item.reason.model_dump(mode="json"),
             status=item.status,
+            session=item.session.model_dump(mode="json") if item.session else None,
         )
         for item in final_items
     ]
@@ -242,6 +245,13 @@ async def create_plan(
         await emit("Planner", "degraded", f"Model unavailable; fallback planner scheduled week {week_index + 1}")
     else:
         await emit("Planner", "output", f"Generated week {week_index + 1}: {len(d_trace['final_items'])} items")
+    if d_trace.get("topup_items"):
+        # Stage 2: separates what the model selected from the continuation sessions code added, for audit and evaluation.
+        await emit(
+            "Plan Filler", "decision",
+            f"Added {d_trace['topup_items']} continuation session(s), {d_trace['topup_minutes']} min, to use the remaining budget",
+            output_ref=f"topup={d_trace['topup_items']}/{d_trace['topup_minutes']}",
+        )
     await emit(
         "Plan Validator", "validation",
         f"Plan valid: {len(d_trace['final_items'])} items within {weekly_hours:g}h budget",

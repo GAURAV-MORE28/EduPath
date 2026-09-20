@@ -540,6 +540,26 @@ See §16 below for the full set of Phase 5 decisions.
   phase exposes only `POST /api/learners/me/plans` and
   `GET /api/learners/me/plans/current` (design §27); `patch_existing_plan`
   is tested directly at the service layer.
+- **Stage 2 — resource sessions (see `docs/RESOURCE_SESSIONIZATION.md`).** A *session* is a deterministic planning unit derived from one
+  real catalog resource (`app/planning/sessions.py`): id `"<resource_id>#<n>"`, length from the resource's own `duration_min` and the
+  learner's session cap, neutral label, nominal (not chapter) offsets. Contracts:
+  1. **Never LLM-authored.** Sessions are built once, before any model call, in `build_candidate_sets`; the model may only *select* a
+     `session_id` from the objective's candidate set. `est_minutes` for a session item is taken from the session, never from the model. An
+     unknown/foreign session id, or a multi-session resource with no `session_id`, is a `PlannerParseError` (§6/§11 retry).
+  2. **Hard rule `V_session_provenance`** (Plan Validator, `enforce_sessions=True` — set by the G2 graph, off for Reflection's patch
+     validation): real offered session, metadata equal to the catalog-derived session, exact duration, no repeats (plan-wide), studied in order
+     without skipping ahead, total ≤ resource duration. `V_DUP` keys on `(skill, resource, session_id)`.
+  3. **Soft rule `V_acceptable_utilization`**: below `PLAN_MIN_ACCEPTABLE_UTILIZATION` (0.60) *and* in-order material would still fit. 100 %
+     is never required.
+  4. **Acceptable utilization is a ceiling, not a target.** The deterministic continuation fill (`app/planning/fill.py::extend_plan`, used by
+     the Fallback Planner and, after validation, on an LLM draft) never takes a plan above `PLAN_TARGET_UTILIZATION` (0.80) of the effective
+     budget, leaving headroom for a Reflection revision to pass V1; never adds a skill; is re-validated and discarded if any hard rule fails.
+  5. **Provenance.** `plan_items.session` (nullable JSON, migration 0008) / `PlanItem.session`; `reason.evidence_ids` and `reason.graph_path`
+     are attached deterministically to every final item (design §16.6) and overwrite anything a model supplied.
+  6. **Only catalog rows are sessionized.** Web (Tavily) results stay `unvetted`, outside the catalog and out of plans.
+  7. **Retrieval:** `duration_ok` is relaxed only when the caller passes `sessionizable=True` (the planner does); ranking is unchanged.
+  8. **Multi-week:** a session is consumed only when its plan item is `done` (`PlanningRepository.list_completed_session_ids`); session ids and
+     `index/count` are stable, so week N+1 continues at the next session.
 
 ## 17. Assessment, Mastery, and Struggle Detection conventions (Phase 8,
 design §10.4, §18, §19, §20.8)

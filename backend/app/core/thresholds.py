@@ -105,6 +105,24 @@ PROBE_ITEM_MINUTES_PER_ITEM = 3
 PRACTICE_ITEM_MINUTES_PER_ITEM = 5
 PRACTICE_ITEMS_PER_LESSON = 2
 
+# Stage 2 -- resource sessionization (`app/planning/sessions.py`) and budget-utilization policy
+# (`app/planning/fill.py`). Hand-set defaults; every one is also a parameter of the function that uses it.
+#
+# A resource longer than the learner's session cap is divided into equal-ish *study segments*. Segments never exceed the
+# cap (hard) and never fall below SESSION_MIN_MINUTES (or half the cap, whichever is smaller, so a small cap stays feasible).
+SESSION_MIN_MINUTES = 20
+# Upper bound on the learner-chosen session cap (== V6's SESSION_CHUNK_MAX_MINUTES; a longer sitting is not one session).
+SESSION_MAX_MINUTES = SESSION_CHUNK_MAX_MINUTES
+# "Acceptable budget utilization" -- NOT a 100 % target. The continuation fill never adds a session that would take the plan
+# above PLAN_TARGET_UTILIZATION of the effective budget (a ceiling, not just a stop point): the remaining ~20 % is deliberate
+# headroom so a later Reflection revision can still insert remediation/probes and pass V1 (measured: at ~96 % the demo's
+# Reflection could not patch the plan). PLAN_MIN_ACCEPTABLE_UTILIZATION is the soft-rule floor below which a plan is reported as
+# under-filled *when unscheduled eligible material remained*.
+PLAN_TARGET_UTILIZATION = 0.80
+PLAN_MIN_ACCEPTABLE_UTILIZATION = 0.60
+# Distinct resources one objective may consume in a single week (a chain: finish resource 1's sessions, then resource 2's...).
+PLAN_MAX_RESOURCES_PER_OBJECTIVE = 3
+
 # design §9.4: "fail -> plan_draft with violation list (attempt <= 2)" -- the
 # graph-level rule-validation retry loop (distinct from PlannerAgent's own
 # internal schema-validation retry, ARCHITECTURE_CONTRACTS.md §6/§11).

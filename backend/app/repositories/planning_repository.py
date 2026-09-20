@@ -68,6 +68,17 @@ class PlanningRepository:
         self.session.add_all(items)
         await self.session.flush()
 
+    async def list_completed_session_ids(self, learner_id: str) -> set[str]:
+        """Stage 2: ids of every resource *study session* this learner has marked done in any plan, so the next plan continues a
+        long resource where it left off instead of re-offering finished sessions. Only `status == "done"` counts -- a session
+        that was planned but not completed is offered again (rolling horizon, design §16.1)."""
+        result = await self.session.execute(
+            select(PlanItem.session)
+            .join(WeeklyPlan, WeeklyPlan.plan_id == PlanItem.plan_id)
+            .where(WeeklyPlan.learner_id == learner_id, PlanItem.status == "done")
+        )
+        return {row["session_id"] for row in result.scalars().all() if row and row.get("session_id")}
+
     async def list_items_for_revision(self, revision_id: str) -> list[PlanItem]:
         result = await self.session.execute(
             select(PlanItem).where(PlanItem.revision_id == revision_id).order_by(PlanItem.day_slot)

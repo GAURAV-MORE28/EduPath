@@ -120,7 +120,7 @@ questions; 9 of 17 Tutor questions were measured). Full tables: [`llm_eval_basel
 | **H Vision** | a 2-page image-only PDF produced **1** VLM request; page-1 recall 1.00, **page-2 recall 0.00**. |
 | **I Known issues** | forged `session` cookie **accepted** (confirmed). |
 
-### 5.3 Budget utilization by weekly hours (thin-plan measurement — measured, **not fixed** in this stage)
+### 5.3 Budget utilization by weekly hours (thin-plan measurement — measured, **not fixed** in this stage; **addressed in Stage 2**, see [`RESOURCE_SESSIONIZATION.md`](RESOURCE_SESSIONIZATION.md) §8)
 
 | Hours | 2 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 12 | 20 |
 |---|---|---|---|---|---|---|---|---|---|---|

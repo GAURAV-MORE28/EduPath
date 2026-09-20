@@ -25,6 +25,7 @@ from typing import Any
 import httpx
 from sqlalchemy import func, select
 
+from app.planning.sessions import SessionizationPolicy, segment_durations
 from tests.evaluation.live.instrument import CaseContext, current_case, redact, setup_mode
 from tests.evaluation.metrics import load_gold
 
@@ -249,10 +250,17 @@ async def case_planner(st: EvalState, ctx: CaseContext, persona: dict[str, Any])
     day: dict[str, int] = {}
     unknown = broken = misaligned = blocked = with_res = provenance = reason_text = dupes = 0
     seen_pairs: set[tuple] = set()
+    cap = persona.get("session", 45)
+    policy = SessionizationPolicy.for_learner(cap)
+    with_session = session_bad = session_dupes = 0
+    session_ids: set[str] = set()
+    consumed: dict[str, int] = {}
+    session_problems: list[str] = []
     for it in items:
         day[it["skill_id"]] = min(day.get(it["skill_id"], it["day_slot"]), it["day_slot"])
         blocked += status.get(it["skill_id"]) == "BLOCKED"
-        pair = (it["skill_id"], it["resource_id"], it["type"])
+        sess = it.get("session")
+        pair = (it["skill_id"], it["resource_id"], it["type"], (sess or {}).get("session_id"))  # a *session* repeated is the duplicate
         dupes += pair in seen_pairs
         seen_pairs.add(pair)
         r = it["reason"]
@@ -264,6 +272,33 @@ async def case_planner(st: EvalState, ctx: CaseContext, persona: dict[str, Any])
             unknown += row is None
             broken += row is not None and row.link_status != "ok"
             misaligned += it["skill_id"] not in st.resource_targets.get(it["resource_id"], set())
+            # Stage 2: recompute the session from the raw catalog row, independently of the planner's own code
+            if sess is None:
+                session_bad += 1
+                session_problems.append(f"{it['resource_id']}: no session provenance")
+            elif row is not None:
+                with_session += 1
+                parts = segment_durations(row.duration_min, policy)
+                idx = sess.get("index", 0)
+                ok = (
+                    sess["resource_id"] == row.resource_id and sess["session_id"] == f"{row.resource_id}#{idx}"
+                    and sess["count"] == len(parts) and 1 <= idx <= len(parts) and sess["resource_duration_min"] == row.duration_min
+                    and it["est_minutes"] == parts[idx - 1] and it["est_minutes"] <= cap
+                    and sess["label"] == (row.title if len(parts) == 1 else f"{row.title} — Study Segment {idx} of {len(parts)}")
+                )
+                if not ok:
+                    session_bad += 1
+                    session_problems.append(f"{sess['session_id']}: does not match the catalog-derived session")
+                if sess["session_id"] in session_ids:
+                    session_dupes += 1
+                session_ids.add(sess["session_id"])
+                consumed[row.resource_id] = consumed.get(row.resource_id, 0) + it["est_minutes"]
+    over_consumed = sum(1 for rid, mins in consumed.items() if st.resources[rid].duration_min < mins)
+    topup_items = topup_min = 0
+    for step in (run or {}).get("steps", []):
+        if step["actor"] == "Plan Filler" and str(step.get("output_ref", "")).startswith("topup="):
+            n, mins = str(step["output_ref"])[len("topup="):].split("/")
+            topup_items, topup_min = int(n), int(mins)
     order_violations = sum(
         1 for e in gaps["prerequisite_edges"]
         if e["from_skill_id"] in day and e["to_skill_id"] in day and day[e["from_skill_id"]] > day[e["to_skill_id"]]
@@ -271,14 +306,17 @@ async def case_planner(st: EvalState, ctx: CaseContext, persona: dict[str, Any])
     objective_ids = [o["objective_id"] for o in gaps["objectives"]]
     plan_objectives = {i["objective_id"] for i in items}
     top10 = objective_ids[:10]
-    cap = persona.get("session", 45)
 
     out.fallback = bool(plan["degraded"])
     out.schema_valid = True
     out.validator_pass = not plan["degraded"]  # committed straight from the LLM draft == the deterministic validator accepted it
     out.metrics = {
         "hours": persona["hours"], "budget_min": budget, "scheduled_min": total, "utilization": _rate(total, budget),
+        "utilization_effective": _rate(total, budget * 0.9),  # of hours*60*0.9, the planner's own budget (design 16.3)
         "items": len(items), "items_with_resource": with_res,
+        "items_with_session": with_session, "session_problems": session_bad, "duplicate_sessions": session_dupes,
+        "resources_over_consumed": over_consumed, "distinct_resources": len(consumed),
+        "topup_items": topup_items, "topup_min": topup_min, "model_selected_min": total - topup_min,
         "first_attempt_pass": (not plan["degraded"]) and (planner_loops in (None, 1)),
         "planner_loops": planner_loops, "validator_rejections": len(rejected),
         "objectives_total": len(objective_ids), "objectives_covered": len(plan_objectives & set(objective_ids)),
@@ -291,6 +329,8 @@ async def case_planner(st: EvalState, ctx: CaseContext, persona: dict[str, Any])
     }
     out.checks = {
         "within_time_budget": total <= budget,
+        "sessions_are_real_valid_and_within_cap": session_bad == 0 and over_consumed == 0,
+        "no_duplicate_sessions": session_dupes == 0,
         "every_resource_exists_and_is_healthy": unknown == 0 and broken == 0,
         "resource_targets_the_scheduled_skill": misaligned == 0,
         "no_blocked_skill_scheduled": blocked == 0,
@@ -299,6 +339,7 @@ async def case_planner(st: EvalState, ctx: CaseContext, persona: dict[str, Any])
     }
     out.examples = [{
         "persona": persona["id"], "hours": persona["hours"], "utilization": f"{total}/{budget} min",
+        "session_problems": session_problems[:3], "topup": f"{topup_items} items / {topup_min} min",
         "degraded(fallback)": plan["degraded"], "validator_rejections": [s["output_ref"] for s in rejected],
         "first_items": [(i["type"], i["skill_id"], i["resource_id"], i["est_minutes"], i["day_slot"]) for i in items[:3]],
         "reason": plan["overall_reason"][:160],

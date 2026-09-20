@@ -1,0 +1,4245 @@
+{
+  "meta": {
+    "mode": "live",
+    "suite": "full",
+    "timestamp_utc": "2026-09-20T13:25:43Z",
+    "git_commit": "e528c6a",
+    "git_dirty": true,
+    "python": "python 3.14.3",
+    "providers": {
+      "llm_provider": "groq",
+      "llm_small_model": "openai/gpt-oss-20b",
+      "llm_mid_model": "openai/gpt-oss-120b",
+      "llm_strong_model": "openai/gpt-oss-120b",
+      "llm_timeout_s": 25.0,
+      "embedding_provider": "huggingface",
+      "embedding_model": "Qwen/Qwen3-Embedding-0.6B",
+      "vlm_provider": "huggingface",
+      "vlm_model": "deepseek-ai/DeepSeek-V4.1-Flash:novita",
+      "web_search_provider": "tavily"
+    },
+    "credentials_present": {
+      "LLM_API_KEY": true,
+      "HF_TOKEN": true,
+      "TAVILY_API_KEY": true,
+      "GITHUB_TOKEN": true
+    },
+    "dataset": {
+      "graph_version": "v0.1.0-domain-pack",
+      "gold_hash": "3dfee14d3597",
+      "gold_live_version": "live-eval-gold-1"
+    },
+    "prompt_versions": {
+      "profiler": "d0a1b32207",
+      "planner": "33f740114c",
+      "assessor": "1bd79fddc6",
+      "reflection": "ceb7cb8896",
+      "tutor": "f26b8bbe8a"
+    },
+    "deterministic_regression_test_count": 0,
+    "cases_planned": 10,
+    "pacing": {
+      "min_interval_s": 2.0,
+      "tpm_budget": 6000.0,
+      "cooldown_s": 75,
+      "rerun_after_cooldown": 1,
+      "breaker_trips_before_abort": 3
+    }
+  },
+  "technical": {
+    "total_cases": 10,
+    "successful_cases": 1,
+    "fallback_cases": 0,
+    "failed_cases": 0,
+    "provider_error_cases": 6,
+    "skipped_cases": 3,
+    "schema_valid_rate": 1.0,
+    "schema_valid_n": 1,
+    "validator_pass_rate": 1.0,
+    "validator_pass_n": 1,
+    "fallback_rate": 0.0,
+    "fallback_rate_n": 1,
+    "llm_calls": 17,
+    "llm_calls_degraded": 15,
+    "gateway_retries": 30,
+    "agent_schema_retries": 0,
+    "retry_rate_per_call": 1.765,
+    "calls_needing_retry_rate": 0.882,
+    "llm_call_latency_ms": {
+      "avg": 2540.0,
+      "p50": 669.0,
+      "p95": 4411.0,
+      "max": 4411.0,
+      "n": 2
+    },
+    "case_latency_ms": {
+      "avg": 4629.0,
+      "p50": 4629.0,
+      "p95": 4629.0,
+      "n": 1
+    },
+    "provider_errors": {
+      "llm_attempt_errors_by_category": {
+        "rate_limit": 45
+      },
+      "non_llm_provider_errors": {
+        "embeddings": {
+          "fell_back_to_deterministic": 142
+        }
+      }
+    },
+    "tokens_in": 3381,
+    "tokens_out": 1697
+  },
+  "llm_summary": {
+    "calls": 17,
+    "live_ok_calls": 2,
+    "degraded_calls": 15,
+    "replayed_calls": 0,
+    "non_json_answers": 0,
+    "gateway_retries": 30,
+    "provider_attempts": 47,
+    "provider_error_attempts": 45,
+    "provider_errors_by_category": {
+      "rate_limit": 45
+    },
+    "tokens_in": 3381,
+    "tokens_out": 1697,
+    "latency_ms_avg": 2539.8,
+    "latency_ms_p50": 668.7,
+    "latency_ms_p95": 4411.0,
+    "latency_ms_max": 4411.0,
+    "calls_by_tier": {
+      "mid": 16,
+      "small": 1
+    },
+    "models": [
+      "openai/gpt-oss-120b",
+      "openai/gpt-oss-20b"
+    ]
+  },
+  "quality": {
+    "planner": {
+      "final plan validity (all hard checks)": {
+        "value": 1.0,
+        "n": 1,
+        "note": "budget, referential integrity, alignment, order, non-empty"
+      },
+      "LLM draft accepted by validator on first attempt": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "fallback-planner rate": {
+        "value": 0.0,
+        "n": 1,
+        "note": "deterministic planner replaced the LLM plan"
+      },
+      "validator rejections (drafts)": {
+        "value": 0,
+        "n": 1,
+        "note": ""
+      },
+      "objective coverage (all objectives)": {
+        "value": 0.2,
+        "n": 1,
+        "note": "budget-limited by design"
+      },
+      "objective coverage (top-10 by priority)": {
+        "value": 0.3,
+        "n": 1,
+        "note": ""
+      },
+      "prerequisite ordering": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "resource/skill alignment (TARGETS edge exists)": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "time-budget adherence (<= budget)": {
+        "value": 1.0,
+        "n": 1,
+        "note": ""
+      },
+      "unsupported resources scheduled": {
+        "value": 0,
+        "n": 1,
+        "note": "must be 0"
+      },
+      "items with a reason text": {
+        "value": 1.0,
+        "n": 1,
+        "note": "LLM-phrased, display only"
+      },
+      "items with ID provenance (graph_path / evidence_ids / decision_id)": {
+        "value": 1.0,
+        "n": 1,
+        "note": "design 16.6 says IDs are attached deterministically"
+      },
+      "mean budget utilization": {
+        "value": 0.704,
+        "n": 1,
+        "note": "of hours*60 (Stage 1 baseline: 0.219); Stage 2 sessionization targets acceptable, not maximal, use"
+      },
+      "mean utilization of the planner's own (0.9-slack) budget": {
+        "value": 0.782,
+        "n": 1,
+        "note": ""
+      },
+      "resource items with session provenance": {
+        "value": 1.0,
+        "n": 1,
+        "note": "Stage 2: must be 1.0"
+      },
+      "sessions matching the catalog-derived session (problems)": {
+        "value": 0,
+        "n": 1,
+        "note": "recomputed from the raw catalog row; must be 0"
+      },
+      "duplicate sessions / resources over-consumed": {
+        "value": 0,
+        "n": 1,
+        "note": "must be 0"
+      },
+      "minutes added by the deterministic top-up (share of scheduled)": {
+        "value": 0.0,
+        "n": 1,
+        "note": "the rest was selected by the model (or the fallback planner)"
+      },
+      "distinct resources per plan (mean)": {
+        "value": 4.0,
+        "n": 1,
+        "note": ""
+      },
+      "plans under-filled (< 50% of budget)": {
+        "value": 0.0,
+        "n": 1,
+        "note": ""
+      },
+      "coherence: overall reason present, no duplicate items": {
+        "value": 1.0,
+        "n": 1,
+        "note": "deterministic proxy; no LLM judge"
+      }
+    }
+  },
+  "cases": [
+    {
+      "area": "planner",
+      "case_id": "plan-be-short-sessions",
+      "status": "pass",
+      "skip_reason": null,
+      "latency_ms": 4628.9,
+      "llm_calls": 1,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 1,
+      "fallback": false,
+      "schema_valid": true,
+      "validator_pass": true,
+      "metrics": {
+        "hours": 9,
+        "budget_min": 540,
+        "scheduled_min": 380,
+        "utilization": 0.7037037037037037,
+        "utilization_effective": 0.7818930041152263,
+        "items": 13,
+        "items_with_resource": 13,
+        "items_with_session": 13,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 4,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 380,
+        "first_attempt_pass": true,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 15,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 13,
+        "items_with_id_provenance": 13,
+        "items_with_reason_text": 13,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 30,
+        "session_cap_min": 30,
+        "days_used": 5,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "be-short-sessions",
+          "hours": 9,
+          "utilization": "380/540 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": false,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.http_fundamentals",
+              "res.mdn_http_overview",
+              30,
+              1
+            ],
+            [
+              "resource",
+              "skill.sql_fundamentals",
+              "res.sqlbolt",
+              30,
+              1
+            ],
+            [
+              "resource",
+              "skill.programming_fundamentals",
+              "res.py_tutorial",
+              30,
+              1
+            ]
+          ],
+          "reason": "Focused on core HTTP, SQL, and Python fundamentals within budget."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": false,
+      "degraded_reasons": [],
+      "first_attempt_provider_error": false,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-ml-novice-5h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31467.7,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 5,
+        "budget_min": 300,
+        "scheduled_min": 188,
+        "utilization": 0.6266666666666667,
+        "utilization_effective": 0.6962962962962963,
+        "items": 5,
+        "items_with_resource": 4,
+        "items_with_session": 4,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 188,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 10,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 4,
+        "items_with_id_provenance": 5,
+        "items_with_reason_text": 5,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 3,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-novice-5h",
+          "hours": 5,
+          "utilization": "188/300 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.python",
+              "res.py_tutorial",
+              45,
+              1
+            ],
+            [
+              "practice",
+              "skill.python",
+              null,
+              10,
+              3
+            ],
+            [
+              "resource",
+              "skill.algebra_basics",
+              "res.khan_algebra",
+              43,
+              2
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-ml-claims-8h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31396.7,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 8,
+        "budget_min": 480,
+        "scheduled_min": 309,
+        "utilization": 0.64375,
+        "utilization_effective": 0.7152777777777778,
+        "items": 7,
+        "items_with_resource": 7,
+        "items_with_session": 7,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 309,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 14,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 7,
+        "items_with_id_provenance": 7,
+        "items_with_reason_text": 7,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 4,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-claims-8h",
+          "hours": 8,
+          "utilization": "309/480 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.algebra_basics",
+              "res.khan_algebra",
+              43,
+              1
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              1
+            ],
+            [
+              "resource",
+              "skill.cli_basics",
+              "res.fcc_command_line",
+              45,
+              2
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-ml-heavy-20h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31419.4,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 20,
+        "budget_min": 1200,
+        "scheduled_min": 705,
+        "utilization": 0.5875,
+        "utilization_effective": 0.6527777777777778,
+        "items": 16,
+        "items_with_resource": 16,
+        "items_with_session": 16,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 705,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 15,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 16,
+        "items_with_id_provenance": 16,
+        "items_with_reason_text": 16,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 4,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-heavy-20h",
+          "hours": 20,
+          "utilization": "705/1200 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.algebra_basics",
+              "res.khan_algebra",
+              43,
+              1
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              1
+            ],
+            [
+              "resource",
+              "skill.cli_basics",
+              "res.fcc_command_line",
+              45,
+              1
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-ml-tiny-2h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31363.0,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 2,
+        "budget_min": 120,
+        "scheduled_min": 88,
+        "utilization": 0.7333333333333333,
+        "utilization_effective": 0.8148148148148148,
+        "items": 2,
+        "items_with_resource": 2,
+        "items_with_session": 2,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 2,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 88,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 14,
+        "objectives_covered": 2,
+        "top10_total": 10,
+        "top10_covered": 2,
+        "aligned_resources": 2,
+        "items_with_id_provenance": 2,
+        "items_with_reason_text": 2,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 2,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "ml-tiny-2h",
+          "hours": 2,
+          "utilization": "88/120 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.algebra_basics",
+              "res.khan_algebra",
+              43,
+              1
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              2
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-da-10h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31482.5,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 10,
+        "budget_min": 600,
+        "scheduled_min": 415,
+        "utilization": 0.6916666666666667,
+        "utilization_effective": 0.7685185185185185,
+        "items": 10,
+        "items_with_resource": 9,
+        "items_with_session": 9,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 415,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 12,
+        "objectives_covered": 3,
+        "top10_total": 10,
+        "top10_covered": 3,
+        "aligned_resources": 9,
+        "items_with_id_provenance": 10,
+        "items_with_reason_text": 10,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 5,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "da-10h",
+          "hours": 10,
+          "utilization": "415/600 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.python",
+              "res.py_tutorial",
+              45,
+              1
+            ],
+            [
+              "practice",
+              "skill.python",
+              null,
+              10,
+              4
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              1
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-da-novice-4h",
+      "status": "provider_error",
+      "skip_reason": null,
+      "latency_ms": 31437.2,
+      "llm_calls": 1,
+      "llm_degraded": 1,
+      "gateway_retries": 2,
+      "agent_retries": 0,
+      "attempts": 3,
+      "fallback": true,
+      "schema_valid": true,
+      "validator_pass": false,
+      "metrics": {
+        "hours": 4,
+        "budget_min": 240,
+        "scheduled_min": 155,
+        "utilization": 0.6458333333333334,
+        "utilization_effective": 0.7175925925925926,
+        "items": 5,
+        "items_with_resource": 3,
+        "items_with_session": 3,
+        "session_problems": 0,
+        "duplicate_sessions": 0,
+        "resources_over_consumed": 0,
+        "distinct_resources": 3,
+        "topup_items": 0,
+        "topup_min": 0,
+        "model_selected_min": 155,
+        "first_attempt_pass": false,
+        "planner_loops": 1,
+        "validator_rejections": 0,
+        "objectives_total": 9,
+        "objectives_covered": 3,
+        "top10_total": 9,
+        "top10_covered": 3,
+        "aligned_resources": 3,
+        "items_with_id_provenance": 5,
+        "items_with_reason_text": 5,
+        "overall_reason_present": true,
+        "duplicate_items": 0,
+        "max_item_min": 45,
+        "session_cap_min": 45,
+        "days_used": 3,
+        "under_filled_50pct": false
+      },
+      "checks": {
+        "within_time_budget": true,
+        "sessions_are_real_valid_and_within_cap": true,
+        "no_duplicate_sessions": true,
+        "every_resource_exists_and_is_healthy": true,
+        "resource_targets_the_scheduled_skill": true,
+        "no_blocked_skill_scheduled": true,
+        "prerequisite_order": true,
+        "non_empty_week": true
+      },
+      "failed_checks": [],
+      "examples": [
+        {
+          "persona": "da-novice-4h",
+          "hours": 4,
+          "utilization": "155/240 min",
+          "session_problems": [],
+          "topup": "0 items / 0 min",
+          "degraded(fallback)": true,
+          "validator_rejections": [],
+          "first_items": [
+            [
+              "resource",
+              "skill.python",
+              "res.py_tutorial",
+              45,
+              1
+            ],
+            [
+              "practice",
+              "skill.python",
+              null,
+              10,
+              1
+            ],
+            [
+              "resource",
+              "skill.descriptive_statistics",
+              "res.khan_stats",
+              45,
+              2
+            ]
+          ],
+          "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+        }
+      ],
+      "notes": [],
+      "error": null,
+      "throttled": true,
+      "degraded_reasons": [
+        "rate_limit"
+      ],
+      "first_attempt_provider_error": true,
+      "provider_calls": []
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-be-12h",
+      "status": "skipped",
+      "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+      "latency_ms": 0.0,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {},
+      "checks": {},
+      "failed_checks": [],
+      "examples": [],
+      "notes": [],
+      "error": null,
+      "throttled": false
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-be-watch-6h",
+      "status": "skipped",
+      "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+      "latency_ms": 0.0,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {},
+      "checks": {},
+      "failed_checks": [],
+      "examples": [],
+      "notes": [],
+      "error": null,
+      "throttled": false
+    },
+    {
+      "area": "planner",
+      "case_id": "plan-da-read-7h",
+      "status": "skipped",
+      "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+      "latency_ms": 0.0,
+      "llm_calls": 0,
+      "llm_degraded": 0,
+      "gateway_retries": 0,
+      "agent_retries": 0,
+      "attempts": 0,
+      "fallback": null,
+      "schema_valid": null,
+      "validator_pass": null,
+      "metrics": {},
+      "checks": {},
+      "failed_checks": [],
+      "examples": [],
+      "notes": [],
+      "error": null,
+      "throttled": false
+    }
+  ],
+  "cases_by_area": {
+    "planner": [
+      {
+        "area": "planner",
+        "case_id": "plan-be-short-sessions",
+        "status": "pass",
+        "skip_reason": null,
+        "latency_ms": 4628.9,
+        "llm_calls": 1,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 1,
+        "fallback": false,
+        "schema_valid": true,
+        "validator_pass": true,
+        "metrics": {
+          "hours": 9,
+          "budget_min": 540,
+          "scheduled_min": 380,
+          "utilization": 0.7037037037037037,
+          "utilization_effective": 0.7818930041152263,
+          "items": 13,
+          "items_with_resource": 13,
+          "items_with_session": 13,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 4,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 380,
+          "first_attempt_pass": true,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 15,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 13,
+          "items_with_id_provenance": 13,
+          "items_with_reason_text": 13,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 30,
+          "session_cap_min": 30,
+          "days_used": 5,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "be-short-sessions",
+            "hours": 9,
+            "utilization": "380/540 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": false,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.http_fundamentals",
+                "res.mdn_http_overview",
+                30,
+                1
+              ],
+              [
+                "resource",
+                "skill.sql_fundamentals",
+                "res.sqlbolt",
+                30,
+                1
+              ],
+              [
+                "resource",
+                "skill.programming_fundamentals",
+                "res.py_tutorial",
+                30,
+                1
+              ]
+            ],
+            "reason": "Focused on core HTTP, SQL, and Python fundamentals within budget."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": false,
+        "degraded_reasons": [],
+        "first_attempt_provider_error": false,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-ml-novice-5h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31467.7,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 5,
+          "budget_min": 300,
+          "scheduled_min": 188,
+          "utilization": 0.6266666666666667,
+          "utilization_effective": 0.6962962962962963,
+          "items": 5,
+          "items_with_resource": 4,
+          "items_with_session": 4,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 188,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 10,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 4,
+          "items_with_id_provenance": 5,
+          "items_with_reason_text": 5,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 3,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-novice-5h",
+            "hours": 5,
+            "utilization": "188/300 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.python",
+                "res.py_tutorial",
+                45,
+                1
+              ],
+              [
+                "practice",
+                "skill.python",
+                null,
+                10,
+                3
+              ],
+              [
+                "resource",
+                "skill.algebra_basics",
+                "res.khan_algebra",
+                43,
+                2
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-ml-claims-8h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31396.7,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 8,
+          "budget_min": 480,
+          "scheduled_min": 309,
+          "utilization": 0.64375,
+          "utilization_effective": 0.7152777777777778,
+          "items": 7,
+          "items_with_resource": 7,
+          "items_with_session": 7,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 309,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 14,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 7,
+          "items_with_id_provenance": 7,
+          "items_with_reason_text": 7,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 4,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-claims-8h",
+            "hours": 8,
+            "utilization": "309/480 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.algebra_basics",
+                "res.khan_algebra",
+                43,
+                1
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                1
+              ],
+              [
+                "resource",
+                "skill.cli_basics",
+                "res.fcc_command_line",
+                45,
+                2
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-ml-heavy-20h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31419.4,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 20,
+          "budget_min": 1200,
+          "scheduled_min": 705,
+          "utilization": 0.5875,
+          "utilization_effective": 0.6527777777777778,
+          "items": 16,
+          "items_with_resource": 16,
+          "items_with_session": 16,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 705,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 15,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 16,
+          "items_with_id_provenance": 16,
+          "items_with_reason_text": 16,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 4,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-heavy-20h",
+            "hours": 20,
+            "utilization": "705/1200 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.algebra_basics",
+                "res.khan_algebra",
+                43,
+                1
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                1
+              ],
+              [
+                "resource",
+                "skill.cli_basics",
+                "res.fcc_command_line",
+                45,
+                1
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-ml-tiny-2h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31363.0,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 2,
+          "budget_min": 120,
+          "scheduled_min": 88,
+          "utilization": 0.7333333333333333,
+          "utilization_effective": 0.8148148148148148,
+          "items": 2,
+          "items_with_resource": 2,
+          "items_with_session": 2,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 2,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 88,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 14,
+          "objectives_covered": 2,
+          "top10_total": 10,
+          "top10_covered": 2,
+          "aligned_resources": 2,
+          "items_with_id_provenance": 2,
+          "items_with_reason_text": 2,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 2,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "ml-tiny-2h",
+            "hours": 2,
+            "utilization": "88/120 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.algebra_basics",
+                "res.khan_algebra",
+                43,
+                1
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                2
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-da-10h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31482.5,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 10,
+          "budget_min": 600,
+          "scheduled_min": 415,
+          "utilization": 0.6916666666666667,
+          "utilization_effective": 0.7685185185185185,
+          "items": 10,
+          "items_with_resource": 9,
+          "items_with_session": 9,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 415,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 12,
+          "objectives_covered": 3,
+          "top10_total": 10,
+          "top10_covered": 3,
+          "aligned_resources": 9,
+          "items_with_id_provenance": 10,
+          "items_with_reason_text": 10,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 5,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "da-10h",
+            "hours": 10,
+            "utilization": "415/600 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.python",
+                "res.py_tutorial",
+                45,
+                1
+              ],
+              [
+                "practice",
+                "skill.python",
+                null,
+                10,
+                4
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                1
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-da-novice-4h",
+        "status": "provider_error",
+        "skip_reason": null,
+        "latency_ms": 31437.2,
+        "llm_calls": 1,
+        "llm_degraded": 1,
+        "gateway_retries": 2,
+        "agent_retries": 0,
+        "attempts": 3,
+        "fallback": true,
+        "schema_valid": true,
+        "validator_pass": false,
+        "metrics": {
+          "hours": 4,
+          "budget_min": 240,
+          "scheduled_min": 155,
+          "utilization": 0.6458333333333334,
+          "utilization_effective": 0.7175925925925926,
+          "items": 5,
+          "items_with_resource": 3,
+          "items_with_session": 3,
+          "session_problems": 0,
+          "duplicate_sessions": 0,
+          "resources_over_consumed": 0,
+          "distinct_resources": 3,
+          "topup_items": 0,
+          "topup_min": 0,
+          "model_selected_min": 155,
+          "first_attempt_pass": false,
+          "planner_loops": 1,
+          "validator_rejections": 0,
+          "objectives_total": 9,
+          "objectives_covered": 3,
+          "top10_total": 9,
+          "top10_covered": 3,
+          "aligned_resources": 3,
+          "items_with_id_provenance": 5,
+          "items_with_reason_text": 5,
+          "overall_reason_present": true,
+          "duplicate_items": 0,
+          "max_item_min": 45,
+          "session_cap_min": 45,
+          "days_used": 3,
+          "under_filled_50pct": false
+        },
+        "checks": {
+          "within_time_budget": true,
+          "sessions_are_real_valid_and_within_cap": true,
+          "no_duplicate_sessions": true,
+          "every_resource_exists_and_is_healthy": true,
+          "resource_targets_the_scheduled_skill": true,
+          "no_blocked_skill_scheduled": true,
+          "prerequisite_order": true,
+          "non_empty_week": true
+        },
+        "failed_checks": [],
+        "examples": [
+          {
+            "persona": "da-novice-4h",
+            "hours": 4,
+            "utilization": "155/240 min",
+            "session_problems": [],
+            "topup": "0 items / 0 min",
+            "degraded(fallback)": true,
+            "validator_rejections": [],
+            "first_items": [
+              [
+                "resource",
+                "skill.python",
+                "res.py_tutorial",
+                45,
+                1
+              ],
+              [
+                "practice",
+                "skill.python",
+                null,
+                10,
+                1
+              ],
+              [
+                "resource",
+                "skill.descriptive_statistics",
+                "res.khan_stats",
+                45,
+                2
+              ]
+            ],
+            "reason": "Generated by the deterministic fallback planner: objectives ordered by priority and prerequisite layer, budget-fit greedily, no LLM narration."
+          }
+        ],
+        "notes": [],
+        "error": null,
+        "throttled": true,
+        "degraded_reasons": [
+          "rate_limit"
+        ],
+        "first_attempt_provider_error": true,
+        "provider_calls": []
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-be-12h",
+        "status": "skipped",
+        "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+        "latency_ms": 0.0,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {},
+        "checks": {},
+        "failed_checks": [],
+        "examples": [],
+        "notes": [],
+        "error": null,
+        "throttled": false
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-be-watch-6h",
+        "status": "skipped",
+        "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+        "latency_ms": 0.0,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {},
+        "checks": {},
+        "failed_checks": [],
+        "examples": [],
+        "notes": [],
+        "error": null,
+        "throttled": false
+      },
+      {
+        "area": "planner",
+        "case_id": "plan-da-read-7h",
+        "status": "skipped",
+        "skip_reason": "aborted: the provider stayed rate-limited after repeated cooldowns",
+        "latency_ms": 0.0,
+        "llm_calls": 0,
+        "llm_degraded": 0,
+        "gateway_retries": 0,
+        "agent_retries": 0,
+        "attempts": 0,
+        "fallback": null,
+        "schema_valid": null,
+        "validator_pass": null,
+        "metrics": {},
+        "checks": {},
+        "failed_checks": [],
+        "examples": [],
+        "notes": [],
+        "error": null,
+        "throttled": false
+      }
+    ]
+  },
+  "throttle_events": [
+    {
+      "case_id": "plan-ml-novice-5h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 37688.2
+    },
+    {
+      "case_id": "plan-ml-claims-8h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 41044.0
+    },
+    {
+      "case_id": "plan-ml-heavy-20h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 109134.8
+    },
+    {
+      "case_id": "plan-ml-tiny-2h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 31362.7
+    },
+    {
+      "case_id": "plan-da-10h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 36184.4
+    },
+    {
+      "case_id": "plan-da-novice-4h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 33234.1
+    },
+    {
+      "case_id": "plan-be-12h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 40001.1
+    },
+    {
+      "case_id": "plan-be-watch-6h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 2,
+      "latency_ms": 37628.1
+    },
+    {
+      "case_id": "plan-da-read-7h",
+      "reasons": [
+        "rate_limit"
+      ],
+      "llm_calls": 1,
+      "latency_ms": 31349.7
+    }
+  ],
+  "breaker_trips": 3,
+  "llm_calls": [
+    {
+      "operation": "plan-ml-novice-5h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31339.1,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        758.0,
+        734.0,
+        709.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31221.1,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        804.0,
+        798.0,
+        770.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31258.9,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        668.0,
+        653.0,
+        644.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-tiny-2h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31190.9,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        509.0,
+        488.0,
+        482.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-da-10h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31224.8,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        309.0,
+        282.0,
+        266.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-da-novice-4h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31286.7,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        81.0,
+        72.0,
+        51.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-12h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31266.4,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        252.0,
+        229.0,
+        213.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "schema": "SkillDisambiguation",
+      "tier": "small",
+      "provider": "groq",
+      "model": "openai/gpt-oss-20b",
+      "latency_ms": 668.7,
+      "attempts": 1,
+      "attempt_errors": [],
+      "retry_after_s": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 304,
+      "tokens_out": 35,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31326.6,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        70.0,
+        21.0,
+        7.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-be-short-sessions",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "latency_ms": 4411.0,
+      "attempts": 1,
+      "attempt_errors": [],
+      "retry_after_s": [],
+      "degraded": false,
+      "from_replay": false,
+      "tokens_in": 3077,
+      "tokens_out": 1662,
+      "error_category": null,
+      "non_json": false
+    },
+    {
+      "operation": "plan-da-read-7h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31192.9,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        1262.0,
+        1789.0,
+        1231.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31282.3,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        1695.0,
+        1142.0,
+        1127.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31236.4,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        1808.0,
+        1793.0,
+        1258.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31247.1,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        1225.0,
+        1210.0,
+        1200.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-ml-tiny-2h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31204.5,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        1112.0,
+        1097.0,
+        1075.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-da-10h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31320.4,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        896.0,
+        868.0,
+        846.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    },
+    {
+      "operation": "plan-da-novice-4h",
+      "schema": "PlannerDraft",
+      "tier": "mid",
+      "provider": "groq",
+      "model": "",
+      "latency_ms": 31282.1,
+      "attempts": 3,
+      "attempt_errors": [
+        "rate_limit",
+        "rate_limit",
+        "rate_limit"
+      ],
+      "retry_after_s": [
+        736.0,
+        721.0,
+        695.0
+      ],
+      "degraded": true,
+      "from_replay": false,
+      "tokens_in": 0,
+      "tokens_out": 0,
+      "error_category": "rate_limit",
+      "non_json": false
+    }
+  ],
+  "provider_calls": [
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 642.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=64 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 598.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=64 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 580.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=12 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 605.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 591.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 599.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 605.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 592.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 588.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 612.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 609.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 631.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 593.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 596.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 591.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 588.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 581.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 594.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 618.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 575.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 600.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 614.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 584.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 688.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 597.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 579.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 591.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 905.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 933.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 999.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 787.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1101.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 825.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 789.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 778.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 848.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 595.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 578.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 597.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 577.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 576.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 609.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 593.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 580.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 577.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 572.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 584.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 617.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 583.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 598.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 593.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 589.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 588.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 588.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 569.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 600.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 663.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 631.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 601.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 662.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 617.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 591.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 614.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 687.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 647.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 647.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 599.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 650.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 595.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 650.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 594.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 592.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 582.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 581.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 609.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 593.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 579.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 592.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 603.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 580.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 600.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 592.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 576.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 665.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 579.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 644.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 605.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 580.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 596.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 579.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 599.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 580.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 605.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 695.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 603.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 581.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 591.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 589.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 634.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 578.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 596.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.7,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 598.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 576.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 785.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 628.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 581.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 949.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 791.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 4054.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 816.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 885.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 889.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 825.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 770.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 777.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 593.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 598.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 574.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "bootstrap",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 596.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 578.2,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 592.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 586.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 579.0,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 814.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 609.4,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 598.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 589.3,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-novice-5h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 577.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 954.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 766.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1075.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1047.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 885.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 770.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 766.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 756.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 887.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 574.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 585.9,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-claims-8h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 587.5,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 11292.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 13986.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 44896.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-ml-heavy-20h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 7536.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 906.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 909.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 911.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 852.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 605.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-da-10h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 590.6,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-da-novice-4h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 831.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-da-novice-4h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 938.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 790.5,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 784.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 896.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 897.8,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 772.3,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 831.0,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 788.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 771.2,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 776.7,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 635.1,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-be-12h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 589.8,
+      "ok": false,
+      "fell_back": true,
+      "error_category": "fell_back_to_deterministic",
+      "detail": "batch=1 reason=status 402"
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 838.9,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=1"
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1513.6,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1959.4,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=64"
+    },
+    {
+      "operation": "plan-be-watch-6h",
+      "provider": "embeddings",
+      "model": "Qwen/Qwen3-Embedding-0.6B",
+      "latency_ms": 1024.1,
+      "ok": true,
+      "fell_back": false,
+      "error_category": null,
+      "detail": "batch=2"
+    }
+  ],
+  "offline_reference": {
+    "Tutor | citation-existence rate": 1.0,
+    "Tutor | out-of-scope / adversarial questions handled without fabricated citations": 1.0,
+    "Tutor | answers with >= 1 citation (in-scope questions)": 0.9375,
+    "Tutor | citation verifier rejects IDs not retrieved this turn": 1.0,
+    "Evidence | evidence correctness (span supports skill)": 1.0,
+    "Evidence | verbatim-span fidelity": 1.0,
+    "Evidence | span offsets valid against the raw (unscrubbed) text": 0.9412,
+    "Evidence | skill precision vs gold": 0.9216,
+    "Evidence | skill recall vs gold": 0.94,
+    "Evidence | forbidden-skill hits (injection / negatives)": 0,
+    "Evidence | fabricated claims rejected by span verification": 1.0,
+    "Normalization | top-1 accuracy (mappable labels)": 1.0,
+    "Normalization | alias/variant accuracy": 1.0,
+    "Normalization | unmappable labels left unmapped": 1.0,
+    "Gap | status accuracy vs independent oracle": 1.0,
+    "Gap | prerequisite consistency (ordering layers)": 1.0,
+    "Gap | verify-before-teach objective typing": 1.0,
+    "Prerequisites | graph: acyclic hard-prerequisite DAG, no dangling edges": 1.0,
+    "Retrieval | precision@3": 1.0,
+    "Retrieval | recall@3": 1.0,
+    "Retrieval | MRR": 1.0,
+    "Retrieval | NDCG@3": 0.9997,
+    "Retrieval | eligibility-violation rate": 0,
+    "Retrieval | coverage (>=1 eligible resource, session cap lifted)": 1.0,
+    "Retrieval | baseline precision@3 (vector-only, no graph)": 0.2633,
+    "Retrieval | coverage at the default 45-min session cap": 0.563,
+    "Performance | journey wall time (in-process, SQLite)": "0.75s",
+    "Performance | latency: resume_upload": "27 ms",
+    "Performance | latency: gaps": "40 ms",
+    "Performance | latency: plan": "107 ms",
+    "Performance | latency: scripted_attempt": "87 ms",
+    "Performance | latency: chat_1": "65 ms",
+    "Performance | latency: chat_2": "66 ms",
+    "Performance | LLM calls per journey": 7,
+    "Performance | LLM degraded calls": 7,
+    "Performance | agent retries per journey": 0,
+    "Performance | planner loops (plan run)": 1,
+    "Performance | tokens per journey": 0,
+    "Performance | retrieval time per journey": "18 ms",
+    "Performance | retrieval latency per skill (p50 / p95)": "1.5 / 2.3 ms",
+    "Performance | gap analysis, empty learner, largest role": "1.9 ms",
+    "Plan | final validity (budget / referential integrity / prerequisite order)": 1.0,
+    "Plan | personas producing an empty week": 0,
+    "Plan | personalization (mean pairwise Jaccard distance)": 0.748,
+    "Plan | scheduled minutes at 2/5/10/20 h per week": "88/176/397/705",
+    "Plan | budget utilization at 2/5/10/20 h per week": "73% / 59% / 66% / 59%",
+    "Struggle | repeated_misconception: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | missing_prerequisite: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | excessive_difficulty: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | cognitive_overload: recall / precision (primary cause)": "1.00 / 1.00",
+    "Struggle | false-positive interventions on benign learners": 0,
+    "Struggle | root-cause attribution (injected prerequisite / misconception id)": 1.0,
+    "Reflection | correct root-cause node rate": 1.0,
+    "Reflection | revisions valid (graph-connected root, closed operator set, committed + decision recorded)": 1.0,
+    "Reflection | false-positive reflection rate (a single untagged slip)": 0.0,
+    "Adaptation | events linked (signal -> reflection -> decision -> revision -> trace step), revert restores, cooldown holds": 1.0
+  },
+  "wall_time_s": 1614.7
+}

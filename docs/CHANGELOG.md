@@ -8,6 +8,33 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Stage 2 | 2026-09-20] Thin plans, large budgets & resource sessionization
+
+Fixes the Stage-1 finding that large weekly budgets stayed mostly empty (mean live utilization 21.9 %, 6 % at 20 h/week). Design, data model, rules,
+validation and results: `docs/RESOURCE_SESSIONIZATION.md`.
+
+- **Root cause (measured first):** the Retriever's hard `duration_ok` filter dropped every resource longer than the session cap (61/140 catalog resources; only 1-3 of
+  9-15 lesson objectives kept a candidate); the fallback and prompt used one indivisible resource per objective; V5 (3 skills) makes depth, not breadth, the only way to use
+  hours; no utilization objective existed; the catalog has no chapter metadata.
+- **Resource sessions** (`app/planning/sessions.py`): deterministic study segments of a real resource (`<resource_id>#<n>`, capped at the learner's session length, never
+  below `max // 2`, neutral "Study Segment n of N" labels, nominal offsets, no invented chapters). Property-tested for all durations 1-1000 x caps 5-60.
+- **Planner:** candidates are sessionized before any LLM call (`build_candidate_sets`, `sessionizable=True` in retrieval; ranking unchanged); the LLM selects `session_id`s and
+  code fixes their minutes; a deterministic, re-validated continuation fill (`app/planning/fill.py`) tops up an under-filled draft and powers the fallback planner (which no longer
+  reintroduces thin plans). "Acceptable utilization" = a ceiling of 80 % of the effective budget (not 100 %), leaving headroom for Reflection.
+- **Validator:** new hard `V_session_provenance` (real offered session, exact metadata/duration, no repeats, study order, no skipping ahead, <= resource duration), `V_DUP` keyed on
+  session, new soft `V_acceptable_utilization`. Reflection's patch validation is unchanged (`enforce_sessions=False`).
+- **Provenance:** `PlanItem.session` (+ nullable JSON column `plan_items.session`, migration `0008`) and deterministic `reason.evidence_ids`/`graph_path` on every item (design 16.6).
+  Multi-week: sessions the learner marked `done` are not re-offered (`list_completed_session_ids`).
+- **Results:** offline (fallback path, 10 personas) mean raw utilization 17.2 % -> 65.3 %, 1-3 -> 2-16 items, all hard checks pass. The live (Groq) evaluation only **partially**
+  completed because the provider quota was drained (429 `Retry-After` ~12 min; one run also saw HF embeddings `402`): LLM path n = 1 (13 % -> 70 %, first-attempt accept, 13 real
+  sessions, 0 problems); live fallback under 429: 64 % / 68 % vs 16 % / 13 % in Stage 1. The full live comparison is still owed.
+- **Defects found and fixed:** the same catalog resource scheduled under two objectives by the fallback (caught by the live run's new duplicate-session check); plans filled to ~96 % left
+  Reflection no room (caught by the regression suite -> ceiling 0.80).
+- **Tests:** 623 -> 686 (`test_resource_sessions.py`, `test_plan_sessions.py`, `test_plan_sessions_integration.py`); the live harness gained session-validity / duplicate / top-up / provenance metrics.
+- **Not changed:** provider architecture, frontend, Docker, security. The frontend does not yet render `session.label`.
+
+---
+
 ## [Stage 1 | 2026-09-20] Live LLM evaluation & quality baseline
 
 Measurement only -- no application code or API changed.

@@ -133,16 +133,21 @@ def eligibility_checks(
     session_cap_minutes: int,
     language: str,
     excluded_modalities: set[str],
+    sessionizable: bool = False,
 ) -> dict[str, bool]:
     """Every named hard-filter condition from design §14.3 point 2, except
     "all resource prerequisites are MET **or scheduled earlier**" -- no
     Planner/schedule exists yet to know what's "earlier", so this only
-    checks MET (a documented simplification, not a silent omission)."""
+    checks MET (a documented simplification, not a silent omission).
+
+    `sessionizable=True` (Stage 2, `app/planning/sessions.py`): the caller will divide a resource longer than
+    `session_cap_minutes` into study sessions that each fit the cap, so length alone no longer makes it ineligible
+    (`duration_ok` then only requires a positive duration). The default keeps the original whole-resource behaviour."""
     return {
         "link_ok": candidate.link_status == "ok",
         "level_band_ok": candidate.level_from <= current_level + 1 and candidate.level_to >= current_level,
         "prerequisites_met": all(p in met_skill_ids for p in candidate.prerequisite_skill_ids),
-        "duration_ok": candidate.duration_min <= session_cap_minutes,
+        "duration_ok": candidate.duration_min > 0 if sessionizable else candidate.duration_min <= session_cap_minutes,
         "language_ok": not language or not candidate.language or candidate.language == language,
         "modality_ok": candidate.modality not in excluded_modalities,
     }
@@ -156,6 +161,7 @@ def filter_eligible(
     session_cap_minutes: int,
     language: str,
     excluded_modalities: set[str],
+    sessionizable: bool = False,
 ) -> list[ResourceCandidate]:
     return [
         c
@@ -168,6 +174,7 @@ def filter_eligible(
                 session_cap_minutes=session_cap_minutes,
                 language=language,
                 excluded_modalities=excluded_modalities,
+                sessionizable=sessionizable,
             ).values()
         )
     ]
@@ -337,6 +344,7 @@ def recommend(
     learner_history: list[ResourceUsageRecord] | None = None,
     top_k: int = 5,
     as_of: date | None = None,
+    sessionizable: bool = False,
 ) -> list[ResourceRecommendation]:
     """The full design §14.3 pipeline (steps 2-5), pure and synchronous.
     Resources are never invented here: every returned recommendation's
@@ -366,6 +374,7 @@ def recommend(
         session_cap_minutes=session_cap_minutes,
         language=language,
         excluded_modalities=excluded_modalities,
+        sessionizable=sessionizable,
     )
     if not eligible:
         return []
@@ -398,6 +407,7 @@ def recommend(
                 session_cap_minutes=session_cap_minutes,
                 language=language,
                 excluded_modalities=excluded_modalities,
+                sessionizable=sessionizable,
             ),
             provenance={"method": "hybrid", "retrieved_at": retrieved_at},
         )

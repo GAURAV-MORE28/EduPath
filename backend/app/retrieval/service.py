@@ -89,6 +89,7 @@ class ResourceRetrievalService:
         learner_history: list[ResourceUsageRecord] | None = None,
         top_k: int = 5,
         as_of: date | None = None,
+        sessionizable: bool = False,
     ) -> list[ResourceRecommendation]:
         """design §14.3's `anchor -> eligibility filter -> hybrid retrieval
         -> rank -> MMR` pipeline for one `(skill_id, target_level)` gap. The
@@ -118,4 +119,5 @@ class ResourceRetrievalService:
             learner_history=learner_history,
             top_k=top_k,
             as_of=as_of,
+            sessionizable=sessionizable,
         )

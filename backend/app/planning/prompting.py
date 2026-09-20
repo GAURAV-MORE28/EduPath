@@ -16,13 +16,17 @@ import json
 import uuid
 from dataclasses import dataclass, field
 
+from app.core.thresholds import PLAN_TARGET_UTILIZATION
 from app.planning.candidates import ObjectiveCandidateSet
+from app.planning.sessions import session_meta
 
 PLANNER_SYSTEM_PROMPT = """You are the Planner for EduPath, an adaptive learning-path system.
 You will be given a weekly time budget (minutes) and a list of learning objectives, each with a
 pre-built candidate set: eligible resource IDs (already ranked, already filtered for eligibility)
 and practice/probe item IDs. You must select and sequence items ONLY from these candidate IDs --
-you may never invent a resource_id, practice_item_id, objective_id, or skill_id.
+you may never invent a resource_id, session_id, practice_item_id, objective_id, or skill_id.
+A long resource is offered as several study sessions (session_id "<resource_id>#<n>", n = 1..sessions);
+you choose which sessions to schedule, code fixes each session's minutes.
 
 Output ONLY a JSON object with this exact shape:
 {
@@ -32,6 +36,7 @@ Output ONLY a JSON object with this exact shape:
       "objective_id": "<one of the given objective_ids>",
       "skill_id": "<the objective's skill_id>",
       "resource_id": "<a resource_id from that objective's candidates, or null>",
+      "session_id": "<'<resource_id>#<n>' for a resource item, or null>",
       "practice_item_ids": ["<practice_item_id from that objective's candidates>", ...],
       "est_minutes": <integer>,
       "difficulty": <integer 1-3>,
@@ -45,7 +50,9 @@ Output ONLY a JSON object with this exact shape:
 
 Rules:
 - A "probe" item must use practice_item_ids from that objective's candidates and no resource_id.
-- A "resource" item must use a resource_id from that objective's candidates.
+- A "resource" item must use a resource_id from that objective's candidates and the session_id of ONE of its sessions
+  ("<resource_id>#<n>"). To study several sessions of a resource, emit one item per session, in ascending n starting at the
+  lowest offered n, with non-decreasing day_slot. Never skip a session and never repeat one.
 - Stay within the given time budget. Prefer higher-priority objectives first.
 - Respect prerequisite order: do not schedule a lesson on a skill before its hard prerequisites
   are met or scheduled earlier (day_slot), unless the prerequisite only needs a probe first.
@@ -73,9 +80,27 @@ class PlanItemDraft:
     day_slot: int
     depends_on: list[str] = field(default_factory=list)
     reason_text: str = ""
+    # Stage 2: the real study session (`app.planning.sessions.SessionMeta` as a dict) a resource item was resolved to.
+    session: dict | None = None
 
 
 _VALID_TYPES = {"resource", "practice", "probe", "project", "review"}
+
+
+def _resource_payload(r) -> dict:
+    """Compact on purpose (Groq's free tier is ~8K tokens/min): a session list is described as a count plus its minutes, never
+    spelled out id by id -- the parser validates every id the model produces against the real session table."""
+    minutes = [s.est_minutes for s in r.sessions]
+    payload = {"resource_id": r.resource_id, "title": r.title, "type": r.type, "modality": r.modality}
+    if len(minutes) == 1:
+        payload["sessions"] = 1
+        payload["minutes"] = minutes[0]
+    else:
+        payload["sessions"] = len(minutes)
+        payload["first_n"] = r.sessions[0].index  # earlier sessions may already be done
+        payload["minutes_each"] = f"{min(minutes)}-{max(minutes)}" if min(minutes) != max(minutes) else str(minutes[0])
+        payload["total_min"] = sum(minutes)
+    return payload
 
 
 def build_planner_prompt(
@@ -102,10 +127,7 @@ def build_planner_prompt(
             "unmet_hard_prerequisite_skills": unmet_prerequisites.get(cs.skill_id, []),
             "schedulable_this_week": all(p in objective_skills for p in unmet_prerequisites.get(cs.skill_id, [])),
             "priority": round(cs.priority, 3),
-            "candidate_resources": [
-                {"resource_id": r.resource_id, "title": r.title, "type": r.type, "duration_min": r.duration_min, "modality": r.modality}
-                for r in cs.resources
-            ],
+            "candidate_resources": [_resource_payload(r) for r in cs.resources],
             "candidate_practice_item_ids": cs.practice_item_ids,
         }
         for cs in sorted(candidate_sets.values(), key=lambda c: -c.priority)
@@ -124,8 +146,13 @@ def build_planner_prompt(
         "unmet_hard_prerequisite_skills, EVERY one of those skills must have an item on a STRICTLY EARLIER day_slot; "
         "if that is not possible, leave the objective out.\n"
         "3. Every item's difficulty must be <= its objective's max_item_difficulty.\n"
-        "4. Sum of est_minutes must be <= the weekly budget; use the chosen resource's duration_min as est_minutes.\n"
-        "5. Use each resource_id at most once."
+        "4. Sum of est_minutes must be <= the weekly budget; a session's est_minutes is its own length (minutes / minutes_each).\n"
+        "5. Use each session_id at most once (a single-session resource: each resource_id at most once).\n"
+        "6. Use the budget well: aim for roughly "
+        f"{round(PLAN_TARGET_UTILIZATION * 100)}% of it ({round(PLAN_TARGET_UTILIZATION * hours_budget_minutes)} min) with the "
+        "highest-value material for the objectives you keep -- more sessions of a long resource, then the next-ranked resource "
+        "for the same objective -- but never pad with unrelated material and never exceed the hard limits above. Keep reason_text "
+        "under 15 words."
     )
     parts = [
         f"Weekly time budget (minutes): {hours_budget_minutes:.0f}",
@@ -187,8 +214,25 @@ def parse_planner_response(
             raise PlannerParseError(f"item {i}: skill_id {skill_id!r} does not match objective {objective_id!r}")
 
         resource_id = raw.get("resource_id")
-        if resource_id is not None and resource_id not in {r.resource_id for r in cs.resources}:
-            raise PlannerParseError(f"item {i}: resource_id {resource_id!r} not in objective's candidates")
+        session_id = raw.get("session_id")
+        session = None
+        if session_id is not None:
+            # The session id is authoritative: it must be one this objective really offers, and it fixes the resource.
+            session = cs.sessions_by_id().get(session_id)
+            if session is None:
+                raise PlannerParseError(f"item {i}: session_id {session_id!r} not in objective's candidates")
+            if resource_id is not None and resource_id != session.resource_id:
+                raise PlannerParseError(f"item {i}: session_id {session_id!r} does not belong to resource_id {resource_id!r}")
+            resource_id = session.resource_id
+        elif resource_id is not None:
+            res = cs.resource(resource_id)
+            if res is None:
+                raise PlannerParseError(f"item {i}: resource_id {resource_id!r} not in objective's candidates")
+            if len(res.sessions) != 1:
+                raise PlannerParseError(
+                    f"item {i}: resource {resource_id!r} has {len(res.sessions)} sessions; give a session_id ('{resource_id}#<n>')"
+                )
+            session = res.sessions[0]  # a complete short resource: its only session is unambiguous
 
         practice_item_ids = raw.get("practice_item_ids") or []
         if not isinstance(practice_item_ids, list) or any(
@@ -197,7 +241,7 @@ def parse_planner_response(
             raise PlannerParseError(f"item {i}: practice_item_ids not all in objective's candidates")
 
         try:
-            est_minutes = int(raw["est_minutes"])
+            est_minutes = int(raw["est_minutes"]) if session is None else session.est_minutes
             difficulty = int(raw["difficulty"])
             day_slot = int(raw["day_slot"])
         except (KeyError, TypeError, ValueError) as exc:
@@ -225,6 +269,7 @@ def parse_planner_response(
                 day_slot=day_slot,
                 depends_on=list(depends_on),
                 reason_text=str(raw.get("reason_text", "")),
+                session=session_meta(session).__dict__ if session is not None else None,
             )
         )
 

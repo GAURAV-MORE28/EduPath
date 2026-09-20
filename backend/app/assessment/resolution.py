@@ -198,6 +198,7 @@ async def _apply_remediation_to_plan(
             depends_on=i.depends_on,
             reason=i.reason,
             status=i.status,
+            session=i.session,
         )
         for i in prior_items
     ]

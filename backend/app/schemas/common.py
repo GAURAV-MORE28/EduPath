@@ -95,6 +95,22 @@ class PlanItemReason(BaseModel):
     text: str = ""  # display-only
 
 
+class PlanItemSession(BaseModel):
+    """Stage 2 (`docs/RESOURCE_SESSIONIZATION.md`): which *study session* of `resource_id` a plan item is. Derived
+    deterministically by `app/planning/sessions.py` from the resource's own duration -- never LLM-authored. `start_min`/
+    `end_min` are the nominal minute range within the resource's *estimated* duration, not real chapter boundaries (the
+    catalog has none); `label` is neutral ("<title> — Study Segment 2 of 8") for the same reason."""
+
+    session_id: str
+    resource_id: str
+    index: int  # 1-based
+    count: int
+    label: str
+    start_min: int
+    end_min: int
+    resource_duration_min: int
+
+
 class PlanItem(BaseModel):
     """design §25.2/§28. `practice_item_ids` is an addition beyond §25.2's
     single `practice_set_id?` — no `PracticeSet` generation service exists
@@ -115,6 +131,7 @@ class PlanItem(BaseModel):
     depends_on: list[str] = []
     reason: PlanItemReason = PlanItemReason()
     status: str = "planned"  # planned | done | skipped
+    session: PlanItemSession | None = None  # Stage 2: set on resource items drawn from a sessionized resource
 
 
 class WeeklyPlan(BaseModel):

@@ -28,7 +28,7 @@ from app.planning.service import create_plan
 from app.reflection.service import UnknownRevisionError, revert_to_previous_revision
 from app.repositories.planning_repository import PlanningRepository
 from app.repositories.profiling_repository import ProfilingRepository
-from app.schemas.common import PlanItem, PlanItemReason
+from app.schemas.common import PlanItem, PlanItemReason, PlanItemSession
 from app.schemas.common import WeeklyPlan as WeeklyPlanOut
 from app.schemas.planning import CreatePlanRequest
 
@@ -101,6 +101,7 @@ async def get_current_plan_route(
             depends_on=r.depends_on,
             reason=PlanItemReason(**r.reason) if r.reason else PlanItemReason(),
             status=r.status,
+            session=PlanItemSession(**r.session) if r.session else None,
         )
         for r in item_rows
     ]

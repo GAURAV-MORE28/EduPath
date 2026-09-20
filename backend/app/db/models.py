@@ -432,6 +432,8 @@ class PlanItem(Base):
     depends_on: Mapped[list] = mapped_column(JSON, default=list)
     reason: Mapped[dict] = mapped_column(JSON, default=dict)
     status: Mapped[str] = mapped_column(String(16), default="planned")  # planned / done / skipped
+    # Stage 2: `PlanItemSession` (`app/schemas/common.py`) as JSON -- which study session of `resource_id` this item is.
+    session: Mapped[dict | None] = mapped_column(JSON, nullable=True)
 
 
 # ---------------------------------------------------------------------------

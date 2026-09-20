@@ -26,7 +26,7 @@ from app.repositories.catalog_repository import CatalogRepository
 from app.repositories.planning_repository import PlanningRepository
 from app.repositories.profiling_repository import ProfilingRepository
 from app.repositories.reflection_repository import ReflectionRepository
-from app.schemas.common import PlanItem, PlanItemReason, SkillGap
+from app.schemas.common import PlanItem, PlanItemReason, PlanItemSession, SkillGap
 from app.schemas.profiling import LearnerProfileOut
 from app.schemas.views import (
     EvidenceOut,
@@ -88,6 +88,7 @@ def _item_out(r: PlanItemRow) -> PlanItem:
         item_id=r.item_id, type=r.type, objective_id=r.objective_id, skill_id=r.skill_id, resource_id=r.resource_id,
         practice_item_ids=r.practice_item_ids, est_minutes=r.est_minutes, difficulty=r.difficulty, day_slot=r.day_slot,
         depends_on=r.depends_on, reason=PlanItemReason(**r.reason) if r.reason else PlanItemReason(), status=r.status,
+        session=PlanItemSession(**r.session) if r.session else None,
     )
 
 

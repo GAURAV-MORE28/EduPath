@@ -19,11 +19,20 @@ CLT and ZPD are honestly framed as *pedagogical heuristics* here (design
 claims to measure cognitive load or compute "the ZPD" exactly.
 
 Hard rules (ARCHITECTURE_CONTRACTS.md §10: "must be 0% violations on any
-committed plan"): V1, V2, V3, V4, V5, V_DUP, V9. A **Fallback Planner**
-(`app/planning/fallback.py`) must always satisfy all of these -- see that
-module.
+committed plan"): V1, V2, V3, V4, V5, V_DUP, V9, and (Stage 2, planning only)
+V_SESSION. A **Fallback Planner** (`app/planning/fallback.py`) must always
+satisfy all of these -- see that module.
 
-Soft rules (checked, logged, never block commit): V6, V7, V8, V10, V_COVERAGE.
+Soft rules (checked, logged, never block commit): V6, V7, V8, V10, V_COVERAGE,
+V_UTILIZATION (Stage 2).
+
+V_SESSION (`enforce_sessions=True`, which the G2 Planning graph sets and
+Reflection's patch validation does not): every resource item must name a real
+study session of its resource (`app/planning/sessions.py`) that the objective's
+candidate set actually offers, with the session's own duration, at most once in
+the plan, in study order and without skipping ahead, never consuming more than
+the resource's original duration. This is the deterministic guard that keeps a
+model from inventing sessions, durations or chapter structure.
 """
 from __future__ import annotations
 
@@ -34,11 +43,14 @@ from app.core.thresholds import (
     NEW_SKILL_CONCURRENCY_CAP_NOVICE,
     OVERLOAD_BUDGET_FACTOR,
     OVERLOAD_CONCURRENCY_REDUCTION,
+    PLAN_MIN_ACCEPTABLE_UTILIZATION,
     SESSION_CHUNK_MAX_MINUTES,
     WEEKLY_BUDGET_SLACK,
 )
 from app.gap.engine import MET, UNVERIFIED, SkillGapEntry
 from app.planning.candidates import ObjectiveCandidateSet
+from app.planning.fill import summarize_utilization
+from app.planning.sessions import session_meta
 from app.schemas.common import PlanItem
 
 # design §17.2's rule identifiers, kept UPPER_SNAKE (ARCHITECTURE_CONTRACTS.md
@@ -55,6 +67,8 @@ V9_POST_OVERLOAD_HEADROOM = "V9_post_overload_headroom"
 V10_GUIDANCE_FADING = "V10_guidance_fading"
 V_DUP = "V_no_unjustified_duplicates"
 V_COVERAGE = "V_required_objective_coverage"
+V_SESSION = "V_session_provenance"
+V_UTILIZATION = "V_acceptable_utilization"
 
 HARD = "hard"
 SOFT = "soft"
@@ -111,6 +125,8 @@ def validate_plan(
     hard_prereqs_by_skill: dict[str, list[str]],
     hours_budget_minutes: float,
     new_skill_cap: int = NEW_SKILL_CONCURRENCY_CAP,
+    enforce_sessions: bool = False,
+    min_acceptable_utilization: float = PLAN_MIN_ACCEPTABLE_UTILIZATION,
 ) -> ValidationResult:
     """Runs every V-rule against `items` (already sorted or not -- `day_slot`
     is read from each item, not list order). `hard_prereqs_by_skill` is the
@@ -131,11 +147,14 @@ def validate_plan(
     hard += _v4_difficulty_band(items, gaps_by_skill)
     hard += _v5_new_skill_concurrency(items, gaps_by_skill, new_skill_cap)
     hard += _v_no_unjustified_duplicates(items)
+    hard += _v_sessions(items, candidate_sets, enforce=enforce_sessions)
 
     soft += _v6_session_chunking(items)
     soft += _v7_practice_pairing(items, gaps_by_skill)
     soft += _v10_guidance_fading(items, gaps_by_skill)
     soft += _v_objective_coverage(items, candidate_sets)
+    if enforce_sessions:
+        soft += _v_utilization(items, candidate_sets, hours_budget_minutes, min_acceptable_utilization)
 
     return ValidationResult(passed=not hard, hard_violations=hard, soft_violations=soft)
 
@@ -277,12 +296,14 @@ def _v5_new_skill_concurrency(
 
 
 def _v_no_unjustified_duplicates(items: list[PlanItem]) -> list[Violation]:
-    seen: dict[tuple[str, str], str] = {}
+    seen: dict[tuple[str, str, str | None], str] = {}
     violations: list[Violation] = []
     for item in items:
         if item.resource_id is None or item.type == "review":
             continue
-        key = (item.skill_id, item.resource_id)
+        # A resource may legitimately appear several times for one skill when each item is a *different session* of it
+        # (Stage 2); the same session twice is what counts as a duplicate. Session-less items keep the original rule.
+        key = (item.skill_id, item.resource_id, item.session.session_id if item.session is not None else None)
         if key in seen:
             violations.append(
                 Violation(
@@ -294,6 +315,78 @@ def _v_no_unjustified_duplicates(items: list[PlanItem]) -> list[Violation]:
             )
         else:
             seen[key] = item.item_id
+    return violations
+
+
+def _v_sessions(
+    items: list[PlanItem], candidate_sets: dict[str, ObjectiveCandidateSet], *, enforce: bool
+) -> list[Violation]:
+    """Stage 2 V_SESSION -- see the module docstring. Only runs for plans built by the Planner (`enforce=True`)."""
+    if not enforce:
+        return []
+    violations: list[Violation] = []
+
+    def bad(message: str, item: PlanItem) -> None:
+        violations.append(Violation(V_SESSION, HARD, message, [item.item_id]))
+
+    seen_session: dict[str, str] = {}
+    by_resource: dict[str, list[tuple[PlanItem, int]]] = {}
+    offered_by_resource: dict[str, tuple] = {}
+    for item in items:
+        if item.resource_id is None:
+            if item.session is not None:
+                bad(f"item without a resource_id carries session {item.session.session_id!r}", item)
+            continue
+        cs = candidate_sets.get(item.objective_id)
+        res = cs.resource(item.resource_id) if cs is not None else None
+        if res is None:
+            continue  # V2 already reports an unknown objective / resource
+        if item.session is None:
+            bad(f"resource item {item.resource_id!r} has no session provenance", item)
+            continue
+        real = next((s for s in res.sessions if s.session_id == item.session.session_id), None)
+        if real is None:
+            bad(f"session {item.session.session_id!r} is not an offered session of resource {item.resource_id!r}", item)
+            continue
+        if item.session.model_dump() != session_meta(real).__dict__:
+            bad(f"session metadata for {real.session_id!r} does not match the catalog-derived session", item)
+        if item.est_minutes != real.est_minutes:
+            bad(f"session {real.session_id!r} is {real.est_minutes} min but the item says {item.est_minutes} min", item)
+        if real.session_id in seen_session:
+            violations.append(
+                Violation(V_SESSION, HARD, f"session {real.session_id!r} scheduled twice", [seen_session[real.session_id], item.item_id])
+            )
+            continue
+        seen_session[real.session_id] = item.item_id
+        by_resource.setdefault(item.resource_id, []).append((item, real.index))
+        offered_by_resource.setdefault(item.resource_id, res.sessions)
+
+    for resource_id, entries in by_resource.items():
+        offered = offered_by_resource[resource_id]
+        order = {s.session_id: n for n, s in enumerate(offered)}
+        entries.sort(key=lambda e: (e[0].day_slot, e[1]))
+        item_ids = [e[0].item_id for e in entries]
+        # study order: a later session never lands on an earlier day than an earlier session
+        if any(a[1] > b[1] and a[0].day_slot < b[0].day_slot for a in entries for b in entries):
+            violations.append(Violation(V_SESSION, HARD, f"sessions of {resource_id!r} are out of study order", item_ids))
+        # no skipping ahead: what is scheduled is a prefix of what the objective still has to study
+        scheduled = sorted((e[0].session.session_id for e in entries), key=lambda sid: order[sid])
+        if scheduled != [s.session_id for s in offered[: len(scheduled)]]:
+            violations.append(
+                Violation(
+                    V_SESSION,
+                    HARD,
+                    f"sessions of {resource_id!r} skip ahead: scheduled {[e[1] for e in entries]}, "
+                    f"next unstudied are {[s.index for s in offered[: len(scheduled)]]}",
+                    item_ids,
+                )
+            )
+        consumed = sum(e[0].est_minutes for e in entries)
+        original = offered[0].resource_duration_min
+        if consumed > original:
+            violations.append(
+                Violation(V_SESSION, HARD, f"sessions of {resource_id!r} total {consumed} min, over its {original} min duration", item_ids)
+            )
     return violations
 
 
@@ -368,6 +461,31 @@ def _v_objective_coverage(items: list[PlanItem], candidate_sets: dict[str, Objec
                 V_COVERAGE,
                 SOFT,
                 f"{len(missing)}/{len(schedulable)} schedulable objectives have no plan item this week",
+                [],
+            )
+        ]
+    return []
+
+
+def _v_utilization(
+    items: list[PlanItem],
+    candidate_sets: dict[str, ObjectiveCandidateSet],
+    hours_budget_minutes: float,
+    min_acceptable_utilization: float,
+) -> list[Violation]:
+    """Stage 2: a plan far below the budget is only a problem when real, in-order material for the objectives already in the
+    plan would still have fit. A plan that is short because the eligible supply ran out (or a hard rule like V5 bounded it) is
+    not flagged -- and 100 % is never required (see `PLAN_TARGET_UTILIZATION`)."""
+    if not items or hours_budget_minutes <= 0:
+        return []
+    summary = summarize_utilization(items, candidate_sets, hours_budget_minutes=hours_budget_minutes)
+    if summary.utilization < min_acceptable_utilization and summary.unscheduled_available_minutes > 0:
+        return [
+            Violation(
+                V_UTILIZATION,
+                SOFT,
+                f"plan uses {summary.utilization:.0%} of the {hours_budget_minutes:.0f} min budget although "
+                f"{summary.unscheduled_available_minutes} more min of in-order material for its objectives would fit",
                 [],
             )
         ]

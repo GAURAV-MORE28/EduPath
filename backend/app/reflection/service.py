@@ -51,7 +51,7 @@ from app.repositories.catalog_repository import CatalogRepository
 from app.repositories.planning_repository import PlanningRepository
 from app.repositories.reflection_repository import ReflectionRepository
 from app.repositories.reflection_repository import within_cooldown as reflection_within_cooldown
-from app.schemas.common import PlanItem, PlanItemReason, WeeklyPlan
+from app.schemas.common import PlanItem, PlanItemReason, PlanItemSession, WeeklyPlan
 
 # design §20.2's trigger set (mapped onto this project's `app.assessment.struggle`
 # class names): {misconception_confirmed, prerequisite_gap, difficulty_mismatch,
@@ -384,6 +384,7 @@ def _row_to_schema(row: PlanItemRow) -> PlanItem:
         resource_id=row.resource_id, practice_item_ids=row.practice_item_ids, est_minutes=row.est_minutes,
         difficulty=row.difficulty, day_slot=row.day_slot, depends_on=row.depends_on,
         reason=PlanItemReason(**row.reason) if row.reason else PlanItemReason(), status=row.status,
+        session=PlanItemSession(**row.session) if row.session else None,
     )
 
 
@@ -398,6 +399,7 @@ def _schema_to_row(item: PlanItem, *, plan_id: str, revision_id: str) -> PlanIte
         skill_id=item.skill_id, resource_id=item.resource_id, practice_item_ids=item.practice_item_ids,
         est_minutes=item.est_minutes, difficulty=item.difficulty, day_slot=item.day_slot, depends_on=item.depends_on,
         reason=item.reason.model_dump(mode="json"), status=item.status,
+        session=item.session.model_dump(mode="json") if item.session else None,
     )
 
 
@@ -443,7 +445,7 @@ async def revert_to_previous_revision(*, session: AsyncSession, learner_id: str,
             plan_id=plan_id, revision_id=new_revision.revision_id, type=r.type, objective_id=r.objective_id,
             skill_id=r.skill_id, resource_id=r.resource_id, practice_item_ids=r.practice_item_ids,
             est_minutes=r.est_minutes, difficulty=r.difficulty, day_slot=r.day_slot, depends_on=r.depends_on,
-            reason=r.reason, status=r.status,
+            reason=r.reason, status=r.status, session=r.session,
         )
         for r in restore_items
     ]

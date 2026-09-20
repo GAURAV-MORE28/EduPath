@@ -106,6 +106,15 @@ plan drafts accepted first time 10/10, Reflection 10/10 correct, citations 100 %
 ≈ 0.93 deterministic), thin plans (mean utilization 21.9 %, 20 h/week -> 6 %), no ID provenance on LLM plan items, first-page-only vision,
 forgeable cookie. Full analysis: `docs/LLM_EVALUATION.md`; raw results: `docs/llm_eval_baseline/`. Tests: 623 (601 + 22 harness tests).
 
+**Stage 2 — Thin plans, large budgets & resource sessionization. Implemented** (`docs/RESOURCE_SESSIONIZATION.md`). Long catalog resources are offered as
+deterministic *study sessions* (`app/planning/sessions.py`, id `<resource_id>#<n>`, capped at the learner's session length); the Retriever no longer drops them
+(`sessionizable=True`, ranking unchanged); the LLM selects session ids and code fixes the minutes; a re-validated deterministic continuation fill
+(`app/planning/fill.py`) tops up under-filled drafts and powers the fallback planner; new hard `V_session_provenance`, session-keyed `V_DUP`, soft
+`V_acceptable_utilization`; `PlanItem.session` + `plan_items.session` (migration `0008`); deterministic `reason.evidence_ids`/`graph_path` on every item.
+Acceptable utilization is a *ceiling* of 80 % of the effective budget (leaves Reflection headroom). **Results:** offline persona utilization 17.2 % -> 65.3 %
+(items 1-3 -> 2-16), 0 hard-check failures; the live Groq evaluation only partly completed (provider quota drained) - LLM path n = 1 (13 % -> 70 %); see
+`docs/RESOURCE_SESSIONIZATION.md` §8 and `docs/llm_eval_stage2/`. **The full live planner re-run is still owed.** Tests: 686.
+
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
@@ -1384,6 +1393,15 @@ ARCHITECTURE_CONTRACTS.md §20 backend read-model/trace, §21 frontend):
 
 ### Files Created / Modified
 
+**Stage 2 (resource sessionization)** -- new: `backend/app/planning/sessions.py`, `backend/app/planning/fill.py`,
+`backend/app/db/migrations/versions/0008_plan_item_session.py`, `backend/tests/test_resource_sessions.py`, `backend/tests/test_plan_sessions.py`,
+`backend/tests/test_plan_sessions_integration.py`, `docs/RESOURCE_SESSIONIZATION.md`, `docs/llm_eval_stage2/` (two provider-throttled live planner runs).
+Modified: `app/core/thresholds.py`, `app/retrieval/{ranker,service}.py`, `app/planning/{candidates,fallback,prompting,validator,service}.py`,
+`app/orchestration/graphs.py`, `app/schemas/common.py`, `app/db/models.py`, `app/repositories/planning_repository.py`, session round-tripping in
+`app/api/v1/{plans,views}.py`, `app/reflection/service.py`, `app/assessment/resolution.py`; live harness `tests/evaluation/live/{scenarios,report}.py`;
+offline `tests/evaluation/test_eval_plan_validity.py` (note replaced by a regression guard); docs `ARCHITECTURE_CONTRACTS.md` (§16), `CHANGELOG.md`,
+`LLM_EVALUATION.md` (pointer). Not touched: frontend, providers/gateways, Docker.
+
 **Stage 1 (live LLM evaluation) -- new files only; no application code changed:**
 - `backend/scripts/evaluate_llm.py` (CLI: `--mode live|offline`, `--suite smoke|full`, `--areas`, `--tpm`, `--merge`)
 - `backend/tests/evaluation/live/` -- `instrument.py` (call recorder, error categories, redaction, setup mode), `scenarios.py` (A-G + vision + known-issue
@@ -1836,7 +1854,7 @@ excludes from that list; no LLM call exists anywhere in `app/gap/`,
 
 ### Tests Status
 
-Backend: **623 tests, all passing after Stage 1** (601 after Phase 12b + 22 in `tests/test_llm_eval_harness.py`; 466 before Phase 12b; the per-phase breakdown
+Backend: **686 tests, all passing after Stage 2** (623 after Stage 1 + 63 in `test_resource_sessions.py` 13, `test_plan_sessions.py` 39, `test_plan_sessions_integration.py` 11; 601 after Phase 12b + 22 in `tests/test_llm_eval_harness.py`; 466 before Phase 12b; the per-phase breakdown
 below stops at 455). Phase 12's tiers: `tests/integration`, `tests/evaluation` (writes
 `backend/reports/`), `tests/security`. Historic text: **455 tests** (`backend/tests/`) — run with
 `cd backend && python -m pytest -q`. Phase 1's original 5 (health endpoint
@@ -2611,11 +2629,11 @@ generic bucket rather than resolving it — the same class of limitation
 
 ### Exact Next Task
 
-**Stage 1 (live LLM evaluation baseline) is done. Recommended next stage: planner segment splitting / thin-plan fix** (item 2 below), with
-the live baseline as the acceptance test: `python scripts/evaluate_llm.py --mode live --suite smoke --areas planner` (and `full`) must show
-utilization rising well above 21.9 % mean (20 h/week: 6 %) with 0 hard-check failures and no rise in the fallback rate; the offline
-`tests/evaluation` utilization and coverage rows remain the deterministic acceptance test. Then, in measured priority: attach ID provenance to
-LLM plan items; raise live Profiler recall (prompt/context-type guidance, evidence-tier assignment) against the same gold; surface silent
+**Stage 2 (resource sessionization / thin-plan fix) is implemented; its live acceptance run is only partly done.** First: when the Groq `gpt-oss-120b` daily
+token quota has refilled (~55 K tokens; also check Hugging Face embeddings do not return 402), run `python scripts/evaluate_llm.py --mode live --suite full --areas planner`
+and compare with `docs/llm_eval_baseline/baseline_live.json` (utilization, first-attempt accept, fallback rate, top-up share, session/duplicate/provenance metrics); record it in
+`docs/RESOURCE_SESSIONIZATION.md` §8 and `docs/llm_eval_stage2/`. Then, in measured priority: a Reflection *make-room* operator (a revision cannot currently free minutes, hence the
+utilization ceiling); show `session.label` in the frontend plan view; a mechanism that marks plan items `done` so multi-week continuation is exercised end to end; raise live Profiler recall (prompt/context-type guidance, evidence-tier assignment) against the same gold; surface silent
 embedding fallback; multi-page vision; real auth. Re-measure the 8 unmeasured Tutor cases when the provider quota allows.
 
 
@@ -2625,10 +2643,7 @@ priority order (details and numbers: `docs/FINAL_IMPLEMENTATION_STATUS.md`):
 1. **Verify deployment on a healthy Docker Desktop:** `docker compose up --build`, then
    `docker compose exec api python scripts/run_journey.py --iterations 3` (add `--demo-seed` with
    `DEMO_MODE=true`), then the Playwright suite. This was the one Phase 12 item that could not be verified.
-2. **Planner segment splitting** for resources longer than the session cap (coverage at the 45-minute
-   default is 56%; a 20 h/week learner gets ~45 minutes). Touches `retrieval/ranker.py`'s `duration_ok`, the
-   fallback planner, and V2/V6/duplicate rules in `planning/validator.py`. Re-run
-   `tests/evaluation` - the utilization and coverage rows are the acceptance test.
+2. ~~Planner segment splitting~~ **Done in Stage 2** (`docs/RESOURCE_SESSIONIZATION.md`); only the full live re-run remains.
 3. **Attach a real `LLM_PROVIDER`** and tune the five agents' prompts/schemas against the evaluation
    harness; record a demo run (`DEMO_MODE=true` records) and verify `REPLAY_MODE=true` reproduces it.
 4. **Real authentication** (signed session, login, CSRF) replacing the placeholder cookie.

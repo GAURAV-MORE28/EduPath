@@ -106,9 +106,11 @@ async def test_more_hours_never_produces_a_smaller_week(app_client):
     record("Plan", "scheduled minutes at 2/5/10/20 h per week", "/".join(str(minutes[h]) for h in (2, 5, 10, 20)), "non-decreasing")
     record(
         "Plan", "budget utilization at 2/5/10/20 h per week", " / ".join(f"{minutes[h] / (h * 60):.0%}" for h in (2, 5, 10, 20)), "report",
-        "KNOWN LIMITATION: the plan is feasible (never over budget) but under-fills large budgets -- the 45-min session cap "
-        "removes course-length resources (see the 'coverage at the default 45-min session cap' row) and there is no segment splitting",
+        "Stage 2 (resource sessionization): long resources are offered as study sessions, so large budgets are used (Stage 1 offline "
+        "baseline was 38% / 15% / 8% / 4%). Acceptable utilization is a ceiling of 80% of the 0.9-slack budget, not 100%",
     )
+    # thin-plan regression guard: the offline baseline under-filled these by 3-10x
+    assert minutes[5] >= 0.45 * 5 * 60 and minutes[10] >= 0.45 * 10 * 60 and minutes[20] >= 0.45 * 20 * 60, minutes
 
 
 async def test_a_dry_run_plan_persists_nothing(app_client):
