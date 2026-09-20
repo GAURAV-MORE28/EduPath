@@ -13,6 +13,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.sse.trace import emit
 from app.agents.profiler import ProfilerAgent
 from app.db.models import PendingClaim
 from app.gateway.embedding_gateway import EmbeddingGateway
@@ -36,6 +37,34 @@ async def _build_fallback_extractor(catalog: CatalogRepository) -> Deterministic
         for alias in s.aliases:
             phrases.append(SkillPhrase(phrase=alias, skill_id=s.skill_id, area=s.area))
     return DeterministicClaimExtractor(phrases)
+
+
+async def _emit_onboarding_trace(d: dict, normalized: list[dict]) -> None:
+    """Real per-stage summaries of what G1 just did, from the graph's own
+    output (nothing here is scripted)."""
+    extracted = len(d.get("claims_raw", []))
+    if d.get("extraction_degraded"):
+        await emit("Profiler", "degraded", f"Model unavailable; deterministic extractor found {extracted} skill claims")
+    else:
+        await emit("Profiler", "output", f"Extracted {extracted} skill claims")
+    dropped_unverified = d.get("dropped_unverified", 0)
+    dropped_injection = d.get("dropped_injection", 0)
+    await emit(
+        "Evidence Verifier", "validation",
+        f"Verified evidence spans; dropped {dropped_unverified} unverified and {dropped_injection} flagged as instructions",
+    )
+    mapped = [n for n in normalized if n["skill_id"]]
+    for n in mapped[:6]:
+        await emit(
+            "Skill Normalizer", "decision",
+            f'Mapped "{n["verified"]["claim"]["label"]}" → {n["skill_id"]} ({n["method"].replace("_", " ")})',
+            refs=[n["skill_id"]],
+        )
+    unmapped = len(normalized) - len(mapped)
+    await emit(
+        "Skill Normalizer", "output",
+        f"{len(mapped)} claims mapped to the curated graph" + (f"; {unmapped} left unmapped" if unmapped else ""),
+    )
 
 
 async def run_document_onboarding(
@@ -89,10 +118,12 @@ async def run_document_onboarding(
         },
     }
 
+    await emit("Profiler", "input", f"Reading {doc_type} document and extracting evidence")
     final_state = await graph.ainvoke(initial_state)
     d = final_state["data"]
 
     normalized = d.get("normalized_claims", [])
+    await _emit_onboarding_trace(d, normalized)
     pending_rows = [
         PendingClaim(
             learner_id=learner_id,

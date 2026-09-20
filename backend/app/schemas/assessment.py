@@ -78,6 +78,8 @@ class ReflectionOut(BaseModel):
     needs_attention: bool = False  # both the deterministic and last-resort patches failed validation
     rounds: int = 0
     explanation: str = ""  # learner-facing "why did my plan change"
+    decision_id: str | None = None  # DecisionRecord for GET /api/decisions/{id}
+    reflection_id: str | None = None
 
 
 class SubmitPracticeResponse(BaseModel):

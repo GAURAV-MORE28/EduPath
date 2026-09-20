@@ -838,3 +838,60 @@ design §10.4, §18, §19, §20.8)
   earlier phase already owns (`LearnerSkillState`/`Evidence`/`WeeklyPlan`/
   `PlanRevision`/`PlanItem`/`StruggleSignal`/`LearnerMisconception`/
   `DecisionRecord`).
+
+## 20. Frontend read-model API and live trace (Phase 11)
+
+- **Additive, read-only endpoints for the UI** (`backend/app/api/v1/views.py`,
+  `backend/app/schemas/views.py`; no decision logic, all learner routes session-derived, §7):
+  `GET /api/roles`, `GET /api/catalog/skills?ids=`, `GET /api/catalog/resources?ids=`,
+  `GET /api/learners/me/profile`, `GET /api/learners/me/evidence` (span, tier, document
+  file name — never a server path), `GET /api/learners/me/skills/{skill_id}` (gap, mastery,
+  role requirement, evidence, prerequisites/dependents, resources, misconceptions, plan
+  items), `GET /api/learners/me/plans/current/revisions`,
+  `GET /api/learners/me/plans/{plan_id}/revisions/{revision_id}` (with items).
+- **One write:** `PATCH /api/learners/me/plans/items/{item_id}` sets `planned|done|skipped`
+  on an item of the *current* revision only. Superseded revisions are history.
+- `ReflectionOut` gained `decision_id` and `reflection_id` (additive).
+- **Plan-item ids are fresh per revision (§18).** Clients must not diff revisions by
+  `item_id` or by `diff.inserted`; the UI compares by `(type, skill_id, resource_id)`.
+- **Live trace is real.** `TraceBus` keeps a bounded replay buffer per run; a request may
+  carry `X-Run-Id` (8–64 alphanumerics/hyphens), handled by `TraceRunMiddleware`, which sets
+  the `current_run_id` context var; services call `app.sse.trace.emit(actor, kind, summary)`
+  (no-op without a run id, never raises). Emit points: profiling (Profiler, Evidence
+  Verifier, Skill Normalizer), planning (Gap Engine, Planner, Plan Validator), assessment
+  (Assessor, Struggle Classifier), reflection (Reflection Agent, Planner, Plan Validator).
+  Summaries are computed from real results; nothing is scripted.
+- Bug fixed: `GET /api/learners/me/progress` 500'd once a misconception existed
+  (`LearnerMisconception` has no `skill_id`); it now resolves the skill from the catalog.
+- Known: unhandled 500s are returned by Starlette's outermost handler without CORS headers,
+  so browsers surface them as network failures. The UI's unreachable/5xx copy covers both.
+
+## 21. Frontend contracts (Phase 11)
+
+Full design rules: `docs/FRONTEND_DESIGN_SYSTEM.md`.
+
+- **Stack:** Next.js 16 App Router, React 19, Tailwind v4, shadcn/ui (base-nova, Base UI),
+  Motion (`import { motion } from "motion/react"`), lucide icons, Playwright + axe for checks.
+  No other animation, state or chart library. `cn` lives in `lib/utils.ts` (clsx + tailwind-merge).
+- **Design tokens:** CSS variables in `app/globals.css` (`--sheet/--paper/--plate/--ink*/--rule*/
+  --verified/--revision`), exposed as Tailwind colors (`bg-paper`, `text-ink-2`, `border-rule-strong`).
+  shadcn variables are bound to them. Components must not hard-code hex values.
+- **Location & naming:** domain components `components/edupath/<kebab>.tsx`, exported PascalCase;
+  shadcn primitives `components/ui/`; routes under `app/dashboard/*` (authenticated learner app),
+  `/start` (onboarding), `/` (entry). API access only through `lib/api-client.ts`; types mirror
+  backend schemas in `lib/types.ts`.
+- **API state handling:** every read uses `useQuery(key, fetcher)` (`lib/query.ts`): status
+  `loading | ready | error`, shared cache, `invalidate(prefix)` after mutations. A 404 from a
+  "current X" endpoint is data (`null`), not an error. Each surface renders `LoadingState`,
+  `EmptyState`, `ErrorState` and `DegradedNotice` explicitly; no bare text states.
+- **Tracing:** wrap backend calls that should stream with `traced(label, runId => api.x(..., runId))`
+  (`lib/trace-store.ts`). Never fabricate events.
+- **Demo mode:** `NEXT_PUBLIC_DEMO_MODE=true` only. Demo assets are in `public/demo/` and are
+  submitted through real endpoints. Off by default; `.env*` is git-ignored.
+- **Animation:** Motion only; `MotionConfig reducedMotion="user"` at the root; every animation
+  communicates state; the revision cloud is the one authored moment.
+- **Accessibility:** WCAG 2.2 AA; enforced by `e2e/smoke.spec.ts` (axe serious/critical = 0).
+- **Breakpoints:** 375 / 768 / 1024 / 1440; rail at ≥1024, bottom tabs below; no horizontal
+  page scroll.
+- **Performance:** heavy visualisation (`SkillGraph`) via `next/dynamic`; pages are client
+  components only where data is per-learner; the landing page is a server component.

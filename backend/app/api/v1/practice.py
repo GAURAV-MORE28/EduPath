@@ -118,6 +118,8 @@ async def submit_practice_set_route(
             needs_attention=r.needs_attention,
             rounds=r.rounds,
             explanation=r.explanation,
+            decision_id=r.decision_id,
+            reflection_id=r.reflection_id,
         )
 
     return SubmitPracticeResponse(

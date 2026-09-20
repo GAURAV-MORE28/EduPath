@@ -19,6 +19,7 @@ from datetime import datetime, timedelta, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.sse.trace import emit
 from app.agents.assessor import AssessorAgent
 from app.assessment import resolution
 from app.assessment.grading import grade_mcq
@@ -113,6 +114,7 @@ async def create_practice_session(
         misconception_id=misconception_id,
     )
 
+    await emit("Assessor", "output", f"Assembled {len(assembled.item_ids)} {purpose} items for {skill_id}", refs=[skill_id])
     return await assessment_repo.create_practice_session(
         PracticeSession(
             learner_id=learner_id,
@@ -191,6 +193,11 @@ async def submit_practice_set(
             )
         )
 
+    await emit(
+        "Assessor", "validation",
+        f"Graded {len(item_results)} answers deterministically: {sum(1 for r in item_results if r['correct'])} correct",
+        refs=[practice_session.skill_id],
+    )
     target_items = [r for r in item_results if r["skill_id"] == practice_session.skill_id]
     score = (sum(1 for r in target_items if r["correct"]) / len(target_items)) if target_items else 0.0
     prereq_items = [r for r in item_results if r["skill_id"] != practice_session.skill_id]
@@ -299,6 +306,14 @@ async def submit_practice_set(
         new_skill_concurrency_cap=new_skill_concurrency_cap,
     )
     signals = classify_struggle(outcomes, context)
+    if not signals:
+        await emit("Struggle Classifier", "decision", "No struggle signal detected", refs=[practice_session.skill_id])
+    for s in signals:
+        await emit(
+            "Struggle Classifier", "decision",
+            f"{s.signal_class.replace('_', ' ').capitalize()} on {s.skill_id} ({s.confidence} confidence)",
+            refs=[s.skill_id],
+        )
 
     for s in signals:
         row = await assessment_repo.create_signal(

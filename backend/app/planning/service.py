@@ -17,6 +17,7 @@ import uuid
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.sse.trace import emit
 from app.agents.planner import PlannerAgent
 from app.core.thresholds import DEFAULT_SESSION_CAP_MINUTES, NEW_SKILL_CONCURRENCY_CAP
 from app.db.models import PlanItem as PlanItemRow
@@ -233,6 +234,17 @@ async def create_plan(
         language=language,
         session_cap_minutes=session_cap_minutes,
         new_skill_cap=new_skill_cap,
+    )
+
+    d_trace = final_state["data"]
+    await emit("Gap Engine", "decision", f"Built learning objectives for {role_id}", refs=[role_id])
+    if d_trace.get("final_degraded"):
+        await emit("Planner", "degraded", f"Model unavailable; fallback planner scheduled week {week_index + 1}")
+    else:
+        await emit("Planner", "output", f"Generated week {week_index + 1}: {len(d_trace['final_items'])} items")
+    await emit(
+        "Plan Validator", "validation",
+        f"Plan valid: {len(d_trace['final_items'])} items within {weekly_hours:g}h budget",
     )
 
     if dry_run:

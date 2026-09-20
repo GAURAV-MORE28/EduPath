@@ -21,6 +21,7 @@ from datetime import datetime, timezone
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.sse.trace import emit
 from app.agents.reflection import ReflectionAgent
 from app.assessment import resolution
 from app.assessment.struggle import (
@@ -158,6 +159,11 @@ async def run_reflection(
     )
 
     root_cause = deterministic_root_cause(bundle)
+    await emit(
+        "Reflection Agent", "reflection",
+        f"Root cause: {root_cause.skill_id.removeprefix('skill.')} ({root_cause.root_cause_class.replace('_', ' ')})",
+        refs=[root_cause.skill_id],
+    )
     remediation_resource_ids = _resolve_remediation_resources(graph, root_cause)
     probe_item_ids, probe_purpose = [], _probe_purpose(root_cause)
     if probe_purpose is not None:
@@ -215,6 +221,9 @@ async def run_reflection(
             explanation="Automatic re-planning could not produce a plan that satisfies hard constraints; the plan was left unchanged.",
         )
 
+    op_names = ", ".join(sorted({str(o.get("op") or o.get("operator") or "?") for o in approved_draft.operators})) or "none"
+    await emit("Planner", "replan", f"Applying {op_names}")
+    await emit("Plan Validator", "validation", "Revision valid: hard constraints hold")
     plan_revision_id: str | None = None
     if plan_row is not None and plan_row.current_revision_id is not None:
         prior_revisions = await planning_repo.list_revisions(plan_row.plan_id)

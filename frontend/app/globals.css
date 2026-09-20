@@ -1,26 +1,267 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+/*
+ * EduPath: "The Checked Set".
+ * A career path issued as a drawing set: drafting-film ground, graphite
+ * hairline ink, viridian for verified, revision red for change. See
+ * docs/FRONTEND_DESIGN_SYSTEM.md. Light only: a set is read on a lit desk.
+ */
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+
+  /* Grounds */
+  --sheet: #f1f3f2; /* drafting film: page ground */
+  --paper: #fafbfa; /* plates laid on the film */
+  --plate: #e7ebea; /* second neutral layer: index rail, wells */
+
+  /* Ink */
+  --ink: #16202a;
+  --ink-2: #414c56;
+  --ink-3: #4f5b65;
+
+  /* Linework */
+  --rule: #cbd2d5; /* decorative hairlines */
+  --rule-strong: #7c878e; /* meaningful edges (3:1 on sheet) */
+
+  /* Meaning */
+  --verified: #0d7561;
+  --verified-wash: #e6f3ef;
+  --revision: #c42d17;
+  --revision-wash: #fbe9e5;
+
+  --module: 8px;
+  --measure: 68ch;
+
+  /* shadcn primitives bound to the set's tokens */
+  --background: var(--sheet);
+  --foreground: var(--ink);
+  --card: var(--paper);
+  --card-foreground: var(--ink);
+  --popover: var(--paper);
+  --popover-foreground: var(--ink);
+  --primary: var(--ink);
+  --primary-foreground: var(--paper);
+  --secondary: var(--plate);
+  --secondary-foreground: var(--ink);
+  --muted: var(--plate);
+  --muted-foreground: var(--ink-3);
+  --accent: var(--plate);
+  --accent-foreground: var(--ink);
+  --destructive: var(--revision);
+  --border: var(--rule);
+  --input: var(--rule-strong);
+  --ring: var(--ink);
+  --radius: 2px;
+  --chart-1: var(--verified);
+  --chart-2: var(--ink);
+  --chart-3: var(--revision);
+  --chart-4: var(--ink-3);
+  --chart-5: var(--rule-strong);
+  --sidebar: var(--plate);
+  --sidebar-foreground: var(--ink);
+  --sidebar-primary: var(--ink);
+  --sidebar-primary-foreground: var(--paper);
+  --sidebar-accent: var(--sheet);
+  --sidebar-accent-foreground: var(--ink);
+  --sidebar-border: var(--rule);
+  --sidebar-ring: var(--ink);
 }
 
 @theme inline {
+  --color-sheet: var(--sheet);
+  --color-paper: var(--paper);
+  --color-plate: var(--plate);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-rule: var(--rule);
+  --color-rule-strong: var(--rule-strong);
+  --color-verified: var(--verified);
+  --color-verified-wash: var(--verified-wash);
+  --color-revision: var(--revision);
+  --color-revision-wash: var(--revision-wash);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-atkinson), ui-sans-serif, system-ui, sans-serif;
+  --font-draft: var(--font-barlow), ui-sans-serif, system-ui, sans-serif;
+
+  /* Fixed rem scale, ratio ~1.2 (product UI does not use fluid type) */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.1875rem;
+  --text-xl: 1.4375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.125rem;
+  --text-4xl: 2.75rem;
+  --text-5xl: 3.75rem;
+
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 2px;
+  --radius-xl: 3px;
+
+  --shadow-lift: 0 1px 0 rgb(22 32 42 / 0.04), 0 12px 28px -8px rgb(22 32 42 / 0.22);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  * {
+    border-color: var(--rule);
+  }
+
+  html {
+    background: var(--sheet);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 5rem;
+  }
+
+  body {
+    background: var(--sheet);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-base);
+    line-height: 1.55;
+    font-feature-settings: "tnum" 1, "cv11" 1;
+    font-variant-numeric: tabular-nums;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    text-wrap: balance;
+    letter-spacing: -0.015em;
+    line-height: 1.15;
+    font-weight: 700;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  ::selection {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+    border-radius: 1px;
+  }
+
+  /* Quiet, drawn scrollbars for the wide surfaces (skill map, registers) */
+  .scroll-fine {
+    scrollbar-width: thin;
+    scrollbar-color: var(--rule-strong) transparent;
+  }
+  .scroll-fine::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+  }
+  .scroll-fine::-webkit-scrollbar-thumb {
+    background: var(--rule-strong);
+    border: 3px solid var(--sheet);
+    border-radius: 6px;
+  }
+  .scroll-fine::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  input,
+  textarea,
+  select {
+    caret-color: var(--revision);
+  }
+
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer components {
+  /* Drafting lettering: title-block cells, sheet numbers. Data, not UI labels. */
+  .draft {
+    font-family: var(--font-draft);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.01em;
+  }
+
+  /* A plate: a sheet of paper laid on the film, hairline framed */
+  .plate {
+    background: var(--paper);
+    border: 1px solid var(--rule-strong);
+  }
+
+  .plate-quiet {
+    background: var(--paper);
+    border: 1px solid var(--rule);
+  }
+
+  /* Ruled register rows */
+  .reg > * + * {
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Revision cloud target: children get scalloped by the SVG overlay */
+  .cloud-host {
+    position: relative;
+  }
+
+  /* Struck: blocked skills and removed plan items */
+  .struck {
+    text-decoration: line-through;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--rule-strong);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

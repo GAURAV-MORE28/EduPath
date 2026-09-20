@@ -73,6 +73,13 @@ remaining-gaps/struggle-areas/next-steps — narrated but never computed by
 an LLM). `POST /api/learners/me/chat`, `GET /api/learners/me/progress`,
 `GET /api/decisions/{id}` are new. All five LLM agents now exist.
 
+**Phase 11 — Premium Frontend + UX. Implemented** (this project's numbering;
+a frontend-only phase plus small additive backend read endpoints and real trace
+emission). Design toolchain established, design system "The Checked Set"
+(`docs/FRONTEND_DESIGN_SYSTEM.md`), every journey screen built on real APIs,
+Playwright + axe verification. See "Phase 11 — Frontend" under Completed Work and
+ARCHITECTURE_CONTRACTS.md §20–§21.
+
 ### Overall Project Status
 
 Foundation layer implemented and verified end-to-end: FastAPI backend, Next.js
@@ -157,6 +164,7 @@ never presented as measured quantities.
 | 8 — Reflection / re-planning (core differentiator) | ✅ Implemented (real `ReflectionAgent` bounded to a closed operator set, deterministic `ReflectionValidator`, deterministic root-cause/operator policy, layered fallback, `PlanRevision`/`ReflectionRecord`/`DecisionRecord`, one-click Revert). Landed as this project's "Phase 9" per the operator's own numbering — see "Completed Work" below. |
 | 9 — Tutor | ✅ Implemented (read-only `TutorAgent`, nine-tool inventory, rule-based `classify_intent`/`plan_tools`, a real bounded G4 LangGraph, citation verification via the Provenance Service, a deterministic Report Builder). Landed as this project's "Phase 10" per the operator's own numbering — see "Completed Work" below. |
 | 10 — Observability / evaluation / polish | ❌ Not started |
+| 11 — Frontend (this project's numbering) | ✅ Implemented (design toolchain, design system, all journey screens on real APIs, live SSE trace, Playwright/axe suite). See "Phase 11 — Frontend" below. |
 
 ### Current Phase Status
 
@@ -1279,6 +1287,39 @@ project's own numbering — design calls this "Phase 9"):
   intake-required 404s, out-of-scope refusal). **455 tests total, all
   passing** (406 from Phase 1-9, 49 new).
 
+**Phase 11 — Frontend** (design: `docs/FRONTEND_DESIGN_SYSTEM.md`; contracts:
+ARCHITECTURE_CONTRACTS.md §20 backend read-model/trace, §21 frontend):
+
+- **Frontend stack:** Next.js 16.3 App Router, React 19.2, Tailwind v4, shadcn/ui
+  (base-nova on Base UI; `components.json`), Motion 13 (`motion/react`), lucide-react,
+  Atkinson Hyperlegible Next + Barlow Semi Condensed (next/font). Light theme only.
+- **Design tools:** UI/UX Pro Max installed to `.claude/skills/ui-ux-pro-max` (its generic
+  "education" palette/fonts were rejected as off-brief; UX/accessibility rules used); Impeccable
+  plugin (direction round: "The Checked Set", `PRODUCT.md`, `.impeccable/surfaces/`);
+  frontend-design plugin; Playwright 1.63 + Chromium + `@axe-core/playwright`.
+- **MCP:** 21st MCP added at *local* scope (`claude mcp add --transport http 21st ...`, key in
+  `~/.claude.json`, not in the repo); `claude mcp list` reports Connected; its tools only load into
+  a session after restart, so no 21st component was used this session.
+- **Installed dependencies (frontend):** motion, @base-ui/react, class-variance-authority,
+  lucide-react, tw-animate-css, shadcn, clsx, tailwind-merge, @playwright/test,
+  @axe-core/playwright. (shadcn's stray `cn` package was removed.)
+- **Screens:** `/` landing (server component), `/start` onboarding (goal, upload, claim review,
+  first plan), `/dashboard` overview, `/dashboard/{evidence,skills,gaps,plan,practice,progress,
+  tutor,trace}`. Skill drawer and Why drawer are shared. Centrepiece: `AdaptiveMoment` on the plan.
+- **State/data:** `lib/api-client.ts` (typed), `lib/types.ts`, `lib/query.ts` (tiny cache),
+  `lib/hooks.ts`, `lib/trace-store.ts` (SSE), `lib/derived.ts`, `lib/format.ts`.
+- **Backend additions:** `api/v1/views.py` + `schemas/views.py` (roles, catalog skills/resources,
+  profile, evidence, skill detail, revision list/detail, `PATCH` plan-item status);
+  `decision_id`/`reflection_id` on `ReflectionOut`; `sse/trace.py` replay buffer + `emit()` +
+  `TraceRunMiddleware` (`X-Run-Id`); emit points in profiling, planning, assessment, reflection;
+  fixed `/progress` 500 when a misconception exists. Backend tests: 466 pass.
+- **Verification:** `npm run build`, `npx eslint .`, `npx tsc --noEmit` clean;
+  `npx playwright test` (needs live API + `npm run start`): 56 breakpoint/overflow/console/axe/keyboard
+  checks pass; `e2e/journey.spec.ts` (fresh DB) drives intake to reflection to revert on the real API.
+- **Demo mode:** `NEXT_PUBLIC_DEMO_MODE=true` (frontend/.env.local, git-ignored). Adds "Fill in for
+  Asha", "Use the demo resume", and "answer with a common misconception" (uses
+  `public/demo/struggle-answers.json`, derived from the item bank). All go through real endpoints.
+
 ### Files Created / Modified
 
 **Backend** (`backend/`):
@@ -2306,6 +2347,13 @@ phase (Phase 9, Reflection & Re-planning):
   override this phase, and why `/chat` is plain JSON rather than SSE.
 
 ### Next Phase
+
+**After Phase 11:** the frontend is feature-complete for the journey. Known follow-ups: (1) the
+deterministic planner yields a thin week for the demo learner (most skills BLOCKED behind unmet
+prerequisites; a real LLM or richer candidate set would improve it); (2) Starlette's 500 responses
+carry no CORS headers (see §20); (3) reload the 21st MCP tools in a new session and run a component
+research pass; (4) a Docker Compose run of the frontend against Postgres was not repeated this phase
+(dev verification used SQLite; Postgres behaviour of the new read endpoints is dialect-portable SQL).
 
 **Observability / evaluation / polish** (design §39.1's Phase 10 — this
 project has no separate number for it, since this project's own Phase 10

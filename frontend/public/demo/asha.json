@@ -1,0 +1,22 @@
+{
+  "name": "Asha",
+  "target_role_id": "role.ml_engineer",
+  "career_goal": "Become a Machine Learning Engineer working on computer vision systems.",
+  "experience_summary": "Third-year AI/ML undergraduate; coursework in programming and calculus; one independent object-detection project.",
+  "weekly_hours": 5,
+  "preferences": {
+    "modality_order": [
+      "do",
+      "watch",
+      "read"
+    ],
+    "language": "en",
+    "session_length_min": 60
+  },
+  "current_skills": [
+    "Python",
+    "PyTorch",
+    "OpenCV"
+  ],
+  "resume_file": "asha-resume.md"
+}

@@ -15,6 +15,7 @@ from app.config import get_settings
 from app.core.errors import register_exception_handlers
 from app.logging_config import configure_logging, get_logger
 from app.orchestration.graphs import build_bootstrap_graph
+from app.sse.trace import current_run_id
 
 logger = get_logger(__name__)
 
@@ -54,6 +55,32 @@ async def lifespan(app: FastAPI):
     logger.info("edupath.shutdown")
 
 
+class TraceRunMiddleware:
+    """Pure-ASGI middleware: copies a valid `X-Run-Id` request header into the
+    `current_run_id` context var so services can `emit()` trace events for the
+    run the client is already subscribed to."""
+
+    def __init__(self, app) -> None:
+        self.app = app
+
+    async def __call__(self, scope, receive, send) -> None:
+        if scope["type"] != "http":
+            await self.app(scope, receive, send)
+            return
+        run_id = None
+        for name, value in scope.get("headers", []):
+            if name == b"x-run-id":
+                candidate = value.decode("latin-1").strip()
+                if 8 <= len(candidate) <= 64 and all(c.isalnum() or c == "-" for c in candidate):
+                    run_id = candidate
+                break
+        token = current_run_id.set(run_id)
+        try:
+            await self.app(scope, receive, send)
+        finally:
+            current_run_id.reset(token)
+
+
 def create_app() -> FastAPI:
     settings = get_settings()
     app = FastAPI(
@@ -69,6 +96,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
+
+    app.add_middleware(TraceRunMiddleware)
 
     register_exception_handlers(app)
     app.include_router(api_router, prefix=settings.api_v1_prefix)

@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-20T00:00:00Z",
+  "title": "Design System: EduPath",
+  "extensions": {
+    "colorMeta": {
+      "sheet": { "role": "neutral", "displayName": "Drafting Film", "canonical": "#f1f3f2", "tonalRamp": ["#16202a", "#414c56", "#7c878e", "#a9b2b6", "#cbd2d5", "#e7ebea", "#f1f3f2", "#fafbfa"] },
+      "paper": { "role": "neutral", "displayName": "Plate Paper", "canonical": "#fafbfa", "tonalRamp": ["#16202a", "#414c56", "#7c878e", "#a9b2b6", "#cbd2d5", "#e7ebea", "#f1f3f2", "#fafbfa"] },
+      "plate": { "role": "neutral", "displayName": "Index Plate", "canonical": "#e7ebea", "tonalRamp": ["#16202a", "#414c56", "#7c878e", "#a9b2b6", "#cbd2d5", "#e7ebea", "#f1f3f2", "#fafbfa"] },
+      "ink": { "role": "primary", "displayName": "Graphite Ink", "canonical": "#16202a", "tonalRamp": ["#16202a", "#2b3742", "#414c56", "#4f5b65", "#7c878e", "#a9b2b6", "#cbd2d5", "#e7ebea"] },
+      "verified": { "role": "secondary", "displayName": "Viridian Check", "canonical": "#0d7561", "tonalRamp": ["#0a6250", "#0d7561", "#3d907f", "#6fac9e", "#a0c8be", "#c5ddd7", "#e6f3ef", "#f3faf8"] },
+      "revision": { "role": "secondary", "displayName": "Revision Red", "canonical": "#c42d17", "tonalRamp": ["#8f1f10", "#c42d17", "#d2573f", "#de806c", "#e9a99b", "#f2c9c0", "#fbe9e5", "#fdf4f2"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Landing headline only." },
+      "headline": { "displayName": "Sheet Title", "purpose": "Title block heading on every sheet." },
+      "title": { "displayName": "Plate Heading", "purpose": "Plate headings and item titles." },
+      "body": { "displayName": "Body", "purpose": "Reading text, capped at 68ch, tabular numerals." },
+      "label": { "displayName": "Label", "purpose": "Status words, chips, register keys." },
+      "draft": { "displayName": "Draft Lettering", "purpose": "Title-block numbers, revision letters, sheet marks only." }
+    },
+    "shadows": [
+      { "name": "inset-nav-rule", "value": "inset 0 2px 0 var(--ink)", "purpose": "Active index entry top rule." },
+      { "name": "node-ring", "value": "0 0 0 2px var(--ink)", "purpose": "Selected skill node outline ring." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo", "value": "cubic-bezier(0.16, 1, 0.3, 1)", "purpose": "Revision cloud draw, 0.9s." },
+      { "name": "color-fast", "value": "150ms color transition", "purpose": "Button state changes." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one imperative per sheet; graphite fill.",
+      "html": "<button class=\"ds-btn-primary\">Start next item</button>",
+      "css": ".ds-btn-primary{background:var(--ink,#16202a);color:var(--paper,#fafbfa);border:1px solid transparent;border-radius:2px;min-height:40px;padding:0 16px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background-color 150ms}.ds-btn-primary:hover{background:var(--ink-2,#414c56)}.ds-btn-primary:focus-visible{outline:2px solid var(--ink,#16202a);outline-offset:2px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Secondary actions on a plate.",
+      "html": "<button class=\"ds-btn-outline\">View evidence</button>",
+      "css": ".ds-btn-outline{background:var(--paper,#fafbfa);color:var(--ink,#16202a);border:1px solid var(--rule-strong,#7c878e);border-radius:2px;min-height:40px;padding:0 16px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background-color 150ms}.ds-btn-outline:hover{background:var(--plate,#e7ebea)}.ds-btn-outline:focus-visible{outline:2px solid var(--ink,#16202a);outline-offset:2px}"
+    },
+    {
+      "name": "Revision Button",
+      "kind": "button",
+      "refersTo": "button-revision",
+      "description": "Only for changing or undoing the plan.",
+      "html": "<button class=\"ds-btn-rev\">Undo revision</button>",
+      "css": ".ds-btn-rev{background:var(--paper,#fafbfa);color:var(--revision,#c42d17);border:1px solid var(--revision,#c42d17);border-radius:2px;min-height:40px;padding:0 16px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background-color 150ms}.ds-btn-rev:hover{background:var(--revision-wash,#fbe9e5)}.ds-btn-rev:focus-visible{outline:2px solid var(--ink,#16202a);outline-offset:2px}"
+    },
+    {
+      "name": "Skill Chip",
+      "kind": "chip",
+      "refersTo": "skill-chip",
+      "description": "Skill name with its state glyph.",
+      "html": "<span class=\"ds-chip\"><svg width=\"14\" height=\"14\" viewBox=\"0 0 20 20\" aria-hidden=\"true\"><circle cx=\"10\" cy=\"10\" r=\"8\" fill=\"none\" stroke=\"#16202a\" stroke-width=\"1.5\"/><path d=\"M2 10a8 8 0 0 0 16 0z\" fill=\"#16202a\"/></svg>Python</span>",
+      "css": ".ds-chip{display:inline-flex;align-items:center;gap:6px;background:var(--paper,#fafbfa);border:1px solid var(--rule-strong,#7c878e);padding:4px 8px;font-size:.8125rem;font-weight:500;color:var(--ink,#16202a)}"
+    },
+    {
+      "name": "Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "Paper sheet on the film, hairline framed, no shadow.",
+      "html": "<div class=\"ds-plate\"><h3>This week</h3><p>Three items, 90 minutes.</p></div>",
+      "css": ".ds-plate{background:var(--paper,#fafbfa);border:1px solid var(--rule-strong,#7c878e);border-radius:2px;padding:16px;color:var(--ink,#16202a)}.ds-plate h3{margin:0 0 4px;font-size:1.1875rem;font-weight:700;letter-spacing:-.015em}.ds-plate p{margin:0;color:var(--ink-2,#414c56);font-size:.9375rem}"
+    },
+    {
+      "name": "Index Nav Item",
+      "kind": "nav",
+      "refersTo": "index-rail",
+      "description": "Index rail entry; active gets a paper ground and an inset ink top rule.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-a ds-active\" href=\"#\">Overview</a><a class=\"ds-nav-a\" href=\"#\">Plan</a></nav>",
+      "css": ".ds-nav{background:var(--plate,#e7ebea);padding:16px;width:220px}.ds-nav-a{display:block;padding:10px 12px;color:#414c56;font-size:.9375rem;text-decoration:none}.ds-nav-a:hover{background:var(--sheet,#f1f3f2)}.ds-active{background:var(--paper,#fafbfa);color:var(--ink,#16202a);font-weight:700;box-shadow:inset 0 2px 0 var(--ink,#16202a)}"
+    },
+    {
+      "name": "Revision Mark",
+      "kind": "custom",
+      "refersTo": "plate",
+      "description": "Red triangle with draft-face revision letter marking an added item.",
+      "html": "<span class=\"ds-rev\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 2.5L22 21H2z\" fill=\"#fafbfa\" stroke=\"currentColor\" stroke-width=\"1.6\" stroke-linejoin=\"round\"/></svg><b>B</b></span>",
+      "css": ".ds-rev{position:relative;display:inline-grid;place-items:center;width:24px;height:24px;color:var(--revision,#c42d17)}.ds-rev svg{position:absolute;inset:0;width:100%;height:100%}.ds-rev b{position:relative;top:2px;font-family:'Barlow Semi Condensed',sans-serif;font-size:.6875rem;font-weight:600}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Checked Set",
+    "overview": "A learner's career path issued as an architectural drawing set. A cool drafting-film ground carries lighter paper plates framed in hairlines; every claim is a cited drawing note and every change to the plan is a dated revision with its reason. It is a light-only world (a set is read on a lit desk); there is no dark theme.\n\nDensity is calm and ruled: title-block registers with divided cells, not stat cards or progress rings. Status is drawn as line form (solid, half-filled, dotted, dashed, struck) so meaning never rests on hue alone. Two hues carry meaning and nothing else: viridian for verified, revision red for change and struggle.",
+    "keyCharacteristics": [
+      "Film ground, paper plates, 1px graphite linework, radius 1-3px.",
+      "One humane sans for all text, with tabular numerals everywhere; a condensed drafting face only for title-block numbers and sheet marks.",
+      "State as line form via the six-glyph skill vocabulary, always paired with its word.",
+      "Depth is tonal and drawn, not shadowed.",
+      "One authored motion: the revision cloud drawn stroke by stroke."
+    ],
+    "rules": [
+      { "name": "The Two Signals Rule", "body": "Viridian means verified, red means change. Neither is used for decoration, emphasis, or a generic success/error pair.", "section": "colors" },
+      { "name": "The Line-Form Rule", "body": "A state is never conveyed by hue alone; it is a glyph shape plus a word.", "section": "colors" },
+      { "name": "The Draft-Face-Is-Data Rule", "body": "The condensed face carries numbers and marks, never UI labels or prose.", "section": "typography" },
+      { "name": "The Drawn-Depth Rule", "body": "Layers are separated by ground tone and hairline, not by blur.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do use `ink` for every default action and `verified` / `revision` only for their meanings.",
+      "Do pair every state glyph with its word and a distinct line form.",
+      "Do build on the 8px module, 2px radius, 1px hairlines, tabular numerals.",
+      "Do honor `prefers-reduced-motion`; the revision cloud is the one authored motion.",
+      "Do keep sheet titles in a title block with one next action."
+    ],
+    "donts": [
+      "Don't add a dark theme, gradients, glass, or blurred shadows.",
+      "Don't use stat-card grids, progress rings, or a hue-only status dot.",
+      "Don't use the draft face for labels or prose.",
+      "Don't round beyond 3px or add pill shapes.",
+      "Don't use red or viridian as decoration or as generic error/success.",
+      "Don't consume the unused `shadow-lift` token as a house style, or replicate the overlay's stock `shadow-lg`; both are carried drift, not system."
+    ]
+  }
+}

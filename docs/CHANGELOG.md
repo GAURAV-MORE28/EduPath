@@ -8,6 +8,25 @@ Format per entry: `## [Phase N | date] Short title` followed by a short bullet l
 
 ---
 
+## [Phase 11 | 2026-09-20] Frontend design toolchain and premium adaptive-learning UI
+
+- **Toolchain** (setup): UI/UX Pro Max skill installed to `.claude/skills/ui-ux-pro-max`; shadcn/ui
+  initialised (base-nova); Playwright + Chromium + `@axe-core/playwright`; Motion 13 confirmed;
+  21st MCP added at local scope (connected; tools load after a restart); Impeccable and
+  frontend-design plugins active. `PRODUCT.md` and the direction contract written.
+- **Design system** "The Checked Set": `docs/FRONTEND_DESIGN_SYSTEM.md`, tokens in `globals.css`,
+  ~30 components in `frontend/components/edupath/`.
+- **Screens on real APIs:** landing, onboarding (goal, upload, claim review, first plan), overview,
+  evidence ledger, skill map + skill drawer, gaps and objectives, weekly plan, practice, progress,
+  tutor, agent trace. Centrepiece: `AdaptiveMoment` (causal chain, before/after, revision clouds,
+  evidence citations, revert).
+- **Backend (additive):** read-model endpoints (roles, catalog skills/resources, profile, evidence,
+  skill detail, revision list/detail), `PATCH` plan-item status, `decision_id`/`reflection_id` on
+  `ReflectionOut`, real SSE trace emission with a replay buffer and `X-Run-Id` (ARCHITECTURE_CONTRACTS
+  §20). Fixed a 500 on `/progress` when a misconception exists. 466 backend tests pass.
+- **Verification:** Playwright suite (56 checks: 4 breakpoints x 11 routes, axe on every route, skip
+  link) plus a real-API journey spec (intake to reflection to revert).
+
 ## [Phase 10 | 2026-09-20] Tutor, Progress Reports and Provenance
 
 - Added `backend/app/tutor/` (design §8.2, §9.6, §23; ARCHITECTURE_CONTRACTS.md

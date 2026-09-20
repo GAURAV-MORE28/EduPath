@@ -199,10 +199,16 @@ async def compute_progress_report(ctx: TutorContext, *, period: str = "all_time"
     ]
 
     misconception_rows = await ctx.assessment_repo.list_open_misconceptions(ctx.learner_id)
-    misconceptions = [
-        MisconceptionStatusRecord(misconception_id=m.misconception_id, skill_id=m.skill_id, status=m.status)
-        for m in misconception_rows
-    ]
+    # `LearnerMisconception` carries only the misconception id; the skill it
+    # affects lives on the curated `Misconception` row (design §28).
+    misconceptions: list[MisconceptionStatusRecord] = []
+    for m in misconception_rows:
+        catalog_row = await ctx.catalog.get_misconception(m.misconception_id)
+        if catalog_row is None:
+            continue  # a misconception removed from the catalog since it was detected: nothing to attribute it to
+        misconceptions.append(
+            MisconceptionStatusRecord(misconception_id=m.misconception_id, skill_id=catalog_row.skill_id, status=m.status)
+        )
 
     plan_items: list[PlanItem] = []
     plan_row = await ctx.planning_repo.get_current_plan_for_learner(ctx.learner_id)

@@ -1,54 +1,46 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import Link from "next/link";
+import type { Metadata, Viewport } from "next";
+import { Atkinson_Hyperlegible_Next, Barlow_Semi_Condensed } from "next/font/google";
+import { Providers } from "@/components/providers";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const atkinson = Atkinson_Hyperlegible_Next({
+  variable: "--font-atkinson",
   subsets: ["latin"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const barlow = Barlow_Semi_Condensed({
+  variable: "--font-barlow",
   subsets: ["latin"],
+  weight: ["500", "600"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "EduPath",
-  description: "Adaptive learner-intelligence system.",
+  title: {
+    default: "EduPath: your learning path, checked",
+    template: "%s | EduPath",
+  },
+  description:
+    "EduPath turns your resume and work into evidence-graded skills, finds the gap to your target role, and re-plans when you struggle.",
 };
 
-const NAV_LINKS = [{ href: "/dashboard", label: "Dashboard" }];
+export const viewport: Viewport = {
+  themeColor: "#f1f3f2",
+  colorScheme: "light",
+};
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex flex-col bg-zinc-50 text-zinc-900 dark:bg-black dark:text-zinc-50">
-        <header className="border-b border-zinc-200 dark:border-zinc-800">
-          <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
-            <Link href="/" className="text-lg font-semibold tracking-tight">
-              EduPath
-            </Link>
-            <nav className="flex gap-6 text-sm font-medium text-zinc-600 dark:text-zinc-400">
-              {NAV_LINKS.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="hover:text-zinc-950 dark:hover:text-zinc-50"
-                >
-                  {link.label}
-                </Link>
-              ))}
-            </nav>
-          </div>
-        </header>
-        <main className="flex flex-1 flex-col">{children}</main>
-        <footer className="border-t border-zinc-200 px-6 py-4 text-center text-xs text-zinc-500 dark:border-zinc-800">
-          EduPath — foundation build
-        </footer>
+    <html lang="en" className={`${atkinson.variable} ${barlow.variable} h-full antialiased`}>
+      <body className="min-h-full">
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-ink focus:px-3 focus:py-2 focus:text-paper"
+        >
+          Skip to content
+        </a>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
