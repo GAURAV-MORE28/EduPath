@@ -172,7 +172,7 @@ async def _default_provider_call(settings: Settings, request: LLMRequest) -> Pro
             user_prompt=request.user_prompt,
             temperature=request.temperature,
         )
-    if settings.llm_provider in ("groq", "huggingface"):
+    if settings.llm_provider in ("groq", "huggingface", "openrouter"):
         return await call_openai_compatible(
             settings,
             provider=settings.llm_provider,

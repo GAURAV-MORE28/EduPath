@@ -48,12 +48,15 @@ def require_live(settings) -> dict[str, bool]:
     """Names only -- no values. Live mode must be *real*: a disabled LLM provider is a configuration error."""
     present = {
         "LLM_API_KEY": bool(settings.llm_api_key), "HF_TOKEN": bool(settings.hf_token),
+        "OPENROUTER_API_KEY": bool(settings.openrouter_api_key),
         "TAVILY_API_KEY": bool(settings.tavily_api_key), "GITHUB_TOKEN": bool(settings.github_token),
     }
     if settings.llm_provider == "none":
         raise LiveConfigError("live mode needs LLM_PROVIDER != none (see backend/.env); refusing to report an offline run as live")
     if settings.llm_provider in ("groq", "anthropic") and not settings.llm_api_key:
         raise LiveConfigError(f"LLM_PROVIDER={settings.llm_provider} but LLM_API_KEY is not set")
+    if settings.llm_provider == "openrouter" and not settings.openrouter_api_key:
+        raise LiveConfigError("LLM_PROVIDER=openrouter but OPENROUTER_API_KEY is not set")
     if not (settings.llm_small_model and settings.llm_mid_model and settings.llm_strong_model):
         raise LiveConfigError("LLM_SMALL_MODEL / LLM_MID_MODEL / LLM_STRONG_MODEL must all be set")
     return present

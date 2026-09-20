@@ -32,7 +32,11 @@ class Settings(BaseSettings):
     llm_small_model: str = ""
     llm_mid_model: str = ""
     llm_strong_model: str = ""
-    # "none" | "groq" | "huggingface" | "anthropic". groq/huggingface speak the OpenAI chat-completions dialect.
+    # "none" | "groq" | "huggingface" | "openrouter" | "anthropic". groq/huggingface/openrouter all speak
+    # the OpenAI chat-completions dialect. openrouter's free tier (model ids suffixed ":free", e.g.
+    # "meta-llama/llama-3.1-8b-instruct:free") needs no card -- a second no-cost lane alongside Groq's
+    # daily quota, using its own OPENROUTER_API_KEY (free signup at openrouter.ai).
+    openrouter_api_key: str = ""
     llm_base_url: str = ""  # empty = the provider's own default
     llm_json_mode: bool = True  # ask OpenAI-compatible providers for `response_format: json_object`
     llm_reasoning_effort: str = "low"  # sent only to openai/gpt-oss-* models (low | medium | high)

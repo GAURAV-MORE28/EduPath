@@ -1,4 +1,4 @@
-"""Groq / Hugging Face / Tavily adapters, tested against `httpx.MockTransport` (no network, no quota).
+"""Groq / Hugging Face / OpenRouter / Tavily adapters, tested against `httpx.MockTransport` (no network, no quota).
 
 The same adapters are exercised for real by `python scripts/live_smoke.py` (needs your keys).
 """
@@ -35,7 +35,7 @@ def cfg(monkeypatch):
     for name, value in {
         "llm_provider": "groq", "llm_api_key": "k-groq", "llm_small_model": "openai/gpt-oss-20b", "llm_mid_model": "qwen/qwen3.8-27b",
         "llm_strong_model": "openai/gpt-oss-120b", "llm_base_url": "", "llm_json_mode": True, "llm_reasoning_effort": "low",
-        "hf_token": "k-hf", "embedding_provider": "none", "vlm_provider": "none", "web_search_provider": "none", "tavily_api_key": "",
+        "hf_token": "k-hf", "openrouter_api_key": "k-or", "embedding_provider": "none", "vlm_provider": "none", "web_search_provider": "none", "tavily_api_key": "",
     }.items():
         monkeypatch.setattr(s, name, value)
     return s
@@ -131,11 +131,63 @@ async def test_huggingface_router_uses_the_hf_token_and_its_own_url(cfg, monkeyp
     assert seen == {"url": "https://router.huggingface.co/v1/chat/completions", "auth": "Bearer k-hf"}
 
 
+async def test_openrouter_uses_its_own_key_url_and_attribution_headers(cfg, monkeypatch):
+    monkeypatch.setattr(cfg, "llm_api_key", "")
+    monkeypatch.setattr(cfg, "llm_small_model", "nvidia/nemotron-3-super-120b-a12b:free")
+    seen = {}
+
+    def handler(req):
+        seen.update(url=str(req.url), auth=req.headers["authorization"], referer=req.headers.get("http-referer"), title=req.headers.get("x-title"), body=json.loads(req.content))
+        return httpx.Response(200, json=_chat_ok())
+
+    async with _client(handler) as c:
+        await call_openai_compatible(cfg, provider="openrouter", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+    assert seen["url"] == "https://openrouter.ai/api/v1/chat/completions" and seen["auth"] == "Bearer k-or"
+    assert seen["referer"] and seen["title"] == "EduPath"
+
+
+async def test_openrouter_disables_hidden_reasoning_but_other_providers_dont(cfg):
+    bodies = {}
+
+    def handler(provider):
+        def h(req):
+            bodies[provider] = json.loads(req.content)
+            return httpx.Response(200, json=_chat_ok())
+        return h
+
+    async with _client(handler("openrouter")) as c:
+        await call_openai_compatible(cfg, provider="openrouter", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+    async with _client(handler("groq")) as c:
+        await call_openai_compatible(cfg, provider="groq", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+    assert bodies["openrouter"]["reasoning"] == {"max_tokens": 0}
+    assert "reasoning" not in bodies["groq"]  # unified reasoning field is OpenRouter-specific, not the Groq raw API's
+
+
 @pytest.mark.parametrize("payload", [{}, {"choices": []}, {"choices": [{"message": {"content": ""}}]}])
 async def test_unusable_responses_are_provider_errors(cfg, payload):
     async with _client(lambda r: httpx.Response(200, json=payload)) as c:
         with pytest.raises(ProviderError):
             await call_openai_compatible(cfg, provider="groq", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+
+
+async def test_a_200_wrapping_an_upstream_error_is_retryable_and_named(cfg):
+    """OpenRouter (and similar multi-backend routers) can report a backend outage as HTTP 200 with
+    an `{"error": {...}}` body instead of a real error status -- e.g. a free model's host being
+    overloaded. This must surface as a retryable ProviderError naming the real reason, not a
+    generic 'unparseable provider response'."""
+    payload = {"id": "gen-1", "error": {"message": "Upstream error from Nvidia: Service temporarily overloaded", "code": 503}}
+    async with _client(lambda r: httpx.Response(200, json=payload)) as c:
+        with pytest.raises(ProviderError) as exc:
+            await call_openai_compatible(cfg, provider="openrouter", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+    assert exc.value.retryable and "overloaded" in str(exc.value)
+
+
+async def test_a_200_wrapping_a_4xx_upstream_error_is_not_retryable(cfg):
+    payload = {"error": {"message": "content policy violation", "code": 422}}
+    async with _client(lambda r: httpx.Response(200, json=payload)) as c:
+        with pytest.raises(ProviderError) as exc:
+            await call_openai_compatible(cfg, provider="openrouter", tier="small", system_prompt="S", user_prompt="U", temperature=0, client=c)
+    assert exc.value.retryable is False
 
 
 # -- embeddings ---------------------------------------------------------------------------------------------------------

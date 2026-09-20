@@ -118,6 +118,7 @@ async def call_anthropic(
 OPENAI_COMPATIBLE_DEFAULTS = {
     "groq": ("https://api.groq.com/openai/v1", "llm_api_key"),
     "huggingface": ("https://router.huggingface.co/v1", "hf_token"),
+    "openrouter": ("https://openrouter.ai/api/v1", "openrouter_api_key"),
 }
 
 
@@ -138,10 +139,15 @@ async def call_openai_compatible(
     temperature: float,
     client: httpx.AsyncClient | None = None,
 ) -> ProviderResult:
-    """Chat completion against Groq (`LLM_PROVIDER=groq`) or the Hugging Face router
-    (`LLM_PROVIDER=huggingface`). Asks for a JSON object (`llm_json_mode`) because every agent's
+    """Chat completion against Groq (`LLM_PROVIDER=groq`), the Hugging Face router
+    (`LLM_PROVIDER=huggingface`), or OpenRouter (`LLM_PROVIDER=openrouter`, free-tier model ids
+    suffixed ":free" cost nothing). Asks for a JSON object (`llm_json_mode`) because every agent's
     contract is schema-only JSON; if the provider rejects that parameter, it is retried once without it.
-    Reasoning models spend tokens thinking: `reasoning_effort` is sent only to gpt-oss models."""
+    Reasoning models spend tokens thinking: `reasoning_effort` is sent only to gpt-oss models (Groq's
+    own flag). Many of OpenRouter's free models are hybrid "thinking" models that otherwise spend the
+    majority of their output budget (and most of the latency) on a hidden reasoning trace no agent here
+    reads -- OpenRouter's own unified `reasoning` field turns that off outright, which is worth roughly
+    a 3x latency cut with no quality loss on the schema-only JSON tasks these agents ask for."""
     default_url, key_field = OPENAI_COMPATIBLE_DEFAULTS[provider]
     api_key = getattr(settings, key_field) or settings.llm_api_key or settings.hf_token
     model = model_for_tier(settings, tier)
@@ -156,7 +162,14 @@ async def call_openai_compatible(
     }
     if "gpt-oss" in model and settings.llm_reasoning_effort:
         body["reasoning_effort"] = settings.llm_reasoning_effort
+    if provider == "openrouter":
+        body["reasoning"] = {"max_tokens": 0}
     headers = {"Authorization": f"Bearer {api_key}", "content-type": "application/json"}
+    if provider == "openrouter":
+        # Optional attribution headers OpenRouter's docs recommend (app identification for its own
+        # rankings / abuse handling) -- not required for the API to work.
+        headers["HTTP-Referer"] = "https://github.com/edupath"
+        headers["X-Title"] = "EduPath"
     url = f"{(settings.llm_base_url or default_url).rstrip('/')}/chat/completions"
 
     owns_client = client is None
@@ -184,10 +197,22 @@ async def call_openai_compatible(
         raise ProviderError(f"provider rejected the request ({response.status_code}): {response.text[:160]}", retryable=False)
     try:
         data = response.json()
+    except ValueError as exc:
+        raise ProviderError("unparseable provider response") from exc
+    # OpenRouter (and some other multi-backend routers) can report an upstream failure with an
+    # HTTP 200 wrapping `{"error": {...}}` instead of a real error status -- e.g. a free model's
+    # backend being temporarily overloaded. Treat that the same as the equivalent HTTP status
+    # (retryable unless it is a genuine 4xx-not-429) instead of misreporting it as a parse failure.
+    if isinstance(data, dict) and "choices" not in data and isinstance(data.get("error"), dict):
+        err = data["error"]
+        code = err.get("code")
+        retryable = not (isinstance(code, int) and 400 <= code < 500 and code != 429)
+        raise ProviderError(f"provider returned an upstream error ({code}): {err.get('message', '')[:160]}", retryable=retryable)
+    try:
         message = data["choices"][0]["message"]
         text = message.get("content") or ""
         usage = data.get("usage") or {}
-    except (ValueError, KeyError, IndexError, AttributeError, TypeError) as exc:
+    except (KeyError, IndexError, AttributeError, TypeError) as exc:
         raise ProviderError("unparseable provider response") from exc
     if not text:
         raise ProviderError("empty provider response")
